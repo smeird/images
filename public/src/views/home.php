@@ -1,6 +1,25 @@
+<?php $featured = $images[0] ?? null; ?>
 <section class="hero">
-  <h1>Astronomy gallery</h1>
-  <p>Browse curated captures with full details on equipment, exposures, and processing workflow.</p>
+  <div class="hero-copy">
+    <h1>Night sky captures with full capture transparency</h1>
+    <p>Explore deep-sky imaging sessions with complete equipment notes, exposure breakdowns, and post-processing context so every frame tells the full story.</p>
+    <div class="statline">
+      <span class="pill"><?= count($images) ?> published captures</span>
+      <span class="pill">Curated astrophotography workflow</span>
+      <span class="pill">Metadata-first presentation</span>
+    </div>
+  </div>
+  <aside class="hero-feature">
+    <h2>Spotlight capture</h2>
+    <?php if ($featured): ?>
+      <a href="/image.php?id=<?= urlencode($featured['id']) ?>">
+        <img loading="lazy" src="/media.php?type=thumb&file=<?= urlencode($featured['thumb']) ?>" alt="<?= htmlspecialchars($featured['title']) ?>">
+      </a>
+      <p><strong><?= htmlspecialchars($featured['title']) ?></strong><br><?= htmlspecialchars($featured['object_name']) ?> · <?= htmlspecialchars($featured['captured_at']) ?></p>
+    <?php else: ?>
+      <p>No spotlight yet. Upload your first image from the secure admin route to light up the gallery.</p>
+    <?php endif; ?>
+  </aside>
 </section>
 <section class="grid">
   <?php if (empty($images)): ?>
