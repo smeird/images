@@ -26,7 +26,22 @@ if ($path === '/image.php') {
         exit;
     }
 
-    render('detail', ['title' => $image['title'], 'image' => $image]);
+    $wikipediaData = null;
+    $wikipediaError = null;
+    if (!empty($image['wikipedia_url'])) {
+        try {
+            $wikipediaData = wikipedia_summary_from_url((string) $image['wikipedia_url']);
+        } catch (Throwable $throwable) {
+            $wikipediaError = $throwable->getMessage();
+        }
+    }
+
+    render('detail', [
+        'title' => $image['title'],
+        'image' => $image,
+        'wikipedia_data' => $wikipediaData,
+        'wikipedia_error' => $wikipediaError,
+    ]);
     exit;
 }
 
@@ -121,11 +136,20 @@ if ($path === $adminBase . '/upload') {
                     'equipment' => trim((string) ($_POST['equipment'] ?? '')),
                     'exposure' => trim((string) ($_POST['exposure'] ?? '')),
                     'processing' => trim((string) ($_POST['processing'] ?? '')),
+                    'wikipedia_url' => normalize_wikipedia_url($wikipediaUrlInput),
                     'tags' => array_values(array_filter(array_map('trim', explode(',', (string) ($_POST['tags'] ?? ''))))),
+                    'wikipediaUrl' => trim((string) ($_POST['wikipedia_url'] ?? '')),
+                    'wikiTitle' => '',
+                    'wikiExtract' => '',
+                    'wikiThumbnail' => '',
+                    'wikiFetchedAt' => '',
+                    'wikiStatus' => 'not_requested',
                 ];
 
                 write_json(DATA_PATH . '/images.json', $images);
                 $success = 'Image uploaded successfully.';
+                $wikipediaUrlInput = '';
+                $preview = null;
             } catch (Throwable $throwable) {
                 $error = $throwable->getMessage();
             }

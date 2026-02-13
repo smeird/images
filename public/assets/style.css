@@ -167,11 +167,53 @@ main {
   gap: 1rem;
 }
 
+.detail-media {
+  margin: 0;
+  position: relative;
+}
+
 .detail-image {
   width: 100%;
   border-radius: 14px;
   border: 1px solid rgba(134, 169, 231, 0.3);
   box-shadow: var(--shadow);
+}
+
+.fullscreen-toggle {
+  position: absolute;
+  right: 0.9rem;
+  bottom: 0.9rem;
+  width: auto;
+  padding: 0.45rem 0.75rem;
+  margin: 0;
+  border-radius: 999px;
+  border: 1px solid rgba(151, 183, 240, 0.55);
+  background: rgba(5, 13, 28, 0.76);
+  color: #e7f0ff;
+  backdrop-filter: blur(6px);
+}
+
+.fullscreen-toggle:hover,
+.fullscreen-toggle:focus-visible {
+  background: rgba(43, 84, 163, 0.85);
+}
+
+.detail-media.is-fullscreen {
+  display: grid;
+  place-items: center;
+  width: 100%;
+  height: 100%;
+  background: #02050d;
+}
+
+.detail-media.is-fullscreen .detail-image {
+  width: auto;
+  max-width: 100vw;
+  max-height: 100vh;
+  object-fit: contain;
+  border-radius: 0;
+  border: none;
+  box-shadow: none;
 }
 
 .panel {
@@ -250,4 +292,40 @@ footer {
   .detail {
     grid-template-columns: 1fr;
   }
+}
+
+
+.button-row {
+  display: flex;
+  gap: 0.7rem;
+  flex-wrap: wrap;
+}
+
+.button-row button {
+  flex: 1 1 220px;
+}
+
+button.secondary {
+  background: rgba(63, 92, 151, 0.45);
+  border: 1px solid rgba(132, 168, 236, 0.45);
+}
+
+.wiki-panel {
+  margin-top: 1rem;
+  padding-top: 1rem;
+  border-top: 1px solid rgba(128, 157, 214, 0.25);
+}
+
+.wiki-thumb {
+  width: 100%;
+  max-width: 260px;
+  border-radius: 10px;
+  border: 1px solid rgba(128, 157, 214, 0.35);
+  margin-bottom: 0.7rem;
+}
+
+.attribution-note,
+.muted {
+  color: var(--muted);
+  font-size: 0.9rem;
 }

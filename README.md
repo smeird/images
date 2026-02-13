@@ -93,15 +93,20 @@ You can override route and limits via env vars:
 - CSRF token required on login and upload forms.
 - Basic per-IP login throttling is enforced.
 - Uploads accept only JPEG/PNG/WebP and enforce max-size limit.
+- Wikipedia URLs are restricted to `wikipedia.org/wiki/...` article links and fetched server-side for preview + public detail enrichment.
+- Wikipedia panel includes attribution/license note and gracefully falls back when external fetch is unavailable.
 - Uploaded files are stored outside the public web root and served through `media.php`.
+- Wikipedia metadata fetches only allow trusted Wikipedia hosts (`en.wikipedia.org` plus optional language subdomains) and return structured error codes for UI-safe fallbacks.
 
 ## Folder/file map
 
 - `public/index.php` — front controller/router for public + admin routes.
 - `public/src/bootstrap.php` — shared helpers, auth, upload + thumbnail logic.
 - `public/src/views/` — HTML view templates.
+- `public/src/services/wikipedia.php` — Wikipedia URL validation + metadata normalization helper service.
 - `public/assets/style.css` — cinematic dark UI styling and interaction polish.
-- `storage/data/images.json` — image metadata records.
+- `storage/data/images.json` — image metadata records (including Wikipedia cache fields).
+- `storage/logs/app.log` — background/lazy refresh failure logs for non-fatal runtime issues.
 - `storage/data/users.json` — admin credential hashes.
 - `WEBSITE_TASKS.md` — implementation tracker.
 - `CODEX_PARALLEL_TASKS.md` — parallel work planning.
@@ -114,6 +119,9 @@ flowchart TD
   B --> C[Browse thumbnail gallery]
   C --> D[Open image detail]
   D --> E[Review metadata\nobject + equipment + exposure + tags]
+  E --> F{Wikipedia data available?}
+  F -- yes --> G[Show extract + thumbnail + read more link + attribution note]
+  F -- no/fetch failed --> H[Show fallback: No external reference yet]
 ```
 
 ## Admin upload flow
@@ -142,9 +150,19 @@ graph LR
   APP --> VIEWS[Template Views]
   VIEWS --> THEME[Cinematic CSS Theme Layer]
   APP --> SEC[Auth + CSRF + Rate Limit]
-  APP --> DATA[(JSON metadata/users)]
+  APP --> DATA[(JSON metadata/users + wiki cache fields)]
+  APP --> WIKI[Wikipedia REST summary API]
+  APP --> LOGS[(storage/logs/app.log)]
   APP --> IMG[(Originals + Thumbs in storage/)]
+  APP --> WIKI[Wikipedia REST summary fetch]
 ```
+
+## Wikipedia cache behavior
+
+- `wikipediaUrl` is captured from admin upload (or seeded data in `images.json`).
+- Detail pages always render cached Wikipedia fields first; page rendering never waits on live API calls.
+- If `wikiFetchedAt` is older than 7 days (or missing), refresh is queued as a lazy background task at PHP shutdown.
+- On fetch failure, existing cached title/extract/thumbnail values are preserved, `wikiStatus` is set to `error`, and the failure is logged to `storage/logs/app.log`.
 
 ## Keeping docs in sync (required)
 
