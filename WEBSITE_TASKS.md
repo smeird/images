@@ -25,6 +25,7 @@ This task plan is designed for a Linux + Apache + PHP environment and optimized 
   - Exposure details (total integration, sub exposure, ISO/gain, number of frames)
   - Processing software/workflow
   - Tags (galaxy, nebula, moon, planet, widefield)
+  - [x] Wikipedia link + cache fields (`wikipediaUrl`, `wikiTitle`, `wikiExtract`, `wikiThumbnail`, `wikiFetchedAt`, `wikiStatus`)
 - [ ] Decide whether to store metadata in flat files (JSON) or database (SQLite/MySQL); for quick start, use SQLite or JSON.
 
 ## 3) Technical architecture (PHP + Apache)
@@ -102,6 +103,7 @@ This task plan is designed for a Linux + Apache + PHP environment and optimized 
 - [ ] Enable Apache compression and long-lived cache headers for generated thumbnails.
 - [ ] Add CDN option later (CloudFront) if traffic grows.
 - [ ] Create background job/CLI script to regenerate thumbnails for older uploads.
+- [x] Add lazy refresh on detail reads for stale Wikipedia cache entries (>7 days) while serving cached data immediately.
 
 ## 9) Security hardening
 
