@@ -1,0 +1,7 @@
+/storage/logs/*
+!/storage/logs/.gitkeep
+/storage/cache/*.lock
+/storage/images/original/*
+!/storage/images/original/.gitkeep
+/storage/images/thumbs/*
+!/storage/images/thumbs/.gitkeep
