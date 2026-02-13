@@ -60,6 +60,7 @@ This task plan is designed for a Linux + Apache + PHP environment and optimized 
 - [x] Build image detail page with:
   - Full view (optimized display size)
   - Metadata panel (equipment + exposure + notes)
+  - Optional Wikipedia reference panel (extract, thumbnail, attribution, fallback state)
   - “Related captures” by tag or target
 
 ## 5) Core feature #2: Admin backdoor for uploads
@@ -75,6 +76,7 @@ This task plan is designed for a Linux + Apache + PHP environment and optimized 
   - Description
   - Equipment fields (camera, telescope/lens, mount, etc.)
   - Exposure details
+  - Optional Wikipedia URL + preview fetch
   - Tags
 - [x] Validate uploads:
   - Allowed MIME types (JPEG/PNG/WebP/TIFF if needed)

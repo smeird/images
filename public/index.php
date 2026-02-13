@@ -26,7 +26,22 @@ if ($path === '/image.php') {
         exit;
     }
 
-    render('detail', ['title' => $image['title'], 'image' => $image]);
+    $wikipediaData = null;
+    $wikipediaError = null;
+    if (!empty($image['wikipedia_url'])) {
+        try {
+            $wikipediaData = wikipedia_summary_from_url((string) $image['wikipedia_url']);
+        } catch (Throwable $throwable) {
+            $wikipediaError = $throwable->getMessage();
+        }
+    }
+
+    render('detail', [
+        'title' => $image['title'],
+        'image' => $image,
+        'wikipedia_data' => $wikipediaData,
+        'wikipedia_error' => $wikipediaError,
+    ]);
     exit;
 }
 
@@ -81,10 +96,23 @@ if ($path === $adminBase . '/upload') {
 
     $error = null;
     $success = null;
+    $preview = null;
+    $wikipediaUrlInput = trim((string) ($_POST['wikipedia_url'] ?? ''));
 
     if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         if (!verify_csrf()) {
             $error = 'Invalid CSRF token.';
+        } elseif (isset($_POST['preview_wikipedia'])) {
+            try {
+                if ($wikipediaUrlInput === '') {
+                    throw new RuntimeException('Enter a Wikipedia URL to preview.');
+                }
+
+                $preview = wikipedia_summary_from_url($wikipediaUrlInput);
+                $success = 'Wikipedia preview loaded.';
+            } catch (Throwable $throwable) {
+                $error = $throwable->getMessage();
+            }
         } elseif (empty($_FILES['image']) || ($_FILES['image']['error'] ?? UPLOAD_ERR_NO_FILE) !== UPLOAD_ERR_OK) {
             $error = 'Image upload failed. Please try again.';
         } else {
@@ -103,6 +131,7 @@ if ($path === $adminBase . '/upload') {
                     'equipment' => trim((string) ($_POST['equipment'] ?? '')),
                     'exposure' => trim((string) ($_POST['exposure'] ?? '')),
                     'processing' => trim((string) ($_POST['processing'] ?? '')),
+                    'wikipedia_url' => normalize_wikipedia_url($wikipediaUrlInput),
                     'tags' => array_values(array_filter(array_map('trim', explode(',', (string) ($_POST['tags'] ?? ''))))),
                     'wikipediaUrl' => trim((string) ($_POST['wikipedia_url'] ?? '')),
                     'wikiTitle' => '',
@@ -114,13 +143,21 @@ if ($path === $adminBase . '/upload') {
 
                 write_json(DATA_PATH . '/images.json', $images);
                 $success = 'Image uploaded successfully.';
+                $wikipediaUrlInput = '';
+                $preview = null;
             } catch (Throwable $throwable) {
                 $error = $throwable->getMessage();
             }
         }
     }
 
-    render('upload', ['title' => 'Admin Upload', 'error' => $error, 'success' => $success]);
+    render('upload', [
+        'title' => 'Admin Upload',
+        'error' => $error,
+        'success' => $success,
+        'wikipedia_preview' => $preview,
+        'wikipedia_url' => $wikipediaUrlInput,
+    ]);
     exit;
 }
 

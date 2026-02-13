@@ -5,16 +5,34 @@
   <form method="post" enctype="multipart/form-data">
     <input type="hidden" name="csrf_token" value="<?= htmlspecialchars(csrf_token()) ?>">
     <label>Image <input required type="file" accept="image/*" name="image"></label>
-    <label>Title <input required name="title"></label>
-    <label>Object name <input required name="object_name"></label>
-    <label>Captured at <input required type="date" name="captured_at"></label>
-    <label>Description <textarea name="description"></textarea></label>
-    <label>Equipment <input required name="equipment" placeholder="Camera, scope, mount, filter"></label>
-    <label>Exposure <input required name="exposure" placeholder="30x180s @ ISO 800"></label>
-    <label>Processing <input required name="processing" placeholder="Siril + PixInsight"></label>
-    <label>Tags (comma-separated) <input name="tags" placeholder="nebula, narrowband"></label>
-    <label>Wikipedia URL <input name="wikipedia_url" placeholder="https://en.wikipedia.org/wiki/Orion_Nebula"></label>
-    <button type="submit">Upload</button>
+    <label>Title <input required name="title" value="<?= htmlspecialchars((string) ($_POST['title'] ?? '')) ?>"></label>
+    <label>Object name <input required name="object_name" value="<?= htmlspecialchars((string) ($_POST['object_name'] ?? '')) ?>"></label>
+    <label>Captured at <input required type="date" name="captured_at" value="<?= htmlspecialchars((string) ($_POST['captured_at'] ?? '')) ?>"></label>
+    <label>Description <textarea name="description"><?= htmlspecialchars((string) ($_POST['description'] ?? '')) ?></textarea></label>
+    <label>Equipment <input required name="equipment" placeholder="Camera, scope, mount, filter" value="<?= htmlspecialchars((string) ($_POST['equipment'] ?? '')) ?>"></label>
+    <label>Exposure <input required name="exposure" placeholder="30x180s @ ISO 800" value="<?= htmlspecialchars((string) ($_POST['exposure'] ?? '')) ?>"></label>
+    <label>Processing <input required name="processing" placeholder="Siril + PixInsight" value="<?= htmlspecialchars((string) ($_POST['processing'] ?? '')) ?>"></label>
+    <label>Wikipedia URL <input name="wikipedia_url" type="url" placeholder="https://en.wikipedia.org/wiki/Orion_Nebula" value="<?= htmlspecialchars((string) ($wikipedia_url ?? '')) ?>"></label>
+    <label>Tags (comma-separated) <input name="tags" placeholder="nebula, narrowband" value="<?= htmlspecialchars((string) ($_POST['tags'] ?? '')) ?>"></label>
+    <div class="button-row">
+      <button type="submit">Upload</button>
+      <button type="submit" name="preview_wikipedia" value="1" class="secondary" formnovalidate>Preview Wikipedia</button>
+    </div>
   </form>
+
+  <?php if (!empty($wikipedia_preview)): ?>
+    <section class="wiki-panel">
+      <h2>Wikipedia preview</h2>
+      <p><strong><?= htmlspecialchars((string) ($wikipedia_preview['title'] ?? '')) ?></strong></p>
+      <?php if (!empty($wikipedia_preview['thumbnail'])): ?>
+        <img class="wiki-thumb" src="<?= htmlspecialchars((string) $wikipedia_preview['thumbnail']) ?>" alt="Wikipedia thumbnail preview">
+      <?php endif; ?>
+      <p><?= htmlspecialchars((string) ($wikipedia_preview['extract'] ?? '')) ?></p>
+      <?php if (!empty($wikipedia_preview['canonical_url'])): ?>
+        <p><a href="<?= htmlspecialchars((string) $wikipedia_preview['canonical_url']) ?>" target="_blank" rel="noopener noreferrer">View canonical Wikipedia page</a></p>
+      <?php endif; ?>
+    </section>
+  <?php endif; ?>
+
   <p><a href="<?= htmlspecialchars($config['admin_route']) ?>/logout">Sign out</a></p>
 </section>
