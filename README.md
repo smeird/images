@@ -12,6 +12,7 @@ Implemented now:
 - ambient micro-interactions (hover lift/glow, metadata chips, richer card transitions)
 - Repository intentionally does not include bundled `.jpg` sample images; upload your own media through the admin flow.
 - metadata display (capture, equipment, exposure, processing, tags)
+- backend Wikipedia metadata service for validating trusted Wikipedia URLs and normalizing page metadata payloads
 - secure admin route with session auth, CSRF protection, and basic login rate limiting
 - image upload pipeline with MIME/size validation and thumbnail generation
 
@@ -93,12 +94,14 @@ You can override route and limits via env vars:
 - Basic per-IP login throttling is enforced.
 - Uploads accept only JPEG/PNG/WebP and enforce max-size limit.
 - Uploaded files are stored outside the public web root and served through `media.php`.
+- Wikipedia metadata fetches only allow trusted Wikipedia hosts (`en.wikipedia.org` plus optional language subdomains) and return structured error codes for UI-safe fallbacks.
 
 ## Folder/file map
 
 - `public/index.php` — front controller/router for public + admin routes.
 - `public/src/bootstrap.php` — shared helpers, auth, upload + thumbnail logic.
 - `public/src/views/` — HTML view templates.
+- `public/src/services/wikipedia.php` — Wikipedia URL validation + metadata normalization helper service.
 - `public/assets/style.css` — cinematic dark UI styling and interaction polish.
 - `storage/data/images.json` — image metadata records.
 - `storage/data/users.json` — admin credential hashes.
@@ -140,6 +143,7 @@ graph LR
   APP --> SEC[Auth + CSRF + Rate Limit]
   APP --> DATA[(JSON metadata/users)]
   APP --> IMG[(Originals + Thumbs in storage/)]
+  APP --> WIKI[Wikipedia REST + MediaWiki APIs]
 ```
 
 ## Keeping docs in sync (required)
