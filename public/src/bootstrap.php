@@ -154,12 +154,19 @@ function save_uploaded_image(array $file): array
         throw new RuntimeException('Image exceeds upload size limit.');
     }
 
-    $extension = match ($mime) {
-        'image/jpeg' => 'jpg',
-        'image/png' => 'png',
-        'image/webp' => 'webp',
-        default => throw new RuntimeException('Unsupported image extension.'),
-    };
+    switch ($mime) {
+        case 'image/jpeg':
+            $extension = 'jpg';
+            break;
+        case 'image/png':
+            $extension = 'png';
+            break;
+        case 'image/webp':
+            $extension = 'webp';
+            break;
+        default:
+            throw new RuntimeException('Unsupported image extension.');
+    }
 
     $id = bin2hex(random_bytes(8));
     $originalFilename = $id . '.' . $extension;
@@ -187,12 +194,19 @@ function generate_thumbnail(string $source, string $target, int $maxWidth, int $
     $newWidth = (int) max(1, floor($width * $ratio));
     $newHeight = (int) max(1, floor($height * $ratio));
 
-    $srcImg = match ($type) {
-        IMAGETYPE_JPEG => imagecreatefromjpeg($source),
-        IMAGETYPE_PNG => imagecreatefrompng($source),
-        IMAGETYPE_WEBP => imagecreatefromwebp($source),
-        default => throw new RuntimeException('Unsupported source for thumbnail generation.'),
-    };
+    switch ($type) {
+        case IMAGETYPE_JPEG:
+            $srcImg = imagecreatefromjpeg($source);
+            break;
+        case IMAGETYPE_PNG:
+            $srcImg = imagecreatefrompng($source);
+            break;
+        case IMAGETYPE_WEBP:
+            $srcImg = imagecreatefromwebp($source);
+            break;
+        default:
+            throw new RuntimeException('Unsupported source for thumbnail generation.');
+    }
 
     $dstImg = imagecreatetruecolor($newWidth, $newHeight);
     imagecopyresampled($dstImg, $srcImg, 0, 0, 0, 0, $newWidth, $newHeight, $width, $height);

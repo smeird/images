@@ -19,7 +19,7 @@ Planned next:
 ## Runtime/build assumptions
 
 - Linux environment
-- PHP 8.1+ with GD enabled
+- PHP 7.4+ with GD enabled
 - Apache (`mod_rewrite`) or PHP built-in dev server
 - Writable `storage/` directory
 
