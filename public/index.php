@@ -95,13 +95,18 @@ if ($path === $adminBase . '/upload') {
     require_admin();
 
     $error = null;
+    $limitError = null;
+    $effectiveUploadLimit = effective_upload_limit_bytes();
     $success = null;
     $passwordError = null;
     $passwordSuccess = null;
     $wikipediaUrlInput = (string) ($_POST['wikipedia_url'] ?? '');
 
     if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-        if (!verify_csrf()) {
+        $requestLength = (int) ($_SERVER['CONTENT_LENGTH'] ?? 0);
+        if ($requestLength > 0 && $effectiveUploadLimit > 0 && $requestLength > $effectiveUploadLimit && empty($_POST) && empty($_FILES)) {
+            $limitError = sprintf('Upload request is too large (%s). Current server/app limit is %s. Increase post_max_size/upload_max_filesize and MAX_UPLOAD_BYTES to allow larger uploads.', format_bytes_human($requestLength), format_bytes_human($effectiveUploadLimit));
+        } elseif (!verify_csrf()) {
             $error = 'Invalid CSRF token.';
         } elseif ((string) ($_POST['form_action'] ?? '') === 'change_password') {
             $currentPassword = (string) ($_POST['current_password'] ?? '');
@@ -160,7 +165,9 @@ if ($path === $adminBase . '/upload') {
     render('upload', [
         'title' => 'Admin Upload',
         'error' => $error,
+        'limit_error' => $limitError,
         'success' => $success,
+        'effective_upload_limit_human' => format_bytes_human($effectiveUploadLimit),
         'password_error' => $passwordError,
         'password_success' => $passwordSuccess,
         'wikipedia_url' => $wikipediaUrlInput,

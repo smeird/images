@@ -84,6 +84,7 @@ This task plan is designed for a Linux + Apache + PHP environment and optimized 
   - Allowed MIME types (JPEG/PNG/WebP/TIFF if needed)
   - Max upload size (set >2MB, e.g., 10MB headroom)
   - Server-side image verification and sanitization
+- [x] Surface actionable admin errors when request body exceeds PHP/app upload limits (e.g., `post_max_size`, `upload_max_filesize`, `MAX_UPLOAD_BYTES`).
 - [x] On successful upload:
   - Store original image
   - Generate thumbnails

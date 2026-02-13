@@ -14,6 +14,7 @@ Implemented now:
 - metadata display (capture, equipment, exposure, processing, tags)
 - secure admin route with session auth, CSRF protection, basic login rate limiting, and in-session password change controls
 - image upload pipeline with MIME/size validation and thumbnail generation
+- graceful oversize-upload handling that reports when server (`post_max_size` / `upload_max_filesize`) or app (`MAX_UPLOAD_BYTES`) limits reject a request before PHP can parse form fields
 
 Planned next:
 - richer filtering/search, editing/deleting uploads, and stronger production hardening.
@@ -57,7 +58,11 @@ Use `public/` as the Apache document root so that `storage/` is never directly w
     # Optional runtime overrides
     SetEnv ADMIN_ROUTE /hidden-admin
     SetEnv SITE_NAME "Night Sky Atlas"
-    SetEnv MAX_UPLOAD_BYTES 10485760
+    SetEnv MAX_UPLOAD_BYTES 33554432
+
+    # Keep Apache/PHP body limits aligned for large uploads
+    php_value upload_max_filesize 32M
+    php_value post_max_size 32M
 
     ErrorLog ${APACHE_LOG_DIR}/images-error.log
     CustomLog ${APACHE_LOG_DIR}/images-access.log combined
@@ -85,6 +90,7 @@ You can override route and limits via env vars:
 - `ADMIN_ROUTE` (default `/hidden-admin`)
 - `SITE_NAME` (default `Night Sky Atlas`)
 - `MAX_UPLOAD_BYTES` (default `10485760`)
+- `upload_max_filesize` and `post_max_size` (PHP ini/virtual-host values; should be >= `MAX_UPLOAD_BYTES`)
 
 ## Security notes (admin/backdoor)
 
@@ -92,7 +98,7 @@ You can override route and limits via env vars:
 - Passwords are stored as `password_hash` values (bcrypt) and can be rotated from the authenticated admin area.
 - CSRF token required on login and upload forms, backed by file-based PHP sessions in `storage/sessions` to avoid token mismatches when default system session paths are unavailable.
 - Basic per-IP login throttling is enforced.
-- Uploads accept only JPEG/PNG/WebP and enforce max-size limit.
+- Uploads accept only JPEG/PNG/WebP and enforce max-size limit; effective limit is the minimum of `MAX_UPLOAD_BYTES`, `upload_max_filesize`, and `post_max_size`.
 - Wikipedia URLs are restricted to `wikipedia.org/wiki/...` article links and fetched server-side for preview + public detail enrichment.
 - Wikipedia panel includes attribution/license note and gracefully falls back when external fetch is unavailable.
 - Uploaded files are stored outside the public web root and served through `media.php`.
@@ -132,10 +138,12 @@ flowchart TD
   A[Admin opens hidden route] --> B[Login form + CSRF]
   B --> C[Credential check + rate limit]
   C --> D[Upload image + enter metadata]
+  D --> M{Body exceeds effective upload limit?}
+  M -- yes --> N[Show actionable size-limit error]
+  M -- no --> E[MIME/size validation]
   C --> J[Optional password change form]
   J --> K[Verify current password + enforce 12+ chars]
   K --> L[Write updated password_hash to users JSON]
-  D --> E[MIME/size validation]
   E --> F[Store original outside web root]
   F --> G[Generate thumbnail]
   G --> H[Write JSON metadata]
