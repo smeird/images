@@ -23,7 +23,7 @@ Planned next:
 - Linux environment
 - PHP 7.4+ with GD enabled
 - Apache (`mod_rewrite`) or PHP built-in dev server
-- Writable `storage/` directory
+- Writable `storage/` directory (the app now persists PHP sessions in `storage/sessions` to keep CSRF/session state stable across environments)
 
 ## Local development
 
@@ -90,7 +90,7 @@ You can override route and limits via env vars:
 
 - Admin route is hidden but also protected with real authentication.
 - Passwords are stored as `password_hash` values (bcrypt) and can be rotated from the authenticated admin area.
-- CSRF token required on login and upload forms.
+- CSRF token required on login and upload forms, backed by file-based PHP sessions in `storage/sessions` to avoid token mismatches when default system session paths are unavailable.
 - Basic per-IP login throttling is enforced.
 - Uploads accept only JPEG/PNG/WebP and enforce max-size limit.
 - Wikipedia URLs are restricted to `wikipedia.org/wiki/...` article links and fetched server-side for preview + public detail enrichment.
@@ -106,6 +106,7 @@ You can override route and limits via env vars:
 - `public/src/services/wikipedia.php` — Wikipedia URL validation + metadata normalization helper service.
 - `public/assets/style.css` — cinematic dark UI styling and interaction polish.
 - `storage/data/images.json` — image metadata records (including Wikipedia cache fields).
+- `storage/sessions/` — file-backed PHP session storage used for admin auth + CSRF continuity.
 - `storage/logs/app.log` — background/lazy refresh failure logs for non-fatal runtime issues.
 - `storage/data/users.json` — admin credential hashes.
 - `WEBSITE_TASKS.md` — implementation tracker.

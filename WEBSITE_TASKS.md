@@ -41,6 +41,7 @@ This task plan is designed for a Linux + Apache + PHP environment and optimized 
 - [ ] Add secure config strategy:
   - Environment variables for admin credentials and secret keys
   - Keep uploads and sensitive files outside public web root where possible
+- [x] Persist PHP session files under writable `storage/sessions` to keep admin auth + CSRF state stable across host environments.
 
 ## Metadata enrichment integrations
 
