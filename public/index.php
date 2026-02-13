@@ -98,6 +98,7 @@ if ($path === $adminBase . '/upload') {
     $success = null;
     $passwordError = null;
     $passwordSuccess = null;
+    $wikipediaUrlInput = (string) ($_POST['wikipedia_url'] ?? '');
 
     if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         if (!verify_csrf()) {
@@ -136,7 +137,7 @@ if ($path === $adminBase . '/upload') {
                     'equipment' => trim((string) ($_POST['equipment'] ?? '')),
                     'exposure' => trim((string) ($_POST['exposure'] ?? '')),
                     'processing' => trim((string) ($_POST['processing'] ?? '')),
-                    'wikipedia_url' => normalize_wikipedia_url($wikipediaUrlInput),
+                    'wikipedia_url' => normalize_wikipedia_url_for_storage($wikipediaUrlInput),
                     'tags' => array_values(array_filter(array_map('trim', explode(',', (string) ($_POST['tags'] ?? ''))))),
                     'wikipediaUrl' => trim((string) ($_POST['wikipedia_url'] ?? '')),
                     'wikiTitle' => '',
@@ -162,6 +163,8 @@ if ($path === $adminBase . '/upload') {
         'success' => $success,
         'password_error' => $passwordError,
         'password_success' => $passwordSuccess,
+        'wikipedia_url' => $wikipediaUrlInput,
+        'wikipedia_preview' => null,
     ]);
     exit;
 }
