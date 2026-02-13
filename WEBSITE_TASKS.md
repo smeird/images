@@ -41,6 +41,11 @@ This task plan is designed for a Linux + Apache + PHP environment and optimized 
   - Environment variables for admin credentials and secret keys
   - Keep uploads and sensitive files outside public web root where possible
 
+## Metadata enrichment integrations
+
+- [x] Add backend Wikipedia metadata service with trusted-host URL validation and normalized response mapping (`title`, `summary`, `thumbnail`, `canonicalUrl`, `licenseText`, `lastFetchedAt`).
+- [x] Add REST summary fetch with MediaWiki API fallback and structured error responses (`invalid_url`, `page_not_found`, `upstream_failure`).
+
 ## 4) Core feature #1: Public gallery with thumbnails
 
 - [x] Build responsive gallery grid:

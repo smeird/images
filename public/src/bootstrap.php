@@ -11,6 +11,8 @@ define('DATA_PATH', STORAGE_PATH . '/data');
 define('ORIGINALS_PATH', STORAGE_PATH . '/images/original');
 define('THUMBS_PATH', STORAGE_PATH . '/images/thumbs');
 
+require_once ROOT_PATH . '/src/services/wikipedia.php';
+
 function load_config(): array
 {
     return [
