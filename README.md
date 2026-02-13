@@ -12,7 +12,7 @@ Implemented now:
 - ambient micro-interactions (hover lift/glow, metadata chips, richer card transitions)
 - Repository intentionally does not include bundled `.jpg` sample images; upload your own media through the admin flow.
 - metadata display (capture, equipment, exposure, processing, tags)
-- secure admin route with session auth, CSRF protection, and basic login rate limiting
+- secure admin route with session auth, CSRF protection, basic login rate limiting, and in-session password change controls
 - image upload pipeline with MIME/size validation and thumbnail generation
 
 Planned next:
@@ -79,6 +79,7 @@ If you deploy behind HTTPS, keep the same `DocumentRoot` and route all HTTP traf
 - Route: `/hidden-admin/login`
 - Username: `admin`
 - Password: `change-me-now`
+- After logging in, use the **Change admin password** form on the upload page to rotate credentials.
 
 You can override route and limits via env vars:
 - `ADMIN_ROUTE` (default `/hidden-admin`)
@@ -88,7 +89,7 @@ You can override route and limits via env vars:
 ## Security notes (admin/backdoor)
 
 - Admin route is hidden but also protected with real authentication.
-- Passwords are stored as `password_hash` values (bcrypt).
+- Passwords are stored as `password_hash` values (bcrypt) and can be rotated from the authenticated admin area.
 - CSRF token required on login and upload forms.
 - Basic per-IP login throttling is enforced.
 - Uploads accept only JPEG/PNG/WebP and enforce max-size limit.
@@ -122,6 +123,9 @@ flowchart TD
   A[Admin opens hidden route] --> B[Login form + CSRF]
   B --> C[Credential check + rate limit]
   C --> D[Upload image + enter metadata]
+  C --> J[Optional password change form]
+  J --> K[Verify current password + enforce 12+ chars]
+  K --> L[Write updated password_hash to users JSON]
   D --> E[MIME/size validation]
   E --> F[Store original outside web root]
   F --> G[Generate thumbnail]

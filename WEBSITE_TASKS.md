@@ -59,6 +59,7 @@ This task plan is designed for a Linux + Apache + PHP environment and optimized 
 ## 5) Core feature #2: Admin backdoor for uploads
 
 - [x] Implement secure admin login (session-based auth + strong password hashing).
+- [x] Add authenticated admin password rotation form (current password verification + minimum length checks).
 - [ ] Restrict admin route by:
   - Obscure route path (not security by itself)
   - Real authentication and CSRF protection

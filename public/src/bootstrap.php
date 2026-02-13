@@ -139,6 +139,33 @@ function authenticate(string $username, string $password): bool
     return false;
 }
 
+function update_user_password(string $username, string $currentPassword, string $newPassword): ?string
+{
+    $newPassword = trim($newPassword);
+    if (strlen($newPassword) < 12) {
+        return 'New password must be at least 12 characters.';
+    }
+
+    $users = users();
+    foreach ($users as $index => $user) {
+        $storedUsername = (string) ($user['username'] ?? '');
+        $storedHash = (string) ($user['password_hash'] ?? '');
+        if ($storedUsername !== $username) {
+            continue;
+        }
+
+        if (!password_verify($currentPassword, $storedHash)) {
+            return 'Current password is incorrect.';
+        }
+
+        $users[$index]['password_hash'] = password_hash($newPassword, PASSWORD_DEFAULT);
+        write_json(DATA_PATH . '/users.json', $users);
+        return null;
+    }
+
+    return 'Admin user account not found.';
+}
+
 function save_uploaded_image(array $file): array
 {
     $finfo = finfo_open(FILEINFO_MIME_TYPE);
