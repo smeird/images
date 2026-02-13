@@ -251,3 +251,39 @@ footer {
     grid-template-columns: 1fr;
   }
 }
+
+
+.button-row {
+  display: flex;
+  gap: 0.7rem;
+  flex-wrap: wrap;
+}
+
+.button-row button {
+  flex: 1 1 220px;
+}
+
+button.secondary {
+  background: rgba(63, 92, 151, 0.45);
+  border: 1px solid rgba(132, 168, 236, 0.45);
+}
+
+.wiki-panel {
+  margin-top: 1rem;
+  padding-top: 1rem;
+  border-top: 1px solid rgba(128, 157, 214, 0.25);
+}
+
+.wiki-thumb {
+  width: 100%;
+  max-width: 260px;
+  border-radius: 10px;
+  border: 1px solid rgba(128, 157, 214, 0.35);
+  margin-bottom: 0.7rem;
+}
+
+.attribution-note,
+.muted {
+  color: var(--muted);
+  font-size: 0.9rem;
+}

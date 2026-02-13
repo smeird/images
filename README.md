@@ -12,8 +12,9 @@ Implemented now:
 - ambient micro-interactions (hover lift/glow, metadata chips, richer card transitions)
 - Repository intentionally does not include bundled `.jpg` sample images; upload your own media through the admin flow.
 - metadata display (capture, equipment, exposure, processing, tags)
+- optional Wikipedia reference support (validated article URL, admin preview fetch, public extract/thumbnail panel with attribution)
 - secure admin route with session auth, CSRF protection, and basic login rate limiting
-- image upload pipeline with MIME/size validation and thumbnail generation
+- image upload pipeline with MIME/size validation, thumbnail generation, and optional Wikipedia URL validation
 
 Planned next:
 - richer filtering/search, editing/deleting uploads, and stronger production hardening.
@@ -92,6 +93,8 @@ You can override route and limits via env vars:
 - CSRF token required on login and upload forms.
 - Basic per-IP login throttling is enforced.
 - Uploads accept only JPEG/PNG/WebP and enforce max-size limit.
+- Wikipedia URLs are restricted to `wikipedia.org/wiki/...` article links and fetched server-side for preview + public detail enrichment.
+- Wikipedia panel includes attribution/license note and gracefully falls back when external fetch is unavailable.
 - Uploaded files are stored outside the public web root and served through `media.php`.
 
 ## Folder/file map
@@ -113,6 +116,9 @@ flowchart TD
   B --> C[Browse thumbnail gallery]
   C --> D[Open image detail]
   D --> E[Review metadata\nobject + equipment + exposure + tags]
+  E --> F{Wikipedia data available?}
+  F -- yes --> G[Show extract + thumbnail + read more link + attribution note]
+  F -- no/fetch failed --> H[Show fallback: No external reference yet]
 ```
 
 ## Admin upload flow
@@ -121,12 +127,13 @@ flowchart TD
 flowchart TD
   A[Admin opens hidden route] --> B[Login form + CSRF]
   B --> C[Credential check + rate limit]
-  C --> D[Upload image + enter metadata]
-  D --> E[MIME/size validation]
-  E --> F[Store original outside web root]
-  F --> G[Generate thumbnail]
-  G --> H[Write JSON metadata]
-  H --> I[Image appears in public gallery]
+  C --> D[Upload image + enter metadata + optional Wikipedia URL]
+  D --> E[Optional Wikipedia preview fetch + URL validation]
+  E --> F[MIME/size validation]
+  F --> G[Store original outside web root]
+  G --> H[Generate thumbnail]
+  H --> I[Write JSON metadata including optional Wikipedia URL]
+  I --> J[Image appears in public gallery/detail]
 ```
 
 ## High-level architecture
@@ -140,6 +147,7 @@ graph LR
   APP --> SEC[Auth + CSRF + Rate Limit]
   APP --> DATA[(JSON metadata/users)]
   APP --> IMG[(Originals + Thumbs in storage/)]
+  APP --> WIKI[Wikipedia REST summary fetch]
 ```
 
 ## Keeping docs in sync (required)
