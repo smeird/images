@@ -13,6 +13,7 @@
     <label>Exposure <input required name="exposure" placeholder="30x180s @ ISO 800"></label>
     <label>Processing <input required name="processing" placeholder="Siril + PixInsight"></label>
     <label>Tags (comma-separated) <input name="tags" placeholder="nebula, narrowband"></label>
+    <label>Wikipedia URL <input name="wikipedia_url" placeholder="https://en.wikipedia.org/wiki/Orion_Nebula"></label>
     <button type="submit">Upload</button>
   </form>
   <p><a href="<?= htmlspecialchars($config['admin_route']) ?>/logout">Sign out</a></p>

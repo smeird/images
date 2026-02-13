@@ -104,6 +104,12 @@ if ($path === $adminBase . '/upload') {
                     'exposure' => trim((string) ($_POST['exposure'] ?? '')),
                     'processing' => trim((string) ($_POST['processing'] ?? '')),
                     'tags' => array_values(array_filter(array_map('trim', explode(',', (string) ($_POST['tags'] ?? ''))))),
+                    'wikipediaUrl' => trim((string) ($_POST['wikipedia_url'] ?? '')),
+                    'wikiTitle' => '',
+                    'wikiExtract' => '',
+                    'wikiThumbnail' => '',
+                    'wikiFetchedAt' => '',
+                    'wikiStatus' => 'not_requested',
                 ];
 
                 write_json(DATA_PATH . '/images.json', $images);

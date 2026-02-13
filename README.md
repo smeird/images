@@ -12,7 +12,7 @@ Implemented now:
 - ambient micro-interactions (hover lift/glow, metadata chips, richer card transitions)
 - Repository intentionally does not include bundled `.jpg` sample images; upload your own media through the admin flow.
 - metadata display (capture, equipment, exposure, processing, tags)
-- backend Wikipedia metadata service for validating trusted Wikipedia URLs and normalizing page metadata payloads
+- Wikipedia-enriched object context with cached summary fields (`wikipediaUrl`, `wikiTitle`, `wikiExtract`, `wikiThumbnail`, `wikiFetchedAt`, `wikiStatus`) and lazy stale refresh on detail-page access
 - secure admin route with session auth, CSRF protection, and basic login rate limiting
 - image upload pipeline with MIME/size validation and thumbnail generation
 
@@ -103,7 +103,8 @@ You can override route and limits via env vars:
 - `public/src/views/` — HTML view templates.
 - `public/src/services/wikipedia.php` — Wikipedia URL validation + metadata normalization helper service.
 - `public/assets/style.css` — cinematic dark UI styling and interaction polish.
-- `storage/data/images.json` — image metadata records.
+- `storage/data/images.json` — image metadata records (including Wikipedia cache fields).
+- `storage/logs/app.log` — background/lazy refresh failure logs for non-fatal runtime issues.
 - `storage/data/users.json` — admin credential hashes.
 - `WEBSITE_TASKS.md` — implementation tracker.
 - `CODEX_PARALLEL_TASKS.md` — parallel work planning.
@@ -115,8 +116,12 @@ flowchart TD
   A[Visitor lands on homepage] --> B[See cinematic hero + spotlight capture]
   B --> C[Browse thumbnail gallery]
   C --> D[Open image detail]
-  D --> E[Toggle fullscreen for immersive viewing]
-  D --> F[Review metadata\nobject + equipment + exposure + tags]
+  D --> E[Review metadata\nobject + equipment + exposure + tags]
+  E --> F[See cached Wikipedia summary immediately]
+  F --> G{Cache stale > 7 days?}
+  G -->|No| H[Render page complete]
+  G -->|Yes| I[Queue lazy refresh at request shutdown]
+  I --> H
 ```
 
 ## Admin upload flow
@@ -129,8 +134,8 @@ flowchart TD
   D --> E[MIME/size validation]
   E --> F[Store original outside web root]
   F --> G[Generate thumbnail]
-  G --> H[Write JSON metadata]
-  H --> I[Image appears in public gallery]
+  G --> H[Write JSON metadata + wikipediaUrl seed]
+  H --> I[Image appears in public gallery/detail]
 ```
 
 ## High-level architecture
@@ -142,10 +147,19 @@ graph LR
   APP --> VIEWS[Template Views]
   VIEWS --> THEME[Cinematic CSS Theme Layer]
   APP --> SEC[Auth + CSRF + Rate Limit]
-  APP --> DATA[(JSON metadata/users)]
+  APP --> DATA[(JSON metadata/users + wiki cache fields)]
+  APP --> WIKI[Wikipedia REST summary API]
+  APP --> LOGS[(storage/logs/app.log)]
   APP --> IMG[(Originals + Thumbs in storage/)]
   APP --> WIKI[Wikipedia REST + MediaWiki APIs]
 ```
+
+## Wikipedia cache behavior
+
+- `wikipediaUrl` is captured from admin upload (or seeded data in `images.json`).
+- Detail pages always render cached Wikipedia fields first; page rendering never waits on live API calls.
+- If `wikiFetchedAt` is older than 7 days (or missing), refresh is queued as a lazy background task at PHP shutdown.
+- On fetch failure, existing cached title/extract/thumbnail values are preserved, `wikiStatus` is set to `error`, and the failure is logged to `storage/logs/app.log`.
 
 ## Keeping docs in sync (required)
 
