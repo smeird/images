@@ -133,6 +133,12 @@ if ($path === $adminBase . '/upload') {
                     'processing' => trim((string) ($_POST['processing'] ?? '')),
                     'wikipedia_url' => normalize_wikipedia_url($wikipediaUrlInput),
                     'tags' => array_values(array_filter(array_map('trim', explode(',', (string) ($_POST['tags'] ?? ''))))),
+                    'wikipediaUrl' => trim((string) ($_POST['wikipedia_url'] ?? '')),
+                    'wikiTitle' => '',
+                    'wikiExtract' => '',
+                    'wikiThumbnail' => '',
+                    'wikiFetchedAt' => '',
+                    'wikiStatus' => 'not_requested',
                 ];
 
                 write_json(DATA_PATH . '/images.json', $images);

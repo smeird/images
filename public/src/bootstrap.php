@@ -10,6 +10,9 @@ define('STORAGE_PATH', PROJECT_PATH . '/storage');
 define('DATA_PATH', STORAGE_PATH . '/data');
 define('ORIGINALS_PATH', STORAGE_PATH . '/images/original');
 define('THUMBS_PATH', STORAGE_PATH . '/images/thumbs');
+define('WIKI_CACHE_TTL_SECONDS', 7 * 24 * 60 * 60);
+
+require_once ROOT_PATH . '/src/services/wikipedia.php';
 
 function load_config(): array
 {
@@ -39,14 +42,146 @@ function write_json(string $path, array $data): void
 function image_records(): array
 {
     $records = read_json(DATA_PATH . '/images.json');
+    $records = array_map('normalize_image_record', $records);
     usort($records, fn(array $a, array $b): int => strcmp($b['captured_at'] ?? '', $a['captured_at'] ?? ''));
     return $records;
+}
+
+function normalize_image_record(array $record): array
+{
+    $record['wikipediaUrl'] = trim((string) ($record['wikipediaUrl'] ?? ''));
+    $record['wikiTitle'] = trim((string) ($record['wikiTitle'] ?? ''));
+    $record['wikiExtract'] = trim((string) ($record['wikiExtract'] ?? ''));
+    $record['wikiThumbnail'] = trim((string) ($record['wikiThumbnail'] ?? ''));
+    $record['wikiFetchedAt'] = trim((string) ($record['wikiFetchedAt'] ?? ''));
+    $record['wikiStatus'] = trim((string) ($record['wikiStatus'] ?? 'not_requested'));
+
+    return $record;
+}
+
+function log_event(string $message): void
+{
+    $line = sprintf("[%s] %s\n", date('c'), $message);
+    file_put_contents(STORAGE_PATH . '/logs/app.log', $line, FILE_APPEND);
+}
+
+function wiki_refresh_needed(array $record): bool
+{
+    if (empty($record['wikipediaUrl'])) {
+        return false;
+    }
+
+    if (empty($record['wikiFetchedAt'])) {
+        return true;
+    }
+
+    $fetchedAt = strtotime((string) $record['wikiFetchedAt']);
+    if ($fetchedAt === false) {
+        return true;
+    }
+
+    return (time() - $fetchedAt) > WIKI_CACHE_TTL_SECONDS;
+}
+
+function wiki_summary_title(string $wikipediaUrl): ?string
+{
+    $parts = parse_url($wikipediaUrl);
+    if (!is_array($parts) || empty($parts['host']) || stripos((string) $parts['host'], 'wikipedia.org') === false) {
+        return null;
+    }
+
+    $path = (string) ($parts['path'] ?? '');
+    if (strpos($path, '/wiki/') !== 0) {
+        return null;
+    }
+
+    $title = substr($path, strlen('/wiki/'));
+    return $title !== '' ? $title : null;
+}
+
+function fetch_wikipedia_summary(string $wikipediaUrl): array
+{
+    $title = wiki_summary_title($wikipediaUrl);
+    if ($title === null) {
+        throw new RuntimeException('Unsupported Wikipedia URL format.');
+    }
+
+    $apiUrl = 'https://en.wikipedia.org/api/rest_v1/page/summary/' . rawurlencode(rawurldecode($title));
+    $context = stream_context_create([
+        'http' => [
+            'method' => 'GET',
+            'header' => "Accept: application/json\r\nUser-Agent: NightSkyAtlas/1.0 (wiki cache refresh)\r\n",
+            'timeout' => 5,
+        ],
+    ]);
+
+    $json = @file_get_contents($apiUrl, false, $context);
+    if ($json === false) {
+        throw new RuntimeException('Wikipedia summary request failed.');
+    }
+
+    $decoded = json_decode($json, true);
+    if (!is_array($decoded)) {
+        throw new RuntimeException('Invalid Wikipedia summary payload.');
+    }
+
+    return [
+        'wikiTitle' => trim((string) ($decoded['title'] ?? '')),
+        'wikiExtract' => trim((string) ($decoded['extract'] ?? '')),
+        'wikiThumbnail' => trim((string) (($decoded['thumbnail']['source'] ?? ''))),
+        'wikiFetchedAt' => gmdate('c'),
+        'wikiStatus' => 'ok',
+    ];
+}
+
+function refresh_wiki_cache_for_image(string $imageId): void
+{
+    $images = read_json(DATA_PATH . '/images.json');
+    $targetIndex = null;
+
+    foreach ($images as $index => $record) {
+        if (($record['id'] ?? '') === $imageId) {
+            $targetIndex = $index;
+            $images[$index] = normalize_image_record($record);
+            break;
+        }
+    }
+
+    if ($targetIndex === null || !wiki_refresh_needed($images[$targetIndex])) {
+        return;
+    }
+
+    try {
+        $wikiData = fetch_wikipedia_summary((string) $images[$targetIndex]['wikipediaUrl']);
+        $images[$targetIndex] = array_merge($images[$targetIndex], $wikiData);
+        write_json(DATA_PATH . '/images.json', $images);
+    } catch (Throwable $throwable) {
+        $images[$targetIndex]['wikiStatus'] = 'error';
+        write_json(DATA_PATH . '/images.json', $images);
+        log_event('Wikipedia refresh failed for image ' . $imageId . ': ' . $throwable->getMessage());
+    }
+}
+
+function queue_wiki_refresh(string $imageId): void
+{
+    static $queued = [];
+    if (isset($queued[$imageId])) {
+        return;
+    }
+
+    $queued[$imageId] = true;
+    register_shutdown_function(static function () use ($imageId): void {
+        refresh_wiki_cache_for_image($imageId);
+    });
 }
 
 function find_image(string $id): ?array
 {
     foreach (image_records() as $record) {
         if (($record['id'] ?? '') === $id) {
+            if (wiki_refresh_needed($record)) {
+                queue_wiki_refresh($id);
+            }
             return $record;
         }
     }

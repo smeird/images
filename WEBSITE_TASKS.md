@@ -25,6 +25,7 @@ This task plan is designed for a Linux + Apache + PHP environment and optimized 
   - Exposure details (total integration, sub exposure, ISO/gain, number of frames)
   - Processing software/workflow
   - Tags (galaxy, nebula, moon, planet, widefield)
+  - [x] Wikipedia link + cache fields (`wikipediaUrl`, `wikiTitle`, `wikiExtract`, `wikiThumbnail`, `wikiFetchedAt`, `wikiStatus`)
 - [ ] Decide whether to store metadata in flat files (JSON) or database (SQLite/MySQL); for quick start, use SQLite or JSON.
 
 ## 3) Technical architecture (PHP + Apache)
@@ -40,6 +41,11 @@ This task plan is designed for a Linux + Apache + PHP environment and optimized 
 - [ ] Add secure config strategy:
   - Environment variables for admin credentials and secret keys
   - Keep uploads and sensitive files outside public web root where possible
+
+## Metadata enrichment integrations
+
+- [x] Add backend Wikipedia metadata service with trusted-host URL validation and normalized response mapping (`title`, `summary`, `thumbnail`, `canonicalUrl`, `licenseText`, `lastFetchedAt`).
+- [x] Add REST summary fetch with MediaWiki API fallback and structured error responses (`invalid_url`, `page_not_found`, `upstream_failure`).
 
 ## 4) Core feature #1: Public gallery with thumbnails
 
@@ -92,7 +98,7 @@ This task plan is designed for a Linux + Apache + PHP environment and optimized 
 ## 7) “Wow factor” enhancements
 
 - [x] Cinematic dark theme with starfield background and subtle motion (respect reduced-motion accessibility setting).
-- [ ] Lightbox/fullscreen viewer with smooth zoom transitions.
+- [x] Lightbox/fullscreen viewer with smooth zoom transitions. (implemented fullscreen mode on image detail page)
 - [ ] Before/after slider (stacked vs processed image), optional for advanced showcase.
 - [ ] “Image of the month” spotlight section on homepage.
 - [ ] Constellation-style timeline view by capture date.
@@ -104,6 +110,7 @@ This task plan is designed for a Linux + Apache + PHP environment and optimized 
 - [ ] Enable Apache compression and long-lived cache headers for generated thumbnails.
 - [ ] Add CDN option later (CloudFront) if traffic grows.
 - [ ] Create background job/CLI script to regenerate thumbnails for older uploads.
+- [x] Add lazy refresh on detail reads for stale Wikipedia cache entries (>7 days) while serving cached data immediately.
 
 ## 9) Security hardening
 
