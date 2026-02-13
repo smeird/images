@@ -32,6 +32,46 @@ php -S 0.0.0.0:8080 -t public public/index.php
 
 Then open `http://localhost:8080`.
 
+## Apache configuration (recommended)
+
+Use `public/` as the Apache document root so that `storage/` is never directly web-accessible.
+
+```apache
+<VirtualHost *:80>
+    ServerName images.local
+    DocumentRoot /var/www/images/public
+
+    <Directory /var/www/images/public>
+        Options -Indexes +FollowSymLinks
+        AllowOverride None
+        Require all granted
+
+        RewriteEngine On
+        RewriteCond %{REQUEST_FILENAME} !-f
+        RewriteCond %{REQUEST_FILENAME} !-d
+        RewriteRule ^ index.php [QSA,L]
+    </Directory>
+
+    # Optional runtime overrides
+    SetEnv ADMIN_ROUTE /hidden-admin
+    SetEnv SITE_NAME "Night Sky Atlas"
+    SetEnv MAX_UPLOAD_BYTES 10485760
+
+    ErrorLog ${APACHE_LOG_DIR}/images-error.log
+    CustomLog ${APACHE_LOG_DIR}/images-access.log combined
+</VirtualHost>
+```
+
+Enable required modules/sites and reload Apache:
+
+```bash
+sudo a2enmod rewrite
+sudo a2ensite images.conf
+sudo systemctl reload apache2
+```
+
+If you deploy behind HTTPS, keep the same `DocumentRoot` and route all HTTP traffic to HTTPS at the Apache or load-balancer layer.
+
 ### Default admin access (change immediately)
 
 - Route: `/hidden-admin/login`
