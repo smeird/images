@@ -96,22 +96,27 @@ if ($path === $adminBase . '/upload') {
 
     $error = null;
     $success = null;
-    $preview = null;
-    $wikipediaUrlInput = trim((string) ($_POST['wikipedia_url'] ?? ''));
+    $passwordError = null;
+    $passwordSuccess = null;
 
     if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         if (!verify_csrf()) {
             $error = 'Invalid CSRF token.';
-        } elseif (isset($_POST['preview_wikipedia'])) {
-            try {
-                if ($wikipediaUrlInput === '') {
-                    throw new RuntimeException('Enter a Wikipedia URL to preview.');
-                }
+        } elseif ((string) ($_POST['form_action'] ?? '') === 'change_password') {
+            $currentPassword = (string) ($_POST['current_password'] ?? '');
+            $newPassword = (string) ($_POST['new_password'] ?? '');
+            $confirmPassword = (string) ($_POST['confirm_password'] ?? '');
 
-                $preview = wikipedia_summary_from_url($wikipediaUrlInput);
-                $success = 'Wikipedia preview loaded.';
-            } catch (Throwable $throwable) {
-                $error = $throwable->getMessage();
+            if ($newPassword !== $confirmPassword) {
+                $passwordError = 'New password and confirmation do not match.';
+            } else {
+                $username = (string) ($_SESSION['admin_user'] ?? '');
+                $updateError = update_user_password($username, $currentPassword, $newPassword);
+                if ($updateError === null) {
+                    $passwordSuccess = 'Password updated successfully.';
+                } else {
+                    $passwordError = $updateError;
+                }
             }
         } elseif (empty($_FILES['image']) || ($_FILES['image']['error'] ?? UPLOAD_ERR_NO_FILE) !== UPLOAD_ERR_OK) {
             $error = 'Image upload failed. Please try again.';
@@ -155,8 +160,8 @@ if ($path === $adminBase . '/upload') {
         'title' => 'Admin Upload',
         'error' => $error,
         'success' => $success,
-        'wikipedia_preview' => $preview,
-        'wikipedia_url' => $wikipediaUrlInput,
+        'password_error' => $passwordError,
+        'password_success' => $passwordSuccess,
     ]);
     exit;
 }
