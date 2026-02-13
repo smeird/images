@@ -1,5 +1,8 @@
 <article class="detail">
-  <img class="detail-image" src="/media.php?type=original&file=<?= urlencode($image['original']) ?>" alt="<?= htmlspecialchars($image['title']) ?>">
+  <figure class="detail-media" data-detail-media>
+    <img class="detail-image" src="/media.php?type=original&file=<?= urlencode($image['original']) ?>" alt="<?= htmlspecialchars($image['title']) ?>" data-detail-image>
+    <button type="button" class="fullscreen-toggle" data-fullscreen-toggle aria-label="View image in fullscreen">View fullscreen</button>
+  </figure>
   <div class="panel">
     <h1><?= htmlspecialchars($image['title']) ?></h1>
     <p><?= nl2br(htmlspecialchars($image['description'])) ?></p>
@@ -19,3 +22,37 @@
     <?php endif; ?>
   </div>
 </article>
+
+<script>
+  (function () {
+    const media = document.querySelector('[data-detail-media]');
+    const image = document.querySelector('[data-detail-image]');
+    const button = document.querySelector('[data-fullscreen-toggle]');
+
+    if (!media || !image || !button || !document.fullscreenEnabled) {
+      if (button) {
+        button.hidden = true;
+      }
+      return;
+    }
+
+    const setButtonLabel = () => {
+      const active = document.fullscreenElement === media;
+      button.textContent = active ? 'Exit fullscreen' : 'View fullscreen';
+      button.setAttribute('aria-label', active ? 'Exit fullscreen view' : 'View image in fullscreen');
+      media.classList.toggle('is-fullscreen', active);
+    };
+
+    button.addEventListener('click', () => {
+      if (document.fullscreenElement === media) {
+        document.exitFullscreen();
+        return;
+      }
+
+      media.requestFullscreen();
+    });
+
+    document.addEventListener('fullscreenchange', setButtonLabel);
+    setButtonLabel();
+  })();
+</script>

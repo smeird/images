@@ -12,6 +12,7 @@ Implemented now:
 - ambient micro-interactions (hover lift/glow, metadata chips, richer card transitions)
 - Repository intentionally does not include bundled `.jpg` sample images; upload your own media through the admin flow.
 - metadata display (capture, equipment, exposure, processing, tags)
+- detail-page fullscreen toggle using the browser Fullscreen API
 - secure admin route with session auth, CSRF protection, and basic login rate limiting
 - image upload pipeline with MIME/size validation and thumbnail generation
 
@@ -112,7 +113,8 @@ flowchart TD
   A[Visitor lands on homepage] --> B[See cinematic hero + spotlight capture]
   B --> C[Browse thumbnail gallery]
   C --> D[Open image detail]
-  D --> E[Review metadata\nobject + equipment + exposure + tags]
+  D --> E[Toggle fullscreen for immersive viewing]
+  D --> F[Review metadata\nobject + equipment + exposure + tags]
 ```
 
 ## Admin upload flow
