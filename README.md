@@ -4,10 +4,12 @@ Astronomy image showcase website with a public gallery and a secure admin upload
 
 ## Project status
 
-**Current maturity:** MVP implemented and runnable locally.
+**Current maturity:** MVP+ visual polish implemented and runnable locally.
 
 Implemented now:
 - public gallery and image detail pages
+- cinematic dark-sky visual treatment with starfield texture, spotlight hero card, and glassmorphism-style panels
+- ambient micro-interactions (hover lift/glow, metadata chips, richer card transitions)
 - Repository intentionally does not include bundled `.jpg` sample images; upload your own media through the admin flow.
 - metadata display (capture, equipment, exposure, processing, tags)
 - secure admin route with session auth, CSRF protection, and basic login rate limiting
@@ -97,7 +99,7 @@ You can override route and limits via env vars:
 - `public/index.php` — front controller/router for public + admin routes.
 - `public/src/bootstrap.php` — shared helpers, auth, upload + thumbnail logic.
 - `public/src/views/` — HTML view templates.
-- `public/assets/style.css` — dark-themed UI styling.
+- `public/assets/style.css` — cinematic dark UI styling and interaction polish.
 - `storage/data/images.json` — image metadata records.
 - `storage/data/users.json` — admin credential hashes.
 - `WEBSITE_TASKS.md` — implementation tracker.
@@ -107,9 +109,10 @@ You can override route and limits via env vars:
 
 ```mermaid
 flowchart TD
-  A[Visitor lands on homepage] --> B[Browse thumbnail gallery]
-  B --> C[Open image detail]
-  C --> D[Review metadata\nobject + equipment + exposure + tags]
+  A[Visitor lands on homepage] --> B[See cinematic hero + spotlight capture]
+  B --> C[Browse thumbnail gallery]
+  C --> D[Open image detail]
+  D --> E[Review metadata\nobject + equipment + exposure + tags]
 ```
 
 ## Admin upload flow
@@ -133,6 +136,7 @@ graph LR
   U[Public Browser] --> APP[PHP Front Controller]
   A[Admin Browser] --> APP
   APP --> VIEWS[Template Views]
+  VIEWS --> THEME[Cinematic CSS Theme Layer]
   APP --> SEC[Auth + CSRF + Rate Limit]
   APP --> DATA[(JSON metadata/users)]
   APP --> IMG[(Originals + Thumbs in storage/)]

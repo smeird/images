@@ -4,7 +4,7 @@ This task plan is designed for a Linux + Apache + PHP environment and optimized 
 
 ## 1) Product vision and UX direction
 
-- [ ] Define brand and visual direction (dark sky palette, starfield accents, modern typography).
+- [x] Define brand and visual direction (dark sky palette, starfield accents, modern typography).
 - [ ] Choose homepage storytelling approach (hero image + mission statement + featured captures).
 - [ ] Create moodboard (NASA/APOD-inspired visual references, typography, spacing, card styles).
 - [ ] Decide wow-factor interactions (subtle parallax stars, animated constellation lines, smooth image reveal transitions).
@@ -89,12 +89,12 @@ This task plan is designed for a Linux + Apache + PHP environment and optimized 
 
 ## 7) “Wow factor” enhancements
 
-- [ ] Cinematic dark theme with starfield background and subtle motion (respect reduced-motion accessibility setting).
+- [x] Cinematic dark theme with starfield background and subtle motion (respect reduced-motion accessibility setting).
 - [ ] Lightbox/fullscreen viewer with smooth zoom transitions.
 - [ ] Before/after slider (stacked vs processed image), optional for advanced showcase.
 - [ ] “Image of the month” spotlight section on homepage.
 - [ ] Constellation-style timeline view by capture date.
-- [ ] Ambient micro-interactions (hover glows, metadata fade-ins, elegant loading skeletons).
+- [x] Ambient micro-interactions (hover glows, metadata fade-ins, elegant loading skeletons).
 
 ## 8) Performance and image delivery
 
@@ -138,7 +138,7 @@ This task plan is designed for a Linux + Apache + PHP environment and optimized 
 
 ### Phase 2 — Polish (1 week)
 - [ ] Add image detail page enhancements and filtering.
-- [ ] Improve visual design and transitions.
+- [x] Improve visual design and transitions.
 - [ ] Add homepage featured section.
 
 ### Phase 3 — Advanced (later)
@@ -154,7 +154,7 @@ This task plan is designed for a Linux + Apache + PHP environment and optimized 
 - [x] Implement admin authentication and secure upload pipeline.
 - [x] Build thumbnail generation and gallery listing.
 - [ ] Populate with 10 sample images + metadata. (repository now ships without bundled .jpg assets)
-- [ ] Review and finalize visual style with 2–3 homepage design variants.
+- [x] Review and finalize visual style with 2–3 homepage design variants.
 
 ## Codex parallelization plan
 
