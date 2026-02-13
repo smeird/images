@@ -154,3 +154,7 @@ This task plan is designed for a Linux + Apache + PHP environment and optimized 
 - [ ] Build thumbnail generation and gallery listing.
 - [ ] Populate with 10 sample images + metadata.
 - [ ] Review and finalize visual style with 2–3 homepage design variants.
+
+## Codex parallelization plan
+
+- See `CODEX_PARALLEL_TASKS.md` for a conflict-minimized task decomposition suitable for parallel PR development.
