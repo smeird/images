@@ -1,123 +1,109 @@
 # images
 
-Website project for showcasing astronomy photography with a public gallery experience and a secure admin upload workflow.
+Astronomy image showcase website with a public gallery and a secure admin upload backdoor, implemented with PHP + JSON storage for quick deployment on Apache.
 
 ## Project status
 
-See `WEBSITE_TASKS.md` for a full implementation plan covering:
-- public thumbnail gallery
-- secure admin upload backdoor
-- equipment metadata capture
-- visual wow-factor enhancements
+**Current maturity:** MVP implemented and runnable locally.
 
-## Deploying from GitHub
+Implemented now:
+- public gallery and image detail pages
+- Repository intentionally does not include bundled `.jpg` sample images; upload your own media through the admin flow.
+- metadata display (capture, equipment, exposure, processing, tags)
+- secure admin route with session auth, CSRF protection, and basic login rate limiting
+- image upload pipeline with MIME/size validation and thumbnail generation
 
-Use the following commands on your deployment machine.
+Planned next:
+- richer filtering/search, editing/deleting uploads, and stronger production hardening.
 
-### First-time setup (enable Git + get code)
+## Runtime/build assumptions
 
-```bash
-# 1) Install Git if needed (Ubuntu/Debian)
-sudo apt-get update
-sudo apt-get install -y git
-
-# 2) Verify Git is available
-git --version
-
-# 3) Clone the repository
-git clone https://github.com/<your-org-or-user>/<your-repo>.git
-cd <your-repo>
-```
-
-### If the project folder already exists but isn't a Git repo yet
-
-```bash
-cd /path/to/your/project
-git init
-git remote add origin https://github.com/<your-org-or-user>/<your-repo>.git
-git fetch origin
-git checkout -t origin/main
-```
-
-### Pull the latest code for updates
-
-```bash
-cd /path/to/your/project
-git pull origin main
-```
-
-After pulling, run your normal build/restart steps for the web server or app process.
-This repository is currently **planning-first** and documentation-driven.
-Implementation priorities are tracked in `WEBSITE_TASKS.md` and parallelization ideas in `CODEX_PARALLEL_TASKS.md`.
-
-## Goals
-
-- Provide a visually compelling public gallery of astronomy images.
-- Capture rich metadata (equipment, exposure, filters, location, etc.).
-- Support a secure admin-only upload/backdoor path.
-- Keep docs and implementation synchronized at all times.
-
-## How the site is expected to work
-
-### Public user journey
-
-```mermaid
-flowchart TD
-  A[Visitor lands on homepage] --> B[Browse image thumbnail gallery]
-  B --> C[Open image detail view]
-  C --> D[View metadata and capture details]
-  D --> E[Optional filter/sort/explore related images]
-```
-
-### Admin upload flow
-
-```mermaid
-flowchart TD
-  A[Admin opens secure backdoor route] --> B[Authenticate]
-  B --> C[Upload image asset]
-  C --> D[Enter metadata]
-  D --> E[Validate required fields]
-  E --> F[Store image + metadata]
-  F --> G[Image appears in public gallery]
-```
-
-### High-level architecture (target)
-
-```mermaid
-graph LR
-  U[Public User Browser] --> FE[Frontend Web App]
-  A[Admin Browser] --> FE
-  FE --> API[Application Backend/API]
-  API --> DB[(Metadata Store)]
-  API --> OBJ[(Image/Object Storage)]
-```
+- Linux environment
+- PHP 8.1+ with GD enabled
+- Apache (`mod_rewrite`) or PHP built-in dev server
+- Writable `storage/` directory
 
 ## Local development
 
-Current repository contents are planning/documentation artifacts.
-As implementation is added, keep this section updated with concrete setup commands (install, run, lint, test, build, deploy).
+```bash
+cd /workspace/images
+php -S 0.0.0.0:8080 -t public public/index.php
+```
 
-## Security notes
+Then open `http://localhost:8080`.
 
-- Admin routes/backdoor functionality must require strong authentication.
-- Upload endpoints should validate file type/size and sanitize metadata inputs.
-- Avoid exposing privileged admin actions in public navigation.
-- Document all security-relevant changes in the same PR as code changes.
+### Default admin access (change immediately)
 
-## Repository map
+- Route: `/hidden-admin/login`
+- Username: `admin`
+- Password: `change-me-now`
 
-- `README.md` — project overview, architecture, flows, and contributor expectations.
-- `WEBSITE_TASKS.md` — detailed implementation plan for the website.
-- `CODEX_PARALLEL_TASKS.md` — potential parallel tracks for execution.
-- `AGENTS.md` — repository-level contributor/agent instructions and quality gates.
+You can override route and limits via env vars:
+- `ADMIN_ROUTE` (default `/hidden-admin`)
+- `SITE_NAME` (default `Night Sky Atlas`)
+- `MAX_UPLOAD_BYTES` (default `10485760`)
+
+## Security notes (admin/backdoor)
+
+- Admin route is hidden but also protected with real authentication.
+- Passwords are stored as `password_hash` values (bcrypt).
+- CSRF token required on login and upload forms.
+- Basic per-IP login throttling is enforced.
+- Uploads accept only JPEG/PNG/WebP and enforce max-size limit.
+- Uploaded files are stored outside the public web root and served through `media.php`.
+
+## Folder/file map
+
+- `public/index.php` — front controller/router for public + admin routes.
+- `public/src/bootstrap.php` — shared helpers, auth, upload + thumbnail logic.
+- `public/src/views/` — HTML view templates.
+- `public/assets/style.css` — dark-themed UI styling.
+- `storage/data/images.json` — image metadata records.
+- `storage/data/users.json` — admin credential hashes.
+- `WEBSITE_TASKS.md` — implementation tracker.
+- `CODEX_PARALLEL_TASKS.md` — parallel work planning.
+
+## User-facing flow
+
+```mermaid
+flowchart TD
+  A[Visitor lands on homepage] --> B[Browse thumbnail gallery]
+  B --> C[Open image detail]
+  C --> D[Review metadata\nobject + equipment + exposure + tags]
+```
+
+## Admin upload flow
+
+```mermaid
+flowchart TD
+  A[Admin opens hidden route] --> B[Login form + CSRF]
+  B --> C[Credential check + rate limit]
+  C --> D[Upload image + enter metadata]
+  D --> E[MIME/size validation]
+  E --> F[Store original outside web root]
+  F --> G[Generate thumbnail]
+  G --> H[Write JSON metadata]
+  H --> I[Image appears in public gallery]
+```
+
+## High-level architecture
+
+```mermaid
+graph LR
+  U[Public Browser] --> APP[PHP Front Controller]
+  A[Admin Browser] --> APP
+  APP --> VIEWS[Template Views]
+  APP --> SEC[Auth + CSRF + Rate Limit]
+  APP --> DATA[(JSON metadata/users)]
+  APP --> IMG[(Originals + Thumbs in storage/)]
+```
 
 ## Keeping docs in sync (required)
 
-For **every** behavior-changing update:
-
+For every behavior change in this repository:
 1. Update `README.md` in the same commit.
 2. Update Mermaid diagrams if flow/architecture changed.
-3. Reflect new assumptions, env vars, security behavior, or operational steps.
-4. Ensure task documents stay aligned with implementation status.
+3. Update `WEBSITE_TASKS.md` status/notes as relevant.
+4. Document new env vars, operational assumptions, and security behavior.
 
-A code change without corresponding documentation updates is incomplete.
+A behavior-changing code diff without matching docs updates is incomplete.

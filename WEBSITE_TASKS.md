@@ -43,38 +43,38 @@ This task plan is designed for a Linux + Apache + PHP environment and optimized 
 
 ## 4) Core feature #1: Public gallery with thumbnails
 
-- [ ] Build responsive gallery grid:
+- [x] Build responsive gallery grid:
   - 1 column mobile, 2–3 tablet, 4+ desktop
   - Lazy loading images
   - Keyboard-accessible cards
-- [ ] Generate and serve optimized thumbnails on upload:
+- [x] Generate and serve optimized thumbnails on upload:
   - Create 400px and 800px variants
   - Use WebP where supported
   - Keep original full-res image for detail page
-- [ ] Build image detail page with:
+- [x] Build image detail page with:
   - Full view (optimized display size)
   - Metadata panel (equipment + exposure + notes)
   - “Related captures” by tag or target
 
 ## 5) Core feature #2: Admin backdoor for uploads
 
-- [ ] Implement secure admin login (session-based auth + strong password hashing).
+- [x] Implement secure admin login (session-based auth + strong password hashing).
 - [ ] Restrict admin route by:
   - Obscure route path (not security by itself)
   - Real authentication and CSRF protection
   - Rate limiting / lockout after repeated failed logins
-- [ ] Build upload form with fields:
+- [x] Build upload form with fields:
   - Image file
   - Title
   - Description
   - Equipment fields (camera, telescope/lens, mount, etc.)
   - Exposure details
   - Tags
-- [ ] Validate uploads:
+- [x] Validate uploads:
   - Allowed MIME types (JPEG/PNG/WebP/TIFF if needed)
   - Max upload size (set >2MB, e.g., 10MB headroom)
   - Server-side image verification and sanitization
-- [ ] On successful upload:
+- [x] On successful upload:
   - Store original image
   - Generate thumbnails
   - Save metadata
@@ -131,10 +131,10 @@ This task plan is designed for a Linux + Apache + PHP environment and optimized 
 ## 12) Phased execution plan
 
 ### Phase 1 — MVP (1–2 weeks)
-- [ ] Build public gallery grid with thumbnails.
-- [ ] Build secure admin login + upload form.
-- [ ] Save image metadata including equipment details.
-- [ ] Launch with core styling and mobile responsiveness.
+- [x] Build public gallery grid with thumbnails.
+- [x] Build secure admin login + upload form.
+- [x] Save image metadata including equipment details.
+- [x] Launch with core styling and mobile responsiveness.
 
 ### Phase 2 — Polish (1 week)
 - [ ] Add image detail page enhancements and filtering.
@@ -148,11 +148,11 @@ This task plan is designed for a Linux + Apache + PHP environment and optimized 
 
 ## 13) Suggested immediate next actions (first 48 hours)
 
-- [ ] Confirm stack choice: plain PHP + SQLite (recommended MVP).
-- [ ] Set up project structure and Apache virtual host config.
-- [ ] Implement admin authentication and secure upload pipeline.
-- [ ] Build thumbnail generation and gallery listing.
-- [ ] Populate with 10 sample images + metadata.
+- [x] Confirm stack choice: plain PHP + JSON (implemented MVP).
+- [x] Set up project structure and Apache-friendly front controller routing.
+- [x] Implement admin authentication and secure upload pipeline.
+- [x] Build thumbnail generation and gallery listing.
+- [ ] Populate with 10 sample images + metadata. (repository now ships without bundled .jpg assets)
 - [ ] Review and finalize visual style with 2–3 homepage design variants.
 
 ## Codex parallelization plan
