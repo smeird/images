@@ -2,8 +2,6 @@
 
 declare(strict_types=1);
 
-session_start();
-
 define('ROOT_PATH', dirname(__DIR__, 1));
 define('PROJECT_PATH', dirname(ROOT_PATH));
 define('STORAGE_PATH', PROJECT_PATH . '/storage');
@@ -11,6 +9,17 @@ define('DATA_PATH', STORAGE_PATH . '/data');
 define('ORIGINALS_PATH', STORAGE_PATH . '/images/original');
 define('THUMBS_PATH', STORAGE_PATH . '/images/thumbs');
 define('WIKI_CACHE_TTL_SECONDS', 7 * 24 * 60 * 60);
+
+$sessionPath = STORAGE_PATH . '/sessions';
+if (!is_dir($sessionPath)) {
+    mkdir($sessionPath, 0775, true);
+}
+
+if (is_dir($sessionPath) && is_writable($sessionPath)) {
+    session_save_path($sessionPath);
+}
+
+session_start();
 
 require_once ROOT_PATH . '/src/services/wikipedia.php';
 
