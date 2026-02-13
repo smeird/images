@@ -1,0 +1,156 @@
+# Astrophotography Website Build Plan
+
+This task plan is designed for a Linux + Apache + PHP environment and optimized for large, high-detail astrophotography images (~2MB each).
+
+## 1) Product vision and UX direction
+
+- [ ] Define brand and visual direction (dark sky palette, starfield accents, modern typography).
+- [ ] Choose homepage storytelling approach (hero image + mission statement + featured captures).
+- [ ] Create moodboard (NASA/APOD-inspired visual references, typography, spacing, card styles).
+- [ ] Decide wow-factor interactions (subtle parallax stars, animated constellation lines, smooth image reveal transitions).
+
+## 2) Information architecture and content model
+
+- [ ] Define public pages:
+  - Home / Gallery (thumbnail grid)
+  - Image detail page (full image + metadata + equipment used)
+  - About (your story, location, skies, processing philosophy)
+  - Contact / social links
+- [ ] Define image metadata schema:
+  - Title
+  - Description/story behind capture
+  - Capture date/time
+  - Object name (e.g., Orion Nebula)
+  - Equipment: camera, telescope/lens, mount, filters, guiding setup
+  - Exposure details (total integration, sub exposure, ISO/gain, number of frames)
+  - Processing software/workflow
+  - Tags (galaxy, nebula, moon, planet, widefield)
+- [ ] Decide whether to store metadata in flat files (JSON) or database (SQLite/MySQL); for quick start, use SQLite or JSON.
+
+## 3) Technical architecture (PHP + Apache)
+
+- [ ] Pick stack style:
+  - Lightweight PHP app (no framework) for speed, or
+  - Laravel/Slim for maintainability if future growth expected.
+- [ ] Set up folder structure:
+  - `/public` for web root
+  - `/storage/images/original`
+  - `/storage/images/thumbs`
+  - `/storage/uploads/tmp`
+- [ ] Add secure config strategy:
+  - Environment variables for admin credentials and secret keys
+  - Keep uploads and sensitive files outside public web root where possible
+
+## 4) Core feature #1: Public gallery with thumbnails
+
+- [ ] Build responsive gallery grid:
+  - 1 column mobile, 2–3 tablet, 4+ desktop
+  - Lazy loading images
+  - Keyboard-accessible cards
+- [ ] Generate and serve optimized thumbnails on upload:
+  - Create 400px and 800px variants
+  - Use WebP where supported
+  - Keep original full-res image for detail page
+- [ ] Build image detail page with:
+  - Full view (optimized display size)
+  - Metadata panel (equipment + exposure + notes)
+  - “Related captures” by tag or target
+
+## 5) Core feature #2: Admin backdoor for uploads
+
+- [ ] Implement secure admin login (session-based auth + strong password hashing).
+- [ ] Restrict admin route by:
+  - Obscure route path (not security by itself)
+  - Real authentication and CSRF protection
+  - Rate limiting / lockout after repeated failed logins
+- [ ] Build upload form with fields:
+  - Image file
+  - Title
+  - Description
+  - Equipment fields (camera, telescope/lens, mount, etc.)
+  - Exposure details
+  - Tags
+- [ ] Validate uploads:
+  - Allowed MIME types (JPEG/PNG/WebP/TIFF if needed)
+  - Max upload size (set >2MB, e.g., 10MB headroom)
+  - Server-side image verification and sanitization
+- [ ] On successful upload:
+  - Store original image
+  - Generate thumbnails
+  - Save metadata
+  - Show admin preview and success/failure status
+
+## 6) Core feature #3: Equipment and capture details
+
+- [ ] Create structured equipment sections (camera, optics, mount, guiding, filters).
+- [ ] Add optional reusable “equipment presets” in admin to avoid repetitive typing.
+- [ ] Display equipment metadata cleanly on detail pages with badges/icons.
+- [ ] Add searchable/filterable fields (e.g., show all photos taken with one telescope).
+
+## 7) “Wow factor” enhancements
+
+- [ ] Cinematic dark theme with starfield background and subtle motion (respect reduced-motion accessibility setting).
+- [ ] Lightbox/fullscreen viewer with smooth zoom transitions.
+- [ ] Before/after slider (stacked vs processed image), optional for advanced showcase.
+- [ ] “Image of the month” spotlight section on homepage.
+- [ ] Constellation-style timeline view by capture date.
+- [ ] Ambient micro-interactions (hover glows, metadata fade-ins, elegant loading skeletons).
+
+## 8) Performance and image delivery
+
+- [ ] Use responsive image `srcset` and lazy loading.
+- [ ] Enable Apache compression and long-lived cache headers for generated thumbnails.
+- [ ] Add CDN option later (CloudFront) if traffic grows.
+- [ ] Create background job/CLI script to regenerate thumbnails for older uploads.
+
+## 9) Security hardening
+
+- [ ] Enforce HTTPS (AWS cert + redirect HTTP→HTTPS).
+- [ ] Set secure headers (CSP, HSTS, X-Content-Type-Options, Referrer-Policy).
+- [ ] Lock down upload execution (never execute uploaded files).
+- [ ] Validate/sanitize all metadata inputs to prevent XSS.
+- [ ] Add periodic backup plan for images + metadata.
+
+## 10) SEO and discoverability
+
+- [ ] Add semantic page titles, meta descriptions, Open Graph tags.
+- [ ] Include alt text strategy for each image.
+- [ ] Auto-generate XML sitemap.
+- [ ] Add schema.org metadata for images/creative works.
+
+## 11) Operations and maintainability
+
+- [ ] Add admin tools:
+  - Edit metadata after upload
+  - Delete/unpublish image
+  - Mark featured images
+- [ ] Add logging and error monitoring.
+- [ ] Create deployment checklist for Apache/PHP config updates.
+- [ ] Document recovery steps (restore from backup).
+
+## 12) Phased execution plan
+
+### Phase 1 — MVP (1–2 weeks)
+- [ ] Build public gallery grid with thumbnails.
+- [ ] Build secure admin login + upload form.
+- [ ] Save image metadata including equipment details.
+- [ ] Launch with core styling and mobile responsiveness.
+
+### Phase 2 — Polish (1 week)
+- [ ] Add image detail page enhancements and filtering.
+- [ ] Improve visual design and transitions.
+- [ ] Add homepage featured section.
+
+### Phase 3 — Advanced (later)
+- [ ] Add before/after comparisons.
+- [ ] Add advanced tag search and timeline view.
+- [ ] Add analytics and performance tuning.
+
+## 13) Suggested immediate next actions (first 48 hours)
+
+- [ ] Confirm stack choice: plain PHP + SQLite (recommended MVP).
+- [ ] Set up project structure and Apache virtual host config.
+- [ ] Implement admin authentication and secure upload pipeline.
+- [ ] Build thumbnail generation and gallery listing.
+- [ ] Populate with 10 sample images + metadata.
+- [ ] Review and finalize visual style with 2–3 homepage design variants.
