@@ -378,78 +378,34 @@ function generate_thumbnail(string $source, string $target, int $maxWidth, int $
     imagedestroy($dstImg);
 }
 
-function normalize_wikipedia_url(string $url): ?string
+function normalize_wikipedia_url_for_storage(string $url): ?string
 {
     $trimmed = trim($url);
     if ($trimmed === '') {
         return null;
     }
 
-    if (!filter_var($trimmed, FILTER_VALIDATE_URL)) {
-        throw new RuntimeException('Wikipedia URL must be a valid URL.');
+    $normalized = normalize_wikipedia_url($trimmed);
+    if (!($normalized['ok'] ?? false)) {
+        throw new RuntimeException((string) ($normalized['error']['message'] ?? 'Invalid Wikipedia URL.'));
     }
 
-    $parts = parse_url($trimmed);
-    $host = strtolower((string) ($parts['host'] ?? ''));
-    $path = (string) ($parts['path'] ?? '');
-
-    if ($host === '' || !preg_match('/(^|\.)wikipedia\.org$/', $host)) {
-        throw new RuntimeException('Wikipedia URL must point to a wikipedia.org domain.');
-    }
-
-    if (strpos($path, '/wiki/') !== 0 || strlen($path) <= 6) {
-        throw new RuntimeException('Wikipedia URL must point to a specific Wikipedia article.');
-    }
-
-    return $trimmed;
+    return (string) ($normalized['url'] ?? $trimmed);
 }
 
 function wikipedia_summary_from_url(string $url): array
 {
-    $validated = normalize_wikipedia_url($url);
-    if ($validated === null) {
-        throw new RuntimeException('Wikipedia URL is required for preview.');
+    $result = fetch_wikipedia_metadata($url);
+    if (!($result['ok'] ?? false)) {
+        throw new RuntimeException((string) ($result['error']['message'] ?? 'Could not fetch data from Wikipedia.'));
     }
 
-    $parts = parse_url($validated);
-    $scheme = (($parts['scheme'] ?? 'https') === 'http') ? 'http' : 'https';
-    $host = (string) ($parts['host'] ?? 'en.wikipedia.org');
-    $path = (string) ($parts['path'] ?? '');
-    $title = rawurldecode(substr($path, 6));
-
-    if ($title === '' || strpos($title, ':') !== false) {
-        throw new RuntimeException('Wikipedia URL must reference a standard article page.');
-    }
-
-    $apiUrl = sprintf('%s://%s/api/rest_v1/page/summary/%s', $scheme, $host, rawurlencode($title));
-    $context = stream_context_create([
-        'http' => [
-            'method' => 'GET',
-            'timeout' => 5,
-            'header' => "User-Agent: NightSkyAtlas/1.0 (+https://localhost)\r\n",
-        ],
-    ]);
-
-    $response = @file_get_contents($apiUrl, false, $context);
-    if ($response === false) {
-        throw new RuntimeException('Could not fetch data from Wikipedia.');
-    }
-
-    $payload = json_decode($response, true);
-    if (!is_array($payload) || isset($payload['type']) && $payload['type'] === 'https://mediawiki.org/wiki/HyperSwitch/errors/not_found') {
-        throw new RuntimeException('Wikipedia article not found.');
-    }
-
-    $extract = trim((string) ($payload['extract'] ?? ''));
-    $firstParagraph = $extract;
-    if (strpos($extract, "\n\n") !== false) {
-        $firstParagraph = trim((string) explode("\n\n", $extract)[0]);
-    }
+    $data = $result['data'] ?? [];
 
     return [
-        'title' => (string) ($payload['title'] ?? $title),
-        'extract' => $firstParagraph,
-        'thumbnail' => (string) (($payload['thumbnail']['source'] ?? '')),
-        'canonical_url' => (string) (($payload['content_urls']['desktop']['page'] ?? $validated)),
+        'title' => (string) ($data['title'] ?? ''),
+        'extract' => (string) ($data['summary'] ?? ''),
+        'thumbnail' => (string) ($data['thumbnail'] ?? ''),
+        'canonical_url' => (string) ($data['canonicalUrl'] ?? ''),
     ];
 }
