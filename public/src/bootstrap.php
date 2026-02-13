@@ -33,6 +33,58 @@ function load_config(): array
     ];
 }
 
+function php_ini_bytes(string $value): int
+{
+    $value = trim($value);
+    if ($value == '') {
+        return 0;
+    }
+
+    $lastChar = strtolower(substr($value, -1));
+    $number = (float) $value;
+
+    switch ($lastChar) {
+        case 'g':
+            $number *= 1024;
+            // no break
+        case 'm':
+            $number *= 1024;
+            // no break
+        case 'k':
+            $number *= 1024;
+    }
+
+    return (int) $number;
+}
+
+function effective_upload_limit_bytes(): int
+{
+    $uploadMax = php_ini_bytes((string) ini_get('upload_max_filesize'));
+    $postMax = php_ini_bytes((string) ini_get('post_max_size'));
+    $appMax = load_config()['max_upload_bytes'];
+
+    $limits = array_filter([$uploadMax, $postMax, $appMax], static fn(int $bytes): bool => $bytes > 0);
+    if (empty($limits)) {
+        return $appMax;
+    }
+
+    return min($limits);
+}
+
+function format_bytes_human(int $bytes): string
+{
+    if ($bytes <= 0) {
+        return '0 B';
+    }
+
+    $units = ['B', 'KB', 'MB', 'GB'];
+    $power = (int) floor(log($bytes, 1024));
+    $power = min($power, count($units) - 1);
+    $value = $bytes / (1024 ** $power);
+
+    return ($power === 0 ? (string) $bytes : number_format($value, 1)) . ' ' . $units[$power];
+}
+
 function read_json(string $path): array
 {
     if (!file_exists($path)) {
