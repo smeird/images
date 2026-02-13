@@ -95,7 +95,7 @@ This task plan is designed for a Linux + Apache + PHP environment and optimized 
 ## 7) “Wow factor” enhancements
 
 - [x] Cinematic dark theme with starfield background and subtle motion (respect reduced-motion accessibility setting).
-- [ ] Lightbox/fullscreen viewer with smooth zoom transitions.
+- [x] Lightbox/fullscreen viewer with smooth zoom transitions. (implemented fullscreen mode on image detail page)
 - [ ] Before/after slider (stacked vs processed image), optional for advanced showcase.
 - [ ] “Image of the month” spotlight section on homepage.
 - [ ] Constellation-style timeline view by capture date.

@@ -115,7 +115,8 @@ flowchart TD
   A[Visitor lands on homepage] --> B[See cinematic hero + spotlight capture]
   B --> C[Browse thumbnail gallery]
   C --> D[Open image detail]
-  D --> E[Review metadata\nobject + equipment + exposure + tags]
+  D --> E[Toggle fullscreen for immersive viewing]
+  D --> F[Review metadata\nobject + equipment + exposure + tags]
 ```
 
 ## Admin upload flow
