@@ -94,12 +94,14 @@ You can override route and limits via env vars:
 - Basic per-IP login throttling is enforced.
 - Uploads accept only JPEG/PNG/WebP and enforce max-size limit.
 - Uploaded files are stored outside the public web root and served through `media.php`.
+- Wikipedia metadata fetches only allow trusted Wikipedia hosts (`en.wikipedia.org` plus optional language subdomains) and return structured error codes for UI-safe fallbacks.
 
 ## Folder/file map
 
 - `public/index.php` — front controller/router for public + admin routes.
 - `public/src/bootstrap.php` — shared helpers, auth, upload + thumbnail logic.
 - `public/src/views/` — HTML view templates.
+- `public/src/services/wikipedia.php` — Wikipedia URL validation + metadata normalization helper service.
 - `public/assets/style.css` — cinematic dark UI styling and interaction polish.
 - `storage/data/images.json` — image metadata records (including Wikipedia cache fields).
 - `storage/logs/app.log` — background/lazy refresh failure logs for non-fatal runtime issues.
@@ -149,6 +151,7 @@ graph LR
   APP --> WIKI[Wikipedia REST summary API]
   APP --> LOGS[(storage/logs/app.log)]
   APP --> IMG[(Originals + Thumbs in storage/)]
+  APP --> WIKI[Wikipedia REST + MediaWiki APIs]
 ```
 
 ## Wikipedia cache behavior

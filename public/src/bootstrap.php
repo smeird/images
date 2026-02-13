@@ -12,6 +12,8 @@ define('ORIGINALS_PATH', STORAGE_PATH . '/images/original');
 define('THUMBS_PATH', STORAGE_PATH . '/images/thumbs');
 define('WIKI_CACHE_TTL_SECONDS', 7 * 24 * 60 * 60);
 
+require_once ROOT_PATH . '/src/services/wikipedia.php';
+
 function load_config(): array
 {
     return [
