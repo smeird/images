@@ -3,6 +3,9 @@ $canonicalUrl = isset($canonical_url) ? (string) $canonical_url : absolute_url((
 $ogTitle = isset($meta_title) ? (string) $meta_title : (string) ($title ?? $config['site_name']);
 $ogDescription = isset($meta_description) ? (string) $meta_description : 'Explore astrophotography captures on ' . $config['site_name'] . '.';
 $ogImage = isset($meta_image) ? (string) $meta_image : '';
+$ogImageType = isset($meta_image_type) ? trim((string) $meta_image_type) : '';
+$ogImageWidth = isset($meta_image_width) ? (int) $meta_image_width : 0;
+$ogImageHeight = isset($meta_image_height) ? (int) $meta_image_height : 0;
 ?>
 <!doctype html>
 <html lang="en">
@@ -17,6 +20,15 @@ $ogImage = isset($meta_image) ? (string) $meta_image : '';
   <meta property="og:url" content="<?= htmlspecialchars($canonicalUrl) ?>">
   <?php if ($ogImage !== ''): ?>
     <meta property="og:image" content="<?= htmlspecialchars($ogImage) ?>">
+    <?php if ($ogImageType !== ''): ?>
+      <meta property="og:image:type" content="<?= htmlspecialchars($ogImageType) ?>">
+    <?php endif; ?>
+    <?php if ($ogImageWidth > 0): ?>
+      <meta property="og:image:width" content="<?= $ogImageWidth ?>">
+    <?php endif; ?>
+    <?php if ($ogImageHeight > 0): ?>
+      <meta property="og:image:height" content="<?= $ogImageHeight ?>">
+    <?php endif; ?>
   <?php endif; ?>
   <meta name="twitter:card" content="summary_large_image">
   <meta name="twitter:title" content="<?= htmlspecialchars($ogTitle) ?>">
