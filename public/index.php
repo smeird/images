@@ -102,15 +102,24 @@ if ($path === $adminBase . '/logout') {
     exit;
 }
 
-if ($path === $adminBase . '/upload') {
+$adminSections = [
+    $adminBase . '/upload' => 'upload',
+    $adminBase . '/scope-types' => 'scope_types',
+    $adminBase . '/manage-images' => 'manage_images',
+    $adminBase . '/security' => 'security',
+];
+
+if (isset($adminSections[$path])) {
     require_admin();
 
+    $adminSection = $adminSections[$path];
     $error = null;
     $limitError = null;
     $effectiveUploadLimit = effective_upload_limit_bytes();
     $success = null;
     $passwordError = null;
     $passwordSuccess = null;
+    $wikipediaPreview = null;
     $wikipediaUrlInput = (string) ($_POST['wikipedia_url'] ?? '');
 
     if ($_SERVER['REQUEST_METHOD'] === 'POST') {
@@ -119,68 +128,94 @@ if ($path === $adminBase . '/upload') {
             $limitError = sprintf('Upload request is too large (%s). Current server/app limit is %s. Increase post_max_size/upload_max_filesize and MAX_UPLOAD_BYTES to allow larger uploads.', format_bytes_human($requestLength), format_bytes_human($effectiveUploadLimit));
         } elseif (!verify_csrf()) {
             $error = 'Invalid CSRF token.';
-        } elseif ((string) ($_POST['form_action'] ?? '') === 'change_password') {
-            $currentPassword = (string) ($_POST['current_password'] ?? '');
-            $newPassword = (string) ($_POST['new_password'] ?? '');
-            $confirmPassword = (string) ($_POST['confirm_password'] ?? '');
-
-            if ($newPassword !== $confirmPassword) {
-                $passwordError = 'New password and confirmation do not match.';
-            } else {
-                $username = (string) ($_SESSION['admin_user'] ?? '');
-                $updateError = update_user_password($username, $currentPassword, $newPassword);
-                if ($updateError === null) {
-                    $passwordSuccess = 'Password updated successfully.';
-                } else {
-                    $passwordError = $updateError;
-                }
-            }
-        } elseif ((string) ($_POST['form_action'] ?? '') === 'delete_image') {
-            $imageId = (string) ($_POST['image_id'] ?? '');
-            if (delete_image_by_id($imageId)) {
-                $success = 'Image deleted successfully.';
-            } else {
-                $error = 'Image could not be deleted (record not found).';
-            }
-        } elseif (empty($_FILES['image']) || ($_FILES['image']['error'] ?? UPLOAD_ERR_NO_FILE) !== UPLOAD_ERR_OK) {
-            $error = 'Image upload failed. Please try again.';
         } else {
-            try {
-                $media = save_uploaded_image($_FILES['image']);
+            $formAction = (string) ($_POST['form_action'] ?? '');
 
-                $images = image_records();
-                $images[] = [
-                    'id' => $media['id'],
-                    'original' => $media['original'],
-                    'thumb' => $media['thumb'],
-                    'title' => trim((string) ($_POST['title'] ?? '')),
-                    'object_name' => trim((string) ($_POST['object_name'] ?? '')),
-                    'captured_at' => trim((string) ($_POST['captured_at'] ?? '')),
-                    'description' => trim((string) ($_POST['description'] ?? '')),
-                    'equipment' => trim((string) ($_POST['equipment'] ?? '')),
-                    'exposure' => trim((string) ($_POST['exposure'] ?? '')),
-                    'processing' => trim((string) ($_POST['processing'] ?? '')),
-                    'wikipedia_url' => normalize_wikipedia_url_for_storage($wikipediaUrlInput),
-                    'tags' => array_values(array_filter(array_map('trim', explode(',', (string) ($_POST['tags'] ?? ''))))),
-                    'wikipediaUrl' => trim((string) ($_POST['wikipedia_url'] ?? '')),
-                    'wikiTitle' => '',
-                    'wikiExtract' => '',
-                    'wikiThumbnail' => '',
-                    'wikiFetchedAt' => '',
-                    'wikiStatus' => 'not_requested',
-                ];
+            if ($formAction === 'change_password') {
+                $currentPassword = (string) ($_POST['current_password'] ?? '');
+                $newPassword = (string) ($_POST['new_password'] ?? '');
+                $confirmPassword = (string) ($_POST['confirm_password'] ?? '');
 
-                write_json(DATA_PATH . '/images.json', $images);
-                $success = 'Image uploaded successfully.';
-                $wikipediaUrlInput = '';
-            } catch (Throwable $throwable) {
-                $error = $throwable->getMessage();
+                if ($newPassword !== $confirmPassword) {
+                    $passwordError = 'New password and confirmation do not match.';
+                } else {
+                    $username = (string) ($_SESSION['admin_user'] ?? '');
+                    $updateError = update_user_password($username, $currentPassword, $newPassword);
+                    if ($updateError === null) {
+                        $passwordSuccess = 'Password updated successfully.';
+                    } else {
+                        $passwordError = $updateError;
+                    }
+                }
+            } elseif ($formAction === 'delete_image') {
+                $imageId = (string) ($_POST['image_id'] ?? '');
+                if (delete_image_by_id($imageId)) {
+                    $success = 'Image deleted successfully.';
+                } else {
+                    $error = 'Image could not be deleted (record not found).';
+                }
+            } elseif ($formAction === 'add_scope_type') {
+                if (add_scope_type_preset((string) ($_POST['scope_type_name'] ?? ''))) {
+                    $success = 'Scope type preset saved.';
+                } else {
+                    $error = 'Please enter a valid scope type name.';
+                }
+            } elseif ($formAction === 'delete_scope_type') {
+                if (delete_scope_type_preset((string) ($_POST['scope_type_name'] ?? ''))) {
+                    $success = 'Scope type preset removed.';
+                } else {
+                    $error = 'Scope type preset was not found.';
+                }
+            } elseif (($formAction === 'upload_image_preview') && trim($wikipediaUrlInput) !== '') {
+                try {
+                    $wikipediaPreview = wikipedia_summary_from_url($wikipediaUrlInput);
+                } catch (Throwable $throwable) {
+                    $error = $throwable->getMessage();
+                }
+            } elseif ($formAction === 'upload_image') {
+                if (empty($_FILES['image']) || ($_FILES['image']['error'] ?? UPLOAD_ERR_NO_FILE) !== UPLOAD_ERR_OK) {
+                    $error = 'Image upload failed. Please try again.';
+                } else {
+                    try {
+                        $media = save_uploaded_image($_FILES['image']);
+
+                        $images = image_records();
+                        $images[] = [
+                            'id' => $media['id'],
+                            'original' => $media['original'],
+                            'thumb' => $media['thumb'],
+                            'title' => trim((string) ($_POST['title'] ?? '')),
+                            'object_name' => trim((string) ($_POST['object_name'] ?? '')),
+                            'captured_at' => trim((string) ($_POST['captured_at'] ?? '')),
+                            'description' => trim((string) ($_POST['description'] ?? '')),
+                            'equipment' => trim((string) ($_POST['equipment'] ?? '')),
+                            'scope_type' => trim((string) ($_POST['scope_type'] ?? '')),
+                            'exposure' => trim((string) ($_POST['exposure'] ?? '')),
+                            'processing' => trim((string) ($_POST['processing'] ?? '')),
+                            'wikipedia_url' => normalize_wikipedia_url_for_storage($wikipediaUrlInput),
+                            'tags' => array_values(array_filter(array_map('trim', explode(',', (string) ($_POST['tags'] ?? ''))))),
+                            'wikipediaUrl' => trim((string) ($_POST['wikipedia_url'] ?? '')),
+                            'wikiTitle' => '',
+                            'wikiExtract' => '',
+                            'wikiThumbnail' => '',
+                            'wikiFetchedAt' => '',
+                            'wikiStatus' => 'not_requested',
+                        ];
+
+                        write_json(DATA_PATH . '/images.json', $images);
+                        $success = 'Image uploaded successfully.';
+                        $wikipediaUrlInput = '';
+                    } catch (Throwable $throwable) {
+                        $error = $throwable->getMessage();
+                    }
+                }
             }
         }
     }
 
     render('upload', [
-        'title' => 'Admin Upload',
+        'title' => 'Admin Portal',
+        'admin_section' => $adminSection,
         'error' => $error,
         'limit_error' => $limitError,
         'success' => $success,
@@ -188,8 +223,9 @@ if ($path === $adminBase . '/upload') {
         'password_error' => $passwordError,
         'password_success' => $passwordSuccess,
         'wikipedia_url' => $wikipediaUrlInput,
-        'wikipedia_preview' => null,
+        'wikipedia_preview' => $wikipediaPreview,
         'images' => image_records(),
+        'scope_type_presets' => scope_type_presets(),
         'storage_summary' => storage_space_summary(),
     ]);
     exit;

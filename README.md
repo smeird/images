@@ -11,8 +11,8 @@ Implemented now:
 - cinematic dark-sky visual treatment with starfield texture, spotlight hero card, and glassmorphism-style panels
 - ambient micro-interactions (hover lift/glow, metadata chips, richer card transitions)
 - Repository intentionally does not include bundled `.jpg` sample images; upload your own media through the admin flow.
-- metadata display (capture, equipment, exposure, processing, tags)
-- secure admin route with session auth, CSRF protection, basic login rate limiting, in-session password change controls, and authenticated image deletion
+- metadata display (capture, equipment including optional scope type, exposure, processing, tags)
+- secure admin route with session auth, CSRF protection, basic login rate limiting, task-based admin portal pages (upload/scope responses/media/security), in-session password change controls, and authenticated image deletion
 - image upload pipeline with MIME/size validation, thumbnail generation, and admin-side storage-capacity visibility
 - graceful oversize-upload handling that reports when server (`post_max_size` / `upload_max_filesize`) or app (`MAX_UPLOAD_BYTES`) limits reject a request before PHP can parse form fields
 - Wikipedia URL normalization uses PHP 7.4-compatible string checks (no PHP 8-only helpers) to avoid runtime fatals on older deployments.
@@ -85,7 +85,7 @@ If you deploy behind HTTPS, keep the same `DocumentRoot` and route all HTTP traf
 - Route: `/hidden-admin/login`
 - Username: `admin`
 - Password: `change-me-now`
-- After logging in, use the **Change admin password** form on the upload page to rotate credentials.
+- After logging in, use the **Security** task page to rotate credentials.
 
 You can override route and limits via env vars:
 - `ADMIN_ROUTE` (default `/hidden-admin`)
@@ -117,6 +117,7 @@ You can override route and limits via env vars:
 - `storage/sessions/` — file-backed PHP session storage used for admin auth + CSRF continuity.
 - `storage/logs/app.log` — background/lazy refresh failure logs for non-fatal runtime issues.
 - `storage/data/users.json` — admin credential hashes.
+- `storage/data/scope_types.json` — reusable scope type response presets for admin uploads.
 - `WEBSITE_TASKS.md` — implementation tracker.
 - `CODEX_PARALLEL_TASKS.md` — parallel work planning.
 
@@ -143,23 +144,24 @@ flowchart TD
 flowchart TD
   A[Admin opens hidden route] --> B[Login form + CSRF]
   B --> C[Credential check + rate limit]
-  C --> S[Show storage summary
-free/used/total disk space]
-  C --> D[Upload image + enter metadata]
-  D --> M{Body exceeds effective upload limit?}
-  M -- yes --> N[Show actionable size-limit error]
-  M -- no --> E[MIME/size validation]
-  C --> J[Optional password change form]
-  J --> K[Verify current password + enforce 12+ chars]
-  K --> L[Write updated password_hash to users JSON]
-  C --> O[Manage uploaded images list]
-  O --> P[Delete image + CSRF confirm]
-  P --> Q[Remove JSON record + media files]
-  Q --> R[Image removed from public gallery]
-  E --> F[Store original outside web root]
-  F --> G[Generate thumbnail]
-  G --> H[Write JSON metadata]
-  H --> I[Image appears in public gallery]
+  C --> D[Admin portal task navigation]
+  D --> U[Upload image page]
+  D --> P[Scope type responses page]
+  D --> M[Manage images page]
+  D --> S[Security page]
+  U --> T[Show storage summary]
+  U --> V[Select scope type via preset pills or manual entry]
+  U --> W[Upload image + metadata]
+  W --> X{Body exceeds effective upload limit?}
+  X -- yes --> Y[Show actionable size-limit error]
+  X -- no --> Z[MIME/size validation]
+  Z --> AA[Store original + generate thumbnail + write metadata JSON]
+  AA --> AB[Image appears in public gallery]
+  P --> AC[Add/delete reusable scope type presets in scope_types.json]
+  M --> AD[Delete image + CSRF confirm]
+  AD --> AE[Remove JSON record + media files]
+  S --> AF[Verify current password + enforce 12+ chars]
+  AF --> AG[Write updated password_hash to users JSON]
 ```
 
 ## High-level architecture

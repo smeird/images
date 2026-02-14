@@ -108,8 +108,67 @@ function image_records(): array
     return $records;
 }
 
+function scope_type_presets(): array
+{
+    $presets = read_json(DATA_PATH . '/scope_types.json');
+    if (!is_array($presets)) {
+        return [];
+    }
+
+    $normalized = [];
+    foreach ($presets as $preset) {
+        $value = trim((string) $preset);
+        if ($value === '') {
+            continue;
+        }
+
+        $normalized[] = $value;
+    }
+
+    $normalized = array_values(array_unique($normalized));
+    natcasesort($normalized);
+
+    return array_values($normalized);
+}
+
+function add_scope_type_preset(string $value): bool
+{
+    $value = trim($value);
+    if ($value === '') {
+        return false;
+    }
+
+    $presets = scope_type_presets();
+    if (!in_array($value, $presets, true)) {
+        $presets[] = $value;
+    }
+
+    natcasesort($presets);
+    write_json(DATA_PATH . '/scope_types.json', array_values($presets));
+
+    return true;
+}
+
+function delete_scope_type_preset(string $value): bool
+{
+    $value = trim($value);
+    if ($value === '') {
+        return false;
+    }
+
+    $presets = scope_type_presets();
+    $remaining = array_values(array_filter($presets, static fn(string $preset): bool => $preset !== $value));
+    if (count($remaining) === count($presets)) {
+        return false;
+    }
+
+    write_json(DATA_PATH . '/scope_types.json', $remaining);
+    return true;
+}
+
 function normalize_image_record(array $record): array
 {
+    $record['scope_type'] = trim((string) ($record['scope_type'] ?? ''));
     $record['wikipediaUrl'] = trim((string) ($record['wikipediaUrl'] ?? ''));
     $record['wikiTitle'] = trim((string) ($record['wikiTitle'] ?? ''));
     $record['wikiExtract'] = trim((string) ($record['wikiExtract'] ?? ''));
