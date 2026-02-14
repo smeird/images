@@ -182,7 +182,7 @@ main {
 .fullscreen-toggle {
   position: absolute;
   right: 0.9rem;
-  bottom: 0.9rem;
+  top: 0.9rem;
   width: auto;
   padding: 0.45rem 0.75rem;
   margin: 0;
