@@ -108,6 +108,7 @@ This task plan is designed for a Linux + Apache + PHP environment and optimized 
 - [ ] “Image of the month” spotlight section on homepage.
 - [ ] Constellation-style timeline view by capture date.
 - [x] Ambient micro-interactions (hover glows, metadata fade-ins, elegant loading skeletons).
+- [x] Mobile ergonomics polish for 360–430px widths (sticky utility row, larger 44px touch targets, tighter typography/spacing, overflow-safe title + metadata chip handling).
 
 ## 8) Performance and image delivery
 

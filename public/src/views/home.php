@@ -21,7 +21,7 @@
     <?php endif; ?>
   </aside>
 </section>
-<section class="grid">
+<section class="grid" id="gallery">
   <?php if (empty($images)): ?>
     <p>No images yet. Admins can upload from the secure route.</p>
   <?php else: ?>

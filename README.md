@@ -10,6 +10,7 @@ Implemented now:
 - public gallery and image detail pages
 - cinematic dark-sky visual treatment with starfield texture, spotlight hero card, and glassmorphism-style panels
 - ambient micro-interactions (hover lift/glow, metadata chips, richer card transitions)
+- mobile-first utility row for quick Gallery/About/Search access on narrow screens, plus larger touch targets for nav links, gallery cards, and detail actions
 - image detail fullscreen pill is anchored at the top-right of the image for quicker access before scrolling metadata
 - Repository intentionally does not include bundled `.jpg` sample images; upload your own media through the admin flow.
 - metadata display (capture, object type, structured equipment setup incl. scope type/telescope/mount/camera/filter chain, exposure, processing, tags)
@@ -139,16 +140,17 @@ You can override route and limits via env vars:
 ```mermaid
 flowchart TD
   A[Visitor lands on homepage] --> B[See cinematic hero + spotlight capture]
-  B --> C[Browse thumbnail gallery]
-  C --> D[Open image detail]
-  D --> E[Review metadata\nobject + equipment + exposure + tags]
-  E --> I[Copy image-specific share link]
-  I --> J[Paste in Facebook/WhatsApp/iMessage]
-  J --> K[Preview card shows image + title]
-  K --> D
-  E --> F{Wikipedia data available?}
-  F -- yes --> G[Show extract + thumbnail + read more link + attribution note]
-  F -- no/fetch failed --> H[Show fallback: No external reference yet]
+  B --> C[Use compact mobile utility row\nfor Gallery/About/Search jump links]
+  C --> D[Browse thumbnail gallery]
+  D --> E[Open image detail]
+  E --> F[Review metadata\nobject + equipment + exposure + tags]
+  F --> G[Copy image-specific share link]
+  G --> H[Paste in Facebook/WhatsApp/iMessage]
+  H --> I[Preview card shows image + title]
+  I --> E
+  F --> J{Wikipedia data available?}
+  J -- yes --> K[Show extract + thumbnail + read more link + attribution note]
+  J -- no/fetch failed --> L[Show fallback: No external reference yet]
 ```
 
 ## Admin upload flow
@@ -191,7 +193,8 @@ graph LR
   U[Public Browser] --> APP[PHP Front Controller]
   A[Admin Browser] --> APP
   APP --> VIEWS[Template Views]
-  VIEWS --> THEME[Cinematic CSS Theme Layer]
+  VIEWS --> THEME[Cinematic CSS Theme Layer
+(includes mobile utility row + touch sizing)]
   VIEWS --> SEO[Canonical + Open Graph meta tags]
   APP --> SEC[Auth + CSRF + Rate Limit]
   APP --> DATA[(JSON metadata/users + wiki cache/spotlight/SEO fields)]
