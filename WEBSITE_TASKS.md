@@ -116,6 +116,8 @@ This task plan is designed for a Linux + Apache + PHP environment and optimized 
 - [ ] Add CDN option later (CloudFront) if traffic grows.
 - [ ] Create background job/CLI script to regenerate thumbnails for older uploads.
 - [x] Add lazy refresh on detail reads for stale Wikipedia cache entries (>7 days) while serving cached data immediately.
+- [x] Parse and store infobox-derived key facts (e.g., size/shape/distance fields) from Wikipedia links for detail-page context.
+- [x] Invalidate and refresh cached Wikipedia summary/facts when an admin changes the Wikipedia URL on an image.
 
 ## 9) Security hardening
 
@@ -137,8 +139,8 @@ This task plan is designed for a Linux + Apache + PHP environment and optimized 
 ## 11) Operations and maintainability
 
 - [x] Add admin tools:
-  - [x] Task-based admin portal pages (Upload image / Setup presets / Manage images / Security)
-  - [x] Edit metadata after upload (including SEO meta tag fields)
+  - [x] Task-based admin portal pages (Upload image / Setup presets / Manage images / Dedicated edit page / Security)
+  - [x] Edit metadata after upload on a dedicated page (including SEO meta tag fields and preset pills)
   - [x] Delete/unpublish image
   - [x] Mark featured images (homepage spotlight selector)
 - [ ] Add logging and error monitoring.

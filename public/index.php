@@ -131,6 +131,7 @@ $adminSections = [
     $adminBase . '/upload' => 'upload',
     $adminBase . '/setup-presets' => 'setup_presets',
     $adminBase . '/manage-images' => 'manage_images',
+    $adminBase . '/edit-image' => 'edit_image',
     $adminBase . '/security' => 'security',
 ];
 
@@ -146,6 +147,9 @@ if (isset($adminSections[$path])) {
     $passwordSuccess = null;
     $wikipediaPreview = null;
     $wikipediaUrlInput = (string) ($_POST['wikipedia_url'] ?? '');
+    if ($adminSection === 'edit_image' && (string) ($_GET['saved'] ?? '') === '1') {
+        $success = 'Image metadata updated.';
+    }
 
     if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $requestLength = (int) ($_SERVER['CONTENT_LENGTH'] ?? 0);
@@ -190,6 +194,11 @@ if (isset($adminSections[$path])) {
                 $imageId = (string) ($_POST['image_id'] ?? '');
                 $metadataError = update_image_metadata($imageId, $_POST);
                 if ($metadataError === null) {
+                    if ($adminSection === 'edit_image') {
+                        header('Location: ' . $adminBase . '/edit-image?id=' . rawurlencode($imageId) . '&saved=1');
+                        exit;
+                    }
+
                     $success = 'Image metadata updated.';
                 } else {
                     $error = $metadataError;
@@ -261,12 +270,13 @@ if (isset($adminSections[$path])) {
                             'processing' => trim((string) ($_POST['processing'] ?? '')),
                             'wikipedia_url' => normalize_wikipedia_url_for_storage($wikipediaUrlInput),
                             'tags' => array_values(array_filter(array_map('trim', explode(',', (string) ($_POST['tags'] ?? ''))))),
-                            'wikipediaUrl' => trim((string) ($_POST['wikipedia_url'] ?? '')),
+                            'wikipediaUrl' => normalize_wikipedia_url_for_storage($wikipediaUrlInput),
                             'wikiTitle' => '',
                             'wikiExtract' => '',
                             'wikiThumbnail' => '',
                             'wikiFetchedAt' => '',
                             'wikiStatus' => 'not_requested',
+                            'wikiFacts' => [],
                             'meta_title' => '',
                             'meta_description' => '',
                             'meta_keywords' => '',

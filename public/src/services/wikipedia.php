@@ -21,6 +21,7 @@ function fetch_wikipedia_metadata(string $pageUrl, array $options = []): array
 
     if ($summaryResponse['ok']) {
         $summaryData = $summaryResponse['json'];
+        $keyFacts = fetch_wikipedia_key_facts($host, $title);
 
         return [
             'ok' => true,
@@ -30,6 +31,7 @@ function fetch_wikipedia_metadata(string $pageUrl, array $options = []): array
                 'thumbnail' => $summaryData['thumbnail']['source'] ?? null,
                 'canonicalUrl' => (string) ($summaryData['content_urls']['desktop']['page'] ?? $normalizedUrl),
                 'licenseText' => get_wikipedia_license_text($host),
+                'keyFacts' => $keyFacts,
                 'lastFetchedAt' => gmdate('c'),
             ],
         ];
@@ -215,9 +217,100 @@ function fetch_wikipedia_metadata_via_mediawiki(string $host, string $title, str
             'thumbnail' => $page['thumbnail']['source'] ?? null,
             'canonicalUrl' => (string) ($page['fullurl'] ?? $normalizedUrl),
             'licenseText' => get_wikipedia_license_text($host),
+            'keyFacts' => fetch_wikipedia_key_facts($host, $title),
             'lastFetchedAt' => gmdate('c'),
         ],
     ];
+}
+
+/**
+ * @return array<int,array{label:string,value:string}>
+ */
+function fetch_wikipedia_key_facts(string $host, string $title): array
+{
+    $apiUrl = 'https://' . $host . '/w/api.php?action=parse&format=json&prop=text&section=0&redirects=1&page=' . rawurlencode($title);
+    $response = http_json_get($apiUrl);
+    if (!$response['ok']) {
+        return [];
+    }
+
+    $html = (string) ($response['json']['parse']['text']['*'] ?? '');
+    if ($html === '') {
+        return [];
+    }
+
+    return extract_wikipedia_key_facts_from_html($html);
+}
+
+/**
+ * @return array<int,array{label:string,value:string}>
+ */
+function extract_wikipedia_key_facts_from_html(string $html): array
+{
+    if (!preg_match('/<table[^>]*class="[^"]*infobox[^"]*"[^>]*>(.*?)<\/table>/is', $html, $tableMatch)) {
+        return [];
+    }
+
+    $tableHtml = $tableMatch[1];
+    if (!preg_match_all('/<tr[^>]*>(.*?)<\/tr>/is', $tableHtml, $rowMatches)) {
+        return [];
+    }
+
+    $facts = [];
+    $factFields = [
+        'type', 'classification', 'shape', 'constellation', 'distance', 'radius',
+        'diameter', 'size', 'dimensions', 'mass', 'age', 'apparent magnitude',
+    ];
+
+    foreach ($rowMatches[1] as $rowHtml) {
+        if (!preg_match('/<th[^>]*>(.*?)<\/th>/is', $rowHtml, $labelMatch)) {
+            continue;
+        }
+
+        if (!preg_match('/<td[^>]*>(.*?)<\/td>/is', $rowHtml, $valueMatch)) {
+            continue;
+        }
+
+        $label = clean_wikipedia_html_text($labelMatch[1]);
+        $value = clean_wikipedia_html_text($valueMatch[1]);
+        if ($label === '' || $value === '') {
+            continue;
+        }
+
+        $labelLower = strtolower($label);
+        $isRelevant = false;
+        foreach ($factFields as $field) {
+            if (strpos($labelLower, $field) !== false) {
+                $isRelevant = true;
+                break;
+            }
+        }
+
+        if (!$isRelevant) {
+            continue;
+        }
+
+        $facts[] = [
+            'label' => $label,
+            'value' => $value,
+        ];
+
+        if (count($facts) >= 8) {
+            break;
+        }
+    }
+
+    return $facts;
+}
+
+function clean_wikipedia_html_text(string $rawHtml): string
+{
+    $withoutSup = preg_replace('/<sup[^>]*>.*?<\/sup>/is', '', $rawHtml);
+    $noTags = strip_tags((string) $withoutSup);
+    $decoded = html_entity_decode($noTags, ENT_QUOTES | ENT_HTML5, 'UTF-8');
+    $singleSpaced = preg_replace('/\s+/u', ' ', $decoded);
+
+    return trim((string) $singleSpaced);
 }
 
 function get_wikipedia_license_text(string $host): string

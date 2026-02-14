@@ -4,7 +4,7 @@ $adminBase = (string) ($config['admin_route'] ?? '/hidden-admin');
 $presetCategories = is_array($setup_preset_categories ?? null) ? $setup_preset_categories : [];
 $setupPresetValues = is_array($setup_presets ?? null) ? $setup_presets : [];
 $images = is_array($images ?? null) ? $images : [];
-$currentEditId = (string) ($_GET['edit'] ?? '');
+$currentEditId = (string) ($_GET['id'] ?? '');
 $editingImage = null;
 
 foreach ($images as $imageRecord) {
@@ -41,7 +41,8 @@ function field_value(string $field, $editingImage): string
     <a href="<?= htmlspecialchars($adminBase) ?>/upload" class="<?= $adminSection === 'upload' ? 'is-active' : '' ?>">1) Upload</a>
     <a href="<?= htmlspecialchars($adminBase) ?>/setup-presets" class="<?= $adminSection === 'setup_presets' ? 'is-active' : '' ?>">2) Presets</a>
     <a href="<?= htmlspecialchars($adminBase) ?>/manage-images" class="<?= $adminSection === 'manage_images' ? 'is-active' : '' ?>">3) Media library</a>
-    <a href="<?= htmlspecialchars($adminBase) ?>/security" class="<?= $adminSection === 'security' ? 'is-active' : '' ?>">4) Security</a>
+    <a href="<?= htmlspecialchars($adminBase) ?>/edit-image<?= $currentEditId !== '' ? '?id=' . urlencode($currentEditId) : '' ?>" class="<?= $adminSection === 'edit_image' ? 'is-active' : '' ?>">4) Edit page</a>
+    <a href="<?= htmlspecialchars($adminBase) ?>/security" class="<?= $adminSection === 'security' ? 'is-active' : '' ?>">5) Security</a>
   </nav>
 
   <div class="admin-help-grid">
@@ -55,7 +56,7 @@ function field_value(string $field, $editingImage): string
     </article>
     <article class="admin-help-card">
       <h3>SEO + metadata edits</h3>
-      <p class="muted">Use <strong>Edit metadata</strong> to update details and meta tags for any previous upload.</p>
+      <p class="muted">Use the <strong>Edit page</strong> task to update all fields and meta tags for any previous upload.</p>
     </article>
   </div>
 
@@ -188,7 +189,7 @@ function field_value(string $field, $editingImage): string
 <?php if ($adminSection === 'manage_images'): ?>
   <section class="panel">
     <h2>Media library</h2>
-    <p class="muted">Set homepage spotlight, edit existing metadata/meta tags, or permanently delete entries.</p>
+    <p class="muted">Set homepage spotlight, open a dedicated edit page, or permanently delete entries.</p>
     <?php if (empty($images)): ?>
       <p class="muted">No uploaded images yet.</p>
     <?php else: ?>
@@ -202,7 +203,7 @@ function field_value(string $field, $editingImage): string
               <?php if ($isSpotlight): ?><p class="success">Current homepage spotlight</p><?php endif; ?>
             </div>
             <div class="admin-row-actions">
-              <a class="button-link secondary" href="<?= htmlspecialchars($adminBase) ?>/manage-images?edit=<?= urlencode((string) ($image['id'] ?? '')) ?>">Edit metadata</a>
+              <a class="button-link secondary" href="<?= htmlspecialchars($adminBase) ?>/edit-image?id=<?= urlencode((string) ($image['id'] ?? '')) ?>">Edit page</a>
               <form method="post" class="inline-form">
                 <input type="hidden" name="csrf_token" value="<?= htmlspecialchars(csrf_token()) ?>">
                 <input type="hidden" name="form_action" value="set_spotlight">
@@ -222,10 +223,16 @@ function field_value(string $field, $editingImage): string
     <?php endif; ?>
   </section>
 
-  <?php if ($editingImage !== null): ?>
-    <section class="panel">
-      <h3>Edit metadata · <?= htmlspecialchars((string) ($editingImage['title'] ?? 'Untitled')) ?></h3>
-      <p class="muted">Update metadata and SEO tags for this previously uploaded image.</p>
+<?php endif; ?>
+
+<?php if ($adminSection === 'edit_image'): ?>
+  <section class="panel">
+    <h2>Edit page metadata</h2>
+    <p class="muted">Select an image from the media library, then edit all fields on this dedicated page.</p>
+    <?php if ($editingImage === null): ?>
+      <p class="muted">Choose <strong>Edit page</strong> from the Media library to start editing.</p>
+    <?php else: ?>
+      <h3><?= htmlspecialchars((string) ($editingImage['title'] ?? 'Untitled')) ?></h3>
       <form method="post">
         <input type="hidden" name="csrf_token" value="<?= htmlspecialchars(csrf_token()) ?>">
         <input type="hidden" name="form_action" value="update_image_metadata">
@@ -233,18 +240,46 @@ function field_value(string $field, $editingImage): string
 
         <label>Title <input required name="title" value="<?= htmlspecialchars(field_value('title', $editingImage)) ?>"></label>
         <label>Object name <input required name="object_name" value="<?= htmlspecialchars(field_value('object_name', $editingImage)) ?>"></label>
-        <label>Object type <input name="object_type" value="<?= htmlspecialchars(field_value('object_type', $editingImage)) ?>"></label>
+
+        <label>Object type
+          <input id="edit-object-type-input" name="object_type" value="<?= htmlspecialchars(field_value('object_type', $editingImage)) ?>">
+        </label>
+        <?php if (!empty($setupPresetValues['object_type'])): ?>
+          <div class="preset-pill-wrap" data-preset-group="object_type">
+            <?php foreach ($setupPresetValues['object_type'] as $preset): ?>
+              <button type="button" class="secondary preset-pill" data-preset-pill="object_type" data-preset-target="edit" data-preset-value="<?= htmlspecialchars((string) $preset) ?>"><?= htmlspecialchars((string) $preset) ?></button>
+            <?php endforeach; ?>
+          </div>
+        <?php endif; ?>
+
         <label>Captured at <input required type="date" name="captured_at" value="<?= htmlspecialchars(field_value('captured_at', $editingImage)) ?>"></label>
         <label>Description <textarea name="description"><?= htmlspecialchars(field_value('description', $editingImage)) ?></textarea></label>
 
         <h4>Equipment + processing</h4>
-        <label>Scope type <input name="scope_type" value="<?= htmlspecialchars(field_value('scope_type', $editingImage)) ?>"></label>
-        <label>Telescope / tube <input name="telescope" value="<?= htmlspecialchars(field_value('telescope', $editingImage)) ?>"></label>
-        <label>Mount <input name="mount" value="<?= htmlspecialchars(field_value('mount', $editingImage)) ?>"></label>
-        <label>Camera <input name="camera" value="<?= htmlspecialchars(field_value('camera', $editingImage)) ?>"></label>
-        <label>Filter wheel <input name="filter_wheel" value="<?= htmlspecialchars(field_value('filter_wheel', $editingImage)) ?>"></label>
-        <label>Filters <input name="filters" value="<?= htmlspecialchars(field_value('filters', $editingImage)) ?>"></label>
-        <label>Filter set <input name="filter_set" value="<?= htmlspecialchars(field_value('filter_set', $editingImage)) ?>"></label>
+        <?php
+          $editSetupFields = [
+              'scope_type' => ['Scope type', 'edit-scope-type-input'],
+              'telescope' => ['Telescope / tube', 'edit-telescope-input'],
+              'mount' => ['Mount', 'edit-mount-input'],
+              'camera' => ['Camera', 'edit-camera-input'],
+              'filter_wheel' => ['Filter wheel', 'edit-filter-wheel-input'],
+              'filters' => ['Filters', 'edit-filters-input'],
+              'filter_set' => ['Filter set', 'edit-filter-set-input'],
+          ];
+        ?>
+        <?php foreach ($editSetupFields as $fieldKey => $fieldMeta): ?>
+          <label><?= htmlspecialchars((string) $fieldMeta[0]) ?>
+            <input id="<?= htmlspecialchars((string) $fieldMeta[1]) ?>" name="<?= htmlspecialchars((string) $fieldKey) ?>" value="<?= htmlspecialchars(field_value($fieldKey, $editingImage)) ?>">
+          </label>
+          <?php if (!empty($setupPresetValues[$fieldKey])): ?>
+            <div class="preset-pill-wrap" data-preset-group="<?= htmlspecialchars((string) $fieldKey) ?>">
+              <?php foreach ($setupPresetValues[$fieldKey] as $preset): ?>
+                <button type="button" class="secondary preset-pill" data-preset-pill="<?= htmlspecialchars((string) $fieldKey) ?>" data-preset-target="edit" data-preset-value="<?= htmlspecialchars((string) $preset) ?>"><?= htmlspecialchars((string) $preset) ?></button>
+              <?php endforeach; ?>
+            </div>
+          <?php endif; ?>
+        <?php endforeach; ?>
+
         <label>Exposure <input name="exposure" value="<?= htmlspecialchars(field_value('exposure', $editingImage)) ?>"></label>
         <label>Processing <input name="processing" value="<?= htmlspecialchars(field_value('processing', $editingImage)) ?>"></label>
         <label>Wikipedia URL <input name="wikipedia_url" type="url" value="<?= htmlspecialchars(field_value('wikipedia_url', $editingImage) !== '' ? field_value('wikipedia_url', $editingImage) : field_value('wikipediaUrl', $editingImage)) ?>"></label>
@@ -256,11 +291,11 @@ function field_value(string $field, $editingImage): string
         <label>Meta keywords <input name="meta_keywords" placeholder="astrophotography, nebula, narrowband" value="<?= htmlspecialchars(field_value('meta_keywords', $editingImage)) ?>"></label>
         <div class="button-row">
           <button type="submit">Save metadata updates</button>
-          <a class="button-link secondary" href="<?= htmlspecialchars($adminBase) ?>/manage-images">Done editing</a>
+          <a class="button-link secondary" href="<?= htmlspecialchars($adminBase) ?>/manage-images">Back to media library</a>
         </div>
       </form>
-    </section>
-  <?php endif; ?>
+    <?php endif; ?>
+  </section>
 <?php endif; ?>
 
 <?php if ($adminSection === 'security'): ?>
@@ -287,21 +322,35 @@ function field_value(string $field, $editingImage): string
 <script>
   (function () {
     const fieldIds = {
-      object_type: 'object-type-input',
-      scope_type: 'scope-type-input',
-      telescope: 'telescope-input',
-      mount: 'mount-input',
-      camera: 'camera-input',
-      filter_wheel: 'filter-wheel-input',
-      filters: 'filters-input',
-      filter_set: 'filter-set-input'
+      upload: {
+        object_type: 'object-type-input',
+        scope_type: 'scope-type-input',
+        telescope: 'telescope-input',
+        mount: 'mount-input',
+        camera: 'camera-input',
+        filter_wheel: 'filter-wheel-input',
+        filters: 'filters-input',
+        filter_set: 'filter-set-input'
+      },
+      edit: {
+        object_type: 'edit-object-type-input',
+        scope_type: 'edit-scope-type-input',
+        telescope: 'edit-telescope-input',
+        mount: 'edit-mount-input',
+        camera: 'edit-camera-input',
+        filter_wheel: 'edit-filter-wheel-input',
+        filters: 'edit-filters-input',
+        filter_set: 'edit-filter-set-input'
+      }
     };
 
     document.querySelectorAll('[data-preset-pill]').forEach((button) => {
       button.addEventListener('click', () => {
         const key = button.getAttribute('data-preset-pill') || '';
         const value = button.getAttribute('data-preset-value') || '';
-        const inputId = fieldIds[key];
+        const target = button.getAttribute('data-preset-target') || 'upload';
+        const targetFields = fieldIds[target] || {};
+        const inputId = targetFields[key];
         if (!inputId) {
           return;
         }

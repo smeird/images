@@ -15,7 +15,7 @@ Implemented now:
 - metadata display (capture, object type, structured equipment setup incl. scope type/telescope/mount/camera/filter chain, exposure, processing, tags)
 - secure admin route with session auth, CSRF protection, basic login rate limiting, task-based admin portal pages (upload/setup presets/media/security), in-session password change controls, and authenticated image deletion
 - redesigned admin control center UX with guided task cards, clearer navigation labels, and inline help so uploads/presets/library/security actions are easier to discover.
-- admin media library now supports spotlight selection for the homepage hero card and inline metadata editing for previously uploaded captures (including SEO meta title/description/keywords).
+- admin media library now supports spotlight selection plus navigation into a dedicated edit page for full metadata + SEO updates (with preset pills available while editing).
 - image upload pipeline with MIME/size validation, thumbnail generation, and admin-side storage-capacity visibility
 - admin setup-preset management for one-click upload pills across observatory gear (scope type/object type/telescope/mount/camera/filter wheel/filters/filter set)
 - admin setup-preset changes now persist correctly to `setup_presets.json` for all categories, eliminating PHP notices during preset saves.
@@ -111,12 +111,12 @@ You can override route and limits via env vars:
 - Basic per-IP login throttling is enforced.
 - Uploads accept only JPEG/PNG/WebP and enforce max-size limit; effective limit is the minimum of `MAX_UPLOAD_BYTES`, `upload_max_filesize`, and `post_max_size`.
 - Wikipedia URLs are restricted to `wikipedia.org/wiki/...` article links and fetched server-side for preview + public detail enrichment.
-- Wikipedia panel includes attribution/license note and gracefully falls back when external fetch is unavailable.
+- Wikipedia panel includes attribution/license note, optional infobox-derived key facts (size/shape/distance-style fields), and graceful fallback when external fetch is unavailable.
 - Uploaded files are stored outside the public web root and served through `media.php`.
 - Wikipedia metadata fetches only allow trusted Wikipedia hosts (`en.wikipedia.org` plus optional language subdomains) and return structured error codes for UI-safe fallbacks.
 - Social preview URLs are generated from request host/scheme headers, so production deployments should keep trusted proxy/host header handling correctly configured.
 - Open Graph image metadata now includes type + dimensions so social crawlers can parse previews more consistently.
-- Admin metadata editor validates required fields and Wikipedia URLs before persisting updates, reducing accidental malformed records in JSON storage.
+- Admin metadata editor validates required fields and Wikipedia URLs before persisting updates; if the Wikipedia URL changes, cached wiki summary/facts are reset and refreshed so references stay in sync.
 
 ## Folder/file map
 
@@ -163,6 +163,7 @@ flowchart TD
   D --> U[Upload page]
   D --> P[Setup presets page]
   D --> M[Media library page]
+  D --> EDP[Dedicated edit page]
   D --> S[Security page]
   U --> T[Review storage + upload limits]
   U --> V[Use setup preset pills + enter capture details]
@@ -174,7 +175,9 @@ flowchart TD
   AA --> AB[Image appears in public gallery]
   P --> AC[Add/delete reusable preset pills in setup_presets.json]
   M --> AD[Set or change homepage spotlight capture]
-  M --> AE[Edit existing image metadata + SEO meta tags]
+  M --> AE[Open dedicated edit page for a capture]
+  EDP --> AJ[Edit all metadata fields + preset pills + SEO tags]
+  AJ --> AK[If Wikipedia URL changed, clear old cache and refresh wiki summary/facts]
   M --> AF[Delete image + CSRF confirm]
   AF --> AG[Remove JSON record + media files]
   S --> AH[Verify current password + enforce 12+ chars]
@@ -192,7 +195,7 @@ graph LR
   VIEWS --> SEO[Canonical + Open Graph meta tags]
   APP --> SEC[Auth + CSRF + Rate Limit]
   APP --> DATA[(JSON metadata/users + wiki cache/spotlight/SEO fields)]
-  APP --> WIKI[Wikipedia REST summary API]
+  APP --> WIKI[Wikipedia APIs (summary + parse infobox)]
   APP --> LOGS[(storage/logs/app.log)]
   APP --> IMG[(Originals + Thumbs in storage/)]
   APP --> WIKI[Wikipedia REST summary fetch]
@@ -203,7 +206,8 @@ graph LR
 - `wikipediaUrl` is captured from admin upload (or seeded data in `images.json`).
 - Detail pages always render cached Wikipedia fields first; page rendering never waits on live API calls.
 - If `wikiFetchedAt` is older than 7 days (or missing), refresh is queued as a lazy background task at PHP shutdown.
-- On fetch failure, existing cached title/extract/thumbnail values are preserved, `wikiStatus` is set to `error`, and the failure is logged to `storage/logs/app.log`.
+- On fetch failure, existing cached title/extract/thumbnail/key-fact values are preserved, `wikiStatus` is set to `error`, and the failure is logged to `storage/logs/app.log`.
+- When an admin changes a record's Wikipedia URL, cached wiki title/extract/thumbnail/key facts are immediately invalidated and a fresh fetch is attempted during the same save operation.
 
 ## Keeping docs in sync (required)
 
