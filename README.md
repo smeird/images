@@ -10,6 +10,7 @@ Implemented now:
 - public gallery and image detail pages
 - cinematic dark-sky visual treatment with starfield texture, spotlight hero card, and glassmorphism-style panels
 - ambient micro-interactions (hover lift/glow, metadata chips, richer card transitions)
+- image detail fullscreen pill is anchored at the top-right of the image for quicker access before scrolling metadata
 - Repository intentionally does not include bundled `.jpg` sample images; upload your own media through the admin flow.
 - metadata display (capture, equipment including optional scope type, exposure, processing, tags)
 - secure admin route with session auth, CSRF protection, basic login rate limiting, task-based admin portal pages (upload/scope responses/media/security), in-session password change controls, and authenticated image deletion
