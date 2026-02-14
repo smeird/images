@@ -111,73 +111,146 @@ function image_records(): array
     return $records;
 }
 
-function scope_type_presets(): array
+function setup_preset_categories(): array
 {
-    $presets = read_json(DATA_PATH . '/scope_types.json');
-    if (!is_array($presets)) {
-        return [];
+    return [
+        'scope_type' => 'Scope type',
+        'object_type' => 'Object type',
+        'telescope' => 'Telescope / tube',
+        'mount' => 'Mount',
+        'camera' => 'Camera',
+        'filter_wheel' => 'Filter wheel',
+        'filters' => 'Filters',
+        'filter_set' => 'Filter set',
+    ];
+}
+
+function setup_presets(): array
+{
+    $categories = setup_preset_categories();
+    $stored = read_json(DATA_PATH . '/setup_presets.json');
+
+    if (!isset($stored['scope_type']) || !is_array($stored['scope_type']) || empty($stored['scope_type'])) {
+        $legacyScopeTypes = read_json(DATA_PATH . '/scope_types.json');
+        if (is_array($legacyScopeTypes) && !empty($legacyScopeTypes)) {
+            $stored['scope_type'] = $legacyScopeTypes;
+        }
     }
 
     $normalized = [];
-    foreach ($presets as $preset) {
-        $value = trim((string) $preset);
-        if ($value === '') {
-            continue;
+
+    foreach ($categories as $key => $_label) {
+        $values = $stored[$key] ?? [];
+        if (!is_array($values)) {
+            $values = [];
         }
 
-        $normalized[] = $value;
+        $clean = [];
+        foreach ($values as $value) {
+            $text = trim((string) $value);
+            if ($text === '') {
+                continue;
+            }
+
+            $clean[] = $text;
+        }
+
+        $clean = array_values(array_unique($clean));
+        natcasesort($clean);
+        $normalized[$key] = array_values($clean);
     }
 
-    $normalized = array_values(array_unique($normalized));
-    natcasesort($normalized);
+    return $normalized;
+}
 
-    return array_values($normalized);
+function add_setup_preset(string $category, string $value): bool
+{
+    $category = trim($category);
+    $value = trim($value);
+    if ($value === '' || !array_key_exists($category, setup_preset_categories())) {
+        return false;
+    }
+
+    $presets = setup_presets();
+    if (!in_array($value, $presets[$category], true)) {
+        $presets[$category][] = $value;
+        natcasesort($presets[$category]);
+        $presets[$category] = array_values($presets[$category]);
+    }
+
+    write_json(DATA_PATH . '/setup_presets.json', $presets);
+    return true;
+}
+
+function delete_setup_preset(string $category, string $value): bool
+{
+    $category = trim($category);
+    $value = trim($value);
+    if ($value === '' || !array_key_exists($category, setup_preset_categories())) {
+        return false;
+    }
+
+    $presets = setup_presets();
+    $remaining = array_values(array_filter($presets[$category], static fn(string $preset): bool => $preset !== $value));
+    if (count($remaining) === count($presets[$category])) {
+        return false;
+    }
+
+    $presets[$category] = $remaining;
+    write_json(DATA_PATH . '/setup_presets.json', $presets);
+    return true;
+}
+
+function scope_type_presets(): array
+{
+    $presets = setup_presets();
+    return $presets['scope_type'] ?? [];
 }
 
 function add_scope_type_preset(string $value): bool
 {
-    $value = trim($value);
-    if ($value === '') {
-        return false;
-    }
-
-    $presets = scope_type_presets();
-    if (!in_array($value, $presets, true)) {
-        $presets[] = $value;
-    }
-
-    natcasesort($presets);
-    write_json(DATA_PATH . '/scope_types.json', array_values($presets));
-
-    return true;
+    return add_setup_preset('scope_type', $value);
 }
 
 function delete_scope_type_preset(string $value): bool
 {
-    $value = trim($value);
-    if ($value === '') {
-        return false;
+    return delete_setup_preset('scope_type', $value);
+}
+
+function compose_equipment_summary(array $record): string
+{
+    $parts = [];
+    foreach (['telescope', 'mount', 'camera', 'filter_wheel', 'filters', 'filter_set'] as $field) {
+        $value = trim((string) ($record[$field] ?? ''));
+        if ($value !== '') {
+            $parts[] = $value;
+        }
     }
 
-    $presets = scope_type_presets();
-    $remaining = array_values(array_filter($presets, static fn(string $preset): bool => $preset !== $value));
-    if (count($remaining) === count($presets)) {
-        return false;
-    }
-
-    write_json(DATA_PATH . '/scope_types.json', $remaining);
-    return true;
+    return implode(' · ', $parts);
 }
 
 function normalize_image_record(array $record): array
 {
     $record['scope_type'] = trim((string) ($record['scope_type'] ?? ''));
+    $record['object_type'] = trim((string) ($record['object_type'] ?? ''));
+    $record['telescope'] = trim((string) ($record['telescope'] ?? ''));
+    $record['mount'] = trim((string) ($record['mount'] ?? ''));
+    $record['camera'] = trim((string) ($record['camera'] ?? ''));
+    $record['filter_wheel'] = trim((string) ($record['filter_wheel'] ?? ''));
+    $record['filters'] = trim((string) ($record['filters'] ?? ''));
+    $record['filter_set'] = trim((string) ($record['filter_set'] ?? ''));
     $record['wikipediaUrl'] = trim((string) ($record['wikipediaUrl'] ?? ''));
     $record['wikiTitle'] = trim((string) ($record['wikiTitle'] ?? ''));
     $record['wikiExtract'] = trim((string) ($record['wikiExtract'] ?? ''));
     $record['wikiThumbnail'] = trim((string) ($record['wikiThumbnail'] ?? ''));
     $record['wikiFetchedAt'] = trim((string) ($record['wikiFetchedAt'] ?? ''));
     $record['wikiStatus'] = trim((string) ($record['wikiStatus'] ?? 'not_requested'));
+    $record['equipment'] = trim((string) ($record['equipment'] ?? ''));
+
+    if ($record['equipment'] === '') {
+        $record['equipment'] = compose_equipment_summary($record);
+    }
 
     return $record;
 }

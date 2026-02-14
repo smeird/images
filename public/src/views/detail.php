@@ -8,8 +8,17 @@
     <p><?= nl2br(htmlspecialchars($image['description'])) ?></p>
     <ul class="metadata-list">
       <li><strong>Object:</strong> <?= htmlspecialchars($image['object_name']) ?></li>
+      <?php if (!empty($image['object_type'])): ?>
+        <li><strong>Object type:</strong> <?= htmlspecialchars((string) $image['object_type']) ?></li>
+      <?php endif; ?>
       <li><strong>Captured:</strong> <?= htmlspecialchars($image['captured_at']) ?></li>
       <li><strong>Equipment:</strong> <?= htmlspecialchars($image['equipment']) ?></li>
+      <?php if (!empty($image['telescope'])): ?><li><strong>Telescope:</strong> <?= htmlspecialchars((string) $image['telescope']) ?></li><?php endif; ?>
+      <?php if (!empty($image['mount'])): ?><li><strong>Mount:</strong> <?= htmlspecialchars((string) $image['mount']) ?></li><?php endif; ?>
+      <?php if (!empty($image['camera'])): ?><li><strong>Camera:</strong> <?= htmlspecialchars((string) $image['camera']) ?></li><?php endif; ?>
+      <?php if (!empty($image['filter_wheel'])): ?><li><strong>Filter wheel:</strong> <?= htmlspecialchars((string) $image['filter_wheel']) ?></li><?php endif; ?>
+      <?php if (!empty($image['filters'])): ?><li><strong>Filters:</strong> <?= htmlspecialchars((string) $image['filters']) ?></li><?php endif; ?>
+      <?php if (!empty($image['filter_set'])): ?><li><strong>Filter set:</strong> <?= htmlspecialchars((string) $image['filter_set']) ?></li><?php endif; ?>
       <?php if (!empty($image['scope_type'])): ?>
         <li><strong>Scope type:</strong> <?= htmlspecialchars((string) $image['scope_type']) ?></li>
       <?php endif; ?>

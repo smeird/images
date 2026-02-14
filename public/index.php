@@ -110,7 +110,7 @@ if ($path === $adminBase . '/logout') {
 
 $adminSections = [
     $adminBase . '/upload' => 'upload',
-    $adminBase . '/scope-types' => 'scope_types',
+    $adminBase . '/setup-presets' => 'setup_presets',
     $adminBase . '/manage-images' => 'manage_images',
     $adminBase . '/security' => 'security',
 ];
@@ -160,17 +160,21 @@ if (isset($adminSections[$path])) {
                 } else {
                     $error = 'Image could not be deleted (record not found).';
                 }
-            } elseif ($formAction === 'add_scope_type') {
-                if (add_scope_type_preset((string) ($_POST['scope_type_name'] ?? ''))) {
-                    $success = 'Scope type preset saved.';
+            } elseif ($formAction === 'add_setup_preset') {
+                $presetCategory = (string) ($_POST['preset_category'] ?? '');
+                $presetValue = (string) ($_POST['preset_value'] ?? '');
+                if (add_setup_preset($presetCategory, $presetValue)) {
+                    $success = 'Preset saved.';
                 } else {
-                    $error = 'Please enter a valid scope type name.';
+                    $error = 'Please choose a category and enter a valid preset value.';
                 }
-            } elseif ($formAction === 'delete_scope_type') {
-                if (delete_scope_type_preset((string) ($_POST['scope_type_name'] ?? ''))) {
-                    $success = 'Scope type preset removed.';
+            } elseif ($formAction === 'delete_setup_preset') {
+                $presetCategory = (string) ($_POST['preset_category'] ?? '');
+                $presetValue = (string) ($_POST['preset_value'] ?? '');
+                if (delete_setup_preset($presetCategory, $presetValue)) {
+                    $success = 'Preset removed.';
                 } else {
-                    $error = 'Scope type preset was not found.';
+                    $error = 'Preset was not found.';
                 }
             } elseif (($formAction === 'upload_image_preview') && trim($wikipediaUrlInput) !== '') {
                 try {
@@ -192,10 +196,24 @@ if (isset($adminSections[$path])) {
                             'thumb' => $media['thumb'],
                             'title' => trim((string) ($_POST['title'] ?? '')),
                             'object_name' => trim((string) ($_POST['object_name'] ?? '')),
+                            'object_type' => trim((string) ($_POST['object_type'] ?? '')),
                             'captured_at' => trim((string) ($_POST['captured_at'] ?? '')),
                             'description' => trim((string) ($_POST['description'] ?? '')),
-                            'equipment' => trim((string) ($_POST['equipment'] ?? '')),
                             'scope_type' => trim((string) ($_POST['scope_type'] ?? '')),
+                            'telescope' => trim((string) ($_POST['telescope'] ?? '')),
+                            'mount' => trim((string) ($_POST['mount'] ?? '')),
+                            'camera' => trim((string) ($_POST['camera'] ?? '')),
+                            'filter_wheel' => trim((string) ($_POST['filter_wheel'] ?? '')),
+                            'filters' => trim((string) ($_POST['filters'] ?? '')),
+                            'filter_set' => trim((string) ($_POST['filter_set'] ?? '')),
+                            'equipment' => compose_equipment_summary([
+                                'telescope' => (string) ($_POST['telescope'] ?? ''),
+                                'mount' => (string) ($_POST['mount'] ?? ''),
+                                'camera' => (string) ($_POST['camera'] ?? ''),
+                                'filter_wheel' => (string) ($_POST['filter_wheel'] ?? ''),
+                                'filters' => (string) ($_POST['filters'] ?? ''),
+                                'filter_set' => (string) ($_POST['filter_set'] ?? ''),
+                            ]),
                             'exposure' => trim((string) ($_POST['exposure'] ?? '')),
                             'processing' => trim((string) ($_POST['processing'] ?? '')),
                             'wikipedia_url' => normalize_wikipedia_url_for_storage($wikipediaUrlInput),
@@ -231,7 +249,8 @@ if (isset($adminSections[$path])) {
         'wikipedia_url' => $wikipediaUrlInput,
         'wikipedia_preview' => $wikipediaPreview,
         'images' => image_records(),
-        'scope_type_presets' => scope_type_presets(),
+        'setup_preset_categories' => setup_preset_categories(),
+        'setup_presets' => setup_presets(),
         'storage_summary' => storage_space_summary(),
     ]);
     exit;
