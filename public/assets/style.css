@@ -429,3 +429,11 @@ button.danger {
   width: auto;
   margin: 0;
 }
+
+.preset-category-block {
+  margin-top: 1rem;
+}
+
+.preset-category-block h4 {
+  margin-bottom: 0.45rem;
+}

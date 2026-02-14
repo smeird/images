@@ -12,9 +12,10 @@ Implemented now:
 - ambient micro-interactions (hover lift/glow, metadata chips, richer card transitions)
 - image detail fullscreen pill is anchored at the top-right of the image for quicker access before scrolling metadata
 - Repository intentionally does not include bundled `.jpg` sample images; upload your own media through the admin flow.
-- metadata display (capture, equipment including optional scope type, exposure, processing, tags)
-- secure admin route with session auth, CSRF protection, basic login rate limiting, task-based admin portal pages (upload/scope responses/media/security), in-session password change controls, and authenticated image deletion
+- metadata display (capture, object type, structured equipment setup incl. scope type/telescope/mount/camera/filter chain, exposure, processing, tags)
+- secure admin route with session auth, CSRF protection, basic login rate limiting, task-based admin portal pages (upload/setup presets/media/security), in-session password change controls, and authenticated image deletion
 - image upload pipeline with MIME/size validation, thumbnail generation, and admin-side storage-capacity visibility
+- admin setup-preset management for one-click upload pills across observatory gear (scope type/object type/telescope/mount/camera/filter wheel/filters/filter set)
 - graceful oversize-upload handling that reports when server (`post_max_size` / `upload_max_filesize`) or app (`MAX_UPLOAD_BYTES`) limits reject a request before PHP can parse form fields
 - graceful storage-write error handling in admin actions (scope-type presets and uploads) when `storage/data` is not writable, avoiding PHP warnings exposed to users
 - Wikipedia URL normalization uses PHP 7.4-compatible string checks (no PHP 8-only helpers) to avoid runtime fatals on older deployments.
@@ -122,7 +123,8 @@ You can override route and limits via env vars:
 - `storage/sessions/` — file-backed PHP session storage used for admin auth + CSRF continuity.
 - `storage/logs/app.log` — background/lazy refresh failure logs for non-fatal runtime issues.
 - `storage/data/users.json` — admin credential hashes.
-- `storage/data/scope_types.json` — reusable scope type response presets for admin uploads.
+- `storage/data/setup_presets.json` — reusable setup preset pills (scope type, object type, telescope, mount, camera, filter wheel, filters, filter set) for admin uploads.
+- `storage/data/scope_types.json` — legacy scope-type preset store still read for backward compatibility.
 - `WEBSITE_TASKS.md` — implementation tracker.
 - `CODEX_PARALLEL_TASKS.md` — parallel work planning.
 
@@ -151,18 +153,18 @@ flowchart TD
   B --> C[Credential check + rate limit]
   C --> D[Admin portal task navigation]
   D --> U[Upload image page]
-  D --> P[Scope type responses page]
+  D --> P[Setup presets page]
   D --> M[Manage images page]
   D --> S[Security page]
   U --> T[Show storage summary]
-  U --> V[Select scope type via preset pills or manual entry]
+  U --> V[Select object/setup fields via preset pills or manual entry]
   U --> W[Upload image + metadata]
   W --> X{Body exceeds effective upload limit?}
   X -- yes --> Y[Show actionable size-limit error]
   X -- no --> Z[MIME/size validation]
   Z --> AA[Store original + generate thumbnail + write metadata JSON]
   AA --> AB[Image appears in public gallery]
-  P --> AC[Add/delete reusable scope type presets in scope_types.json]
+  P --> AC[Add/delete reusable preset pills in setup_presets.json]
   M --> AD[Delete image + CSRF confirm]
   AD --> AE[Remove JSON record + media files]
   S --> AF[Verify current password + enforce 12+ chars]
