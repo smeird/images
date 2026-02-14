@@ -250,6 +250,74 @@ function find_image(string $id): ?array
     return null;
 }
 
+function delete_image_by_id(string $id): bool
+{
+    $id = trim($id);
+    if ($id === '') {
+        return false;
+    }
+
+    $images = read_json(DATA_PATH . '/images.json');
+    $remaining = [];
+    $deleted = null;
+
+    foreach ($images as $record) {
+        if (($record['id'] ?? '') === $id) {
+            $deleted = normalize_image_record($record);
+            continue;
+        }
+
+        $remaining[] = $record;
+    }
+
+    if ($deleted === null) {
+        return false;
+    }
+
+    write_json(DATA_PATH . '/images.json', $remaining);
+
+    foreach (['original' => ORIGINALS_PATH, 'thumb' => THUMBS_PATH] as $field => $basePath) {
+        $filename = basename((string) ($deleted[$field] ?? ''));
+        if ($filename === '') {
+            continue;
+        }
+
+        $targetPath = $basePath . '/' . $filename;
+        if (is_file($targetPath)) {
+            @unlink($targetPath);
+        }
+    }
+
+    return true;
+}
+
+function storage_space_summary(): ?array
+{
+    $total = @disk_total_space(PROJECT_PATH);
+    $free = @disk_free_space(PROJECT_PATH);
+
+    if (!is_float($total) && !is_int($total)) {
+        return null;
+    }
+
+    if (!is_float($free) && !is_int($free)) {
+        return null;
+    }
+
+    $totalBytes = (int) $total;
+    $freeBytes = (int) $free;
+    $usedBytes = max(0, $totalBytes - $freeBytes);
+
+    return [
+        'total_bytes' => $totalBytes,
+        'free_bytes' => $freeBytes,
+        'used_bytes' => $usedBytes,
+        'total_human' => format_bytes_human($totalBytes),
+        'free_human' => format_bytes_human($freeBytes),
+        'used_human' => format_bytes_human($usedBytes),
+    ];
+}
+
 function render(string $view, array $vars = []): void
 {
     $config = load_config();

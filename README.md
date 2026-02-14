@@ -12,14 +12,13 @@ Implemented now:
 - ambient micro-interactions (hover lift/glow, metadata chips, richer card transitions)
 - Repository intentionally does not include bundled `.jpg` sample images; upload your own media through the admin flow.
 - metadata display (capture, equipment, exposure, processing, tags)
-- social preview support on image detail pages via Open Graph/Twitter meta tags plus a copyable per-image share link for Facebook/WhatsApp/iMessage
-- secure admin route with session auth, CSRF protection, basic login rate limiting, and in-session password change controls
-- image upload pipeline with MIME/size validation and thumbnail generation
+- secure admin route with session auth, CSRF protection, basic login rate limiting, in-session password change controls, and authenticated image deletion
+- image upload pipeline with MIME/size validation, thumbnail generation, and admin-side storage-capacity visibility
 - graceful oversize-upload handling that reports when server (`post_max_size` / `upload_max_filesize`) or app (`MAX_UPLOAD_BYTES`) limits reject a request before PHP can parse form fields
 - Wikipedia URL normalization uses PHP 7.4-compatible string checks (no PHP 8-only helpers) to avoid runtime fatals on older deployments.
 
 Planned next:
-- richer filtering/search, editing/deleting uploads, and stronger production hardening.
+- richer filtering/search, metadata editing, and stronger production hardening.
 
 ## Runtime/build assumptions
 
@@ -98,7 +97,7 @@ You can override route and limits via env vars:
 
 - Admin route is hidden but also protected with real authentication.
 - Passwords are stored as `password_hash` values (bcrypt) and can be rotated from the authenticated admin area.
-- CSRF token required on login and upload forms, backed by file-based PHP sessions in `storage/sessions` to avoid token mismatches when default system session paths are unavailable.
+- CSRF token required on login, upload, delete, and password-change forms, backed by file-based PHP sessions in `storage/sessions` to avoid token mismatches when default system session paths are unavailable.
 - Basic per-IP login throttling is enforced.
 - Uploads accept only JPEG/PNG/WebP and enforce max-size limit; effective limit is the minimum of `MAX_UPLOAD_BYTES`, `upload_max_filesize`, and `post_max_size`.
 - Wikipedia URLs are restricted to `wikipedia.org/wiki/...` article links and fetched server-side for preview + public detail enrichment.
@@ -144,6 +143,8 @@ flowchart TD
 flowchart TD
   A[Admin opens hidden route] --> B[Login form + CSRF]
   B --> C[Credential check + rate limit]
+  C --> S[Show storage summary
+free/used/total disk space]
   C --> D[Upload image + enter metadata]
   D --> M{Body exceeds effective upload limit?}
   M -- yes --> N[Show actionable size-limit error]
@@ -151,6 +152,10 @@ flowchart TD
   C --> J[Optional password change form]
   J --> K[Verify current password + enforce 12+ chars]
   K --> L[Write updated password_hash to users JSON]
+  C --> O[Manage uploaded images list]
+  O --> P[Delete image + CSRF confirm]
+  P --> Q[Remove JSON record + media files]
+  Q --> R[Image removed from public gallery]
   E --> F[Store original outside web root]
   F --> G[Generate thumbnail]
   G --> H[Write JSON metadata]
