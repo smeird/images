@@ -164,13 +164,16 @@ if (isset($adminSections[$path])) {
                 if (add_scope_type_preset((string) ($_POST['scope_type_name'] ?? ''))) {
                     $success = 'Scope type preset saved.';
                 } else {
-                    $error = 'Please enter a valid scope type name.';
+                    $scopeTypeName = trim((string) ($_POST['scope_type_name'] ?? ''));
+                    $error = $scopeTypeName === ''
+                        ? 'Please enter a valid scope type name.'
+                        : 'Scope type preset could not be saved because storage is not writable.';
                 }
             } elseif ($formAction === 'delete_scope_type') {
                 if (delete_scope_type_preset((string) ($_POST['scope_type_name'] ?? ''))) {
                     $success = 'Scope type preset removed.';
                 } else {
-                    $error = 'Scope type preset was not found.';
+                    $error = 'Scope type preset could not be removed (not found or storage is not writable).';
                 }
             } elseif (($formAction === 'upload_image_preview') && trim($wikipediaUrlInput) !== '') {
                 try {
@@ -208,9 +211,12 @@ if (isset($adminSections[$path])) {
                             'wikiStatus' => 'not_requested',
                         ];
 
-                        write_json(DATA_PATH . '/images.json', $images);
-                        $success = 'Image uploaded successfully.';
-                        $wikipediaUrlInput = '';
+                        if (!write_json(DATA_PATH . '/images.json', $images)) {
+                            $error = 'Image metadata could not be saved because storage is not writable.';
+                        } else {
+                            $success = 'Image uploaded successfully.';
+                            $wikipediaUrlInput = '';
+                        }
                     } catch (Throwable $throwable) {
                         $error = $throwable->getMessage();
                     }
