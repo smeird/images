@@ -98,9 +98,19 @@ function read_json(string $path): array
     return is_array($decoded) ? $decoded : [];
 }
 
-function write_json(string $path, array $data): void
+function write_json(string $path, array $data): bool
 {
-    file_put_contents($path, json_encode($data, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES));
+    $directory = dirname($path);
+    if (!is_dir($directory) || !is_writable($directory)) {
+        return false;
+    }
+
+    $encoded = json_encode($data, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES);
+    if (!is_string($encoded)) {
+        return false;
+    }
+
+    return @file_put_contents($path, $encoded, LOCK_EX) !== false;
 }
 
 function image_records(): array
@@ -147,7 +157,9 @@ function add_scope_type_preset(string $value): bool
     }
 
     natcasesort($presets);
-    write_json(DATA_PATH . '/scope_types.json', array_values($presets));
+    if (!write_json(DATA_PATH . '/scope_types.json', array_values($presets))) {
+        return false;
+    }
 
     return true;
 }
@@ -165,8 +177,7 @@ function delete_scope_type_preset(string $value): bool
         return false;
     }
 
-    write_json(DATA_PATH . '/scope_types.json', $remaining);
-    return true;
+    return write_json(DATA_PATH . '/scope_types.json', $remaining);
 }
 
 function normalize_image_record(array $record): array
@@ -336,7 +347,9 @@ function delete_image_by_id(string $id): bool
         return false;
     }
 
-    write_json(DATA_PATH . '/images.json', $remaining);
+    if (!write_json(DATA_PATH . '/images.json', $remaining)) {
+        return false;
+    }
 
     foreach (['original' => ORIGINALS_PATH, 'thumb' => THUMBS_PATH] as $field => $basePath) {
         $filename = basename((string) ($deleted[$field] ?? ''));
