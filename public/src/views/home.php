@@ -32,6 +32,7 @@ foreach ($images as $image) {
         'captured_at' => (string) ($image['captured_at'] ?? ''),
         'thumb' => (string) ($image['thumb'] ?? ''),
         'exposure' => (string) ($image['exposure'] ?? ''),
+        'equipment' => (string) ($image['equipment'] ?? (($image['telescope'] ?? '') . ' · ' . ($image['camera'] ?? ''))),
         'tags' => $imageTags,
     ];
 }
@@ -162,6 +163,17 @@ sort($tagOptions, SORT_NATURAL | SORT_FLAG_CASE);
             </div>
             <h3><?= htmlspecialchars($image['title']) ?></h3>
             <p><?= htmlspecialchars($image['object_name']) ?> · <?= htmlspecialchars($image['captured_at']) ?></p>
+            <?php
+              $overlayExposure = trim((string) ($image['exposure'] ?? ''));
+              $overlayEquipment = trim((string) ($image['equipment'] ?? ''));
+              if ($overlayEquipment === '') {
+                  $overlayEquipment = trim((string) (($image['telescope'] ?? '') . ' · ' . ($image['camera'] ?? '')), ' ·');
+              }
+            ?>
+            <div class="card-overlay" aria-hidden="true">
+              <?php if ($overlayExposure !== ''): ?><span>Exposure: <?= htmlspecialchars($overlayExposure) ?></span><?php endif; ?>
+              <?php if ($overlayEquipment !== ''): ?><span>Gear: <?= htmlspecialchars($overlayEquipment) ?></span><?php endif; ?>
+            </div>
           </div>
         </a>
       </article>
@@ -223,18 +235,80 @@ sort($tagOptions, SORT_NATURAL | SORT_FLAG_CASE);
     sort: controls.sort.value.trim() || 'newest'
   });
 
+  const escapeHtml = (value) => String(value || '')
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
+
+  const buildOverlayMarkup = (image) => {
+    const exposure = String(image.exposure || '').trim();
+    const equipment = String(image.equipment || '').trim();
+    const lines = [];
+    if (exposure) lines.push('<span>Exposure: ' + escapeHtml(exposure) + '</span>');
+    if (equipment) lines.push('<span>Gear: ' + escapeHtml(equipment) + '</span>');
+
+    return '<div class="card-overlay" aria-hidden="true">' + lines.join('') + '</div>';
+  };
+
+  const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
+  let advancedMotionEnabled = !prefersReducedMotion.matches;
+
+  const resetCardMotion = (card) => {
+    card.style.removeProperty('--tilt-x');
+    card.style.removeProperty('--tilt-y');
+    card.style.removeProperty('--pointer-y');
+    card.style.removeProperty('--shadow-scale');
+  };
+
+  const bindCardMotion = (card) => {
+    if (!card || card.dataset.motionBound === 'true') return;
+    card.dataset.motionBound = 'true';
+
+    const handleMove = (event) => {
+      if (!advancedMotionEnabled) return;
+      const rect = card.getBoundingClientRect();
+      const px = Math.max(0, Math.min(1, (event.clientX - rect.left) / rect.width));
+      const py = Math.max(0, Math.min(1, (event.clientY - rect.top) / rect.height));
+      const tiltX = (0.5 - py) * 7;
+      const tiltY = (px - 0.5) * 9;
+      card.style.setProperty('--tilt-x', tiltX.toFixed(2) + 'deg');
+      card.style.setProperty('--tilt-y', tiltY.toFixed(2) + 'deg');
+      card.style.setProperty('--pointer-y', py.toFixed(3));
+      card.style.setProperty('--shadow-scale', (1 + ((1 - py) * 0.08)).toFixed(3));
+    };
+
+    card.addEventListener('pointermove', handleMove);
+    card.addEventListener('pointerleave', () => resetCardMotion(card));
+    card.addEventListener('focusin', () => {
+      card.classList.add('is-focus-visible');
+    });
+    card.addEventListener('focusout', () => {
+      card.classList.remove('is-focus-visible');
+      resetCardMotion(card);
+    });
+  };
+
+  const initCardMotion = () => {
+    gridEl.querySelectorAll('.card').forEach((card) => {
+      bindCardMotion(card);
+      if (!advancedMotionEnabled) resetCardMotion(card);
+    });
+  };
+
+  if (typeof prefersReducedMotion.addEventListener === 'function') {
+    prefersReducedMotion.addEventListener('change', (event) => {
+      advancedMotionEnabled = !event.matches;
+      initCardMotion();
+    });
+  }
+
   const renderCards = (records) => {
     if (!records.length) {
       gridEl.innerHTML = '<p>No images match the current filters.</p>';
       return;
     }
-
-    const escapeHtml = (value) => String(value || '')
-      .replace(/&/g, '&amp;')
-      .replace(/</g, '&lt;')
-      .replace(/>/g, '&gt;')
-      .replace(/"/g, '&quot;')
-      .replace(/'/g, '&#39;');
 
     const cards = records.map((image) => {
       const detailUrl = '/image.php?id=' + encodeURIComponent(image.id || '');
@@ -247,11 +321,13 @@ sort($tagOptions, SORT_NATURAL | SORT_FLAG_CASE);
         + '<img loading="lazy" src="' + thumbUrl + '" alt="' + escapeHtml(title) + '">'
         + '<h3>' + escapeHtml(title) + '</h3>'
         + '<p>' + escapeHtml(subtitle) + '</p>'
+        + buildOverlayMarkup(image)
         + '</a>'
         + '</article>';
     });
 
     gridEl.innerHTML = cards.join('');
+    initCardMotion();
   };
 
   const syncQueryParams = (state) => {
@@ -324,6 +400,7 @@ sort($tagOptions, SORT_NATURAL | SORT_FLAG_CASE);
     });
   }
 
+  initCardMotion();
   run();
 })();
 </script>

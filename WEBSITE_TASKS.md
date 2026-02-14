@@ -107,7 +107,7 @@ This task plan is designed for a Linux + Apache + PHP environment and optimized 
 - [ ] Before/after slider (stacked vs processed image), optional for advanced showcase.
 - [x] Spotlight section on homepage with rotating selection rules (latest, featured override, daily deterministic pick).
 - [ ] Constellation-style timeline view by capture date.
-- [x] Ambient micro-interactions (hover glows, metadata fade-ins, elegant loading skeletons).
+- [x] Ambient micro-interactions (hover/focus metadata fade-ins, elegant loading skeletons, and pointer-based card tilt with reduced-motion fallback).
 - [x] Reimagined landing page as an image-first experience (wider gallery utilization, compact filter footprint, and reduced gallery text emphasis for stronger visual impact).
 - [x] Mobile ergonomics polish for 360–430px widths (sticky utility row, larger 44px touch targets, tighter typography/spacing, overflow-safe title + metadata chip handling).
 - [x] Define clearly distinct detail-view experiences by breakpoint: widescreen desktop layout that uses horizontal space with overflow-safe metadata/Wikipedia divider behavior, and long-thin stacked mobile layout for narrow screens.

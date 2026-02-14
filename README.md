@@ -9,7 +9,7 @@ Astronomy image showcase website with a public gallery and a secure admin upload
 Implemented now:
 - public gallery and image detail pages
 - cinematic dark-sky visual treatment with starfield texture, rotating spotlight hero card rules (latest/featured/daily deterministic date hash), and glassmorphism-style panels
-- ambient micro-interactions (hover lift/glow, metadata chips, richer card transitions, and subtle hero twinkle/gradient drift that respects reduced-motion settings)
+- ambient micro-interactions (hover lift/glow, keyboard-accessible card metadata overlays, mouse-position tilt/parallax on gallery cards, and subtle hero twinkle/gradient drift that respects reduced-motion settings)
 - detail viewer now has explicit split responsive experiences: widescreen desktop layout (expanded media canvas + widened side metadata/Wikipedia column for denser scanning, with reduced heading/body/chip typography and overflow-safe wiki divider sizing) and a stacked long-form mobile layout tuned for narrow screens.
 - image detail fullscreen pill is anchored at the top-right of the image for quicker access before scrolling metadata
 - Repository intentionally does not include bundled `.jpg` sample images; upload your own media through the admin flow.
