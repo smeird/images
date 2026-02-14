@@ -15,6 +15,7 @@ Implemented now:
 - secure admin route with session auth, CSRF protection, basic login rate limiting, and in-session password change controls
 - image upload pipeline with MIME/size validation and thumbnail generation
 - graceful oversize-upload handling that reports when server (`post_max_size` / `upload_max_filesize`) or app (`MAX_UPLOAD_BYTES`) limits reject a request before PHP can parse form fields
+- Wikipedia URL normalization uses PHP 7.4-compatible string checks (no PHP 8-only helpers) to avoid runtime fatals on older deployments.
 
 Planned next:
 - richer filtering/search, editing/deleting uploads, and stronger production hardening.
