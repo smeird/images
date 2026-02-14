@@ -28,7 +28,7 @@ function load_config(): array
     return [
         'site_name' => getenv('SITE_NAME') ?: 'Night Sky Atlas',
         'admin_route' => getenv('ADMIN_ROUTE') ?: '/hidden-admin',
-        'max_upload_bytes' => (int) (getenv('MAX_UPLOAD_BYTES') ?: 10 * 1024 * 1024),
+        'max_upload_bytes' => (int) (getenv('MAX_UPLOAD_BYTES') ?: 150 * 1024 * 1024),
         'allowed_mime' => ['image/jpeg', 'image/png', 'image/webp'],
     ];
 }
