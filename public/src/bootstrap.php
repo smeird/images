@@ -98,9 +98,19 @@ function read_json(string $path): array
     return is_array($decoded) ? $decoded : [];
 }
 
-function write_json(string $path, array $data): void
+function write_json(string $path, array $data): bool
 {
-    file_put_contents($path, json_encode($data, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES));
+    $directory = dirname($path);
+    if (!is_dir($directory) || !is_writable($directory)) {
+        return false;
+    }
+
+    $encoded = json_encode($data, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES);
+    if (!is_string($encoded)) {
+        return false;
+    }
+
+    return @file_put_contents($path, $encoded, LOCK_EX) !== false;
 }
 
 function image_records(): array
@@ -178,7 +188,11 @@ function add_setup_preset(string $category, string $value): bool
         $presets[$category] = array_values($presets[$category]);
     }
 
-    write_json(DATA_PATH . '/setup_presets.json', $presets);
+    natcasesort($presets);
+    if (!write_json(DATA_PATH . '/scope_types.json', array_values($presets))) {
+        return false;
+    }
+
     return true;
 }
 
@@ -196,9 +210,7 @@ function delete_setup_preset(string $category, string $value): bool
         return false;
     }
 
-    $presets[$category] = $remaining;
-    write_json(DATA_PATH . '/setup_presets.json', $presets);
-    return true;
+    return write_json(DATA_PATH . '/scope_types.json', $remaining);
 }
 
 function scope_type_presets(): array
@@ -409,7 +421,9 @@ function delete_image_by_id(string $id): bool
         return false;
     }
 
-    write_json(DATA_PATH . '/images.json', $remaining);
+    if (!write_json(DATA_PATH . '/images.json', $remaining)) {
+        return false;
+    }
 
     foreach (['original' => ORIGINALS_PATH, 'thumb' => THUMBS_PATH] as $field => $basePath) {
         $filename = basename((string) ($deleted[$field] ?? ''));

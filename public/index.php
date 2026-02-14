@@ -166,7 +166,10 @@ if (isset($adminSections[$path])) {
                 if (add_setup_preset($presetCategory, $presetValue)) {
                     $success = 'Preset saved.';
                 } else {
-                    $error = 'Please choose a category and enter a valid preset value.';
+                    $scopeTypeName = trim((string) ($_POST['scope_type_name'] ?? ''));
+                    $error = $scopeTypeName === ''
+                        ? 'Please enter a valid scope type name.'
+                        : 'Scope type preset could not be saved because storage is not writable.';
                 }
             } elseif ($formAction === 'delete_setup_preset') {
                 $presetCategory = (string) ($_POST['preset_category'] ?? '');
@@ -174,7 +177,7 @@ if (isset($adminSections[$path])) {
                 if (delete_setup_preset($presetCategory, $presetValue)) {
                     $success = 'Preset removed.';
                 } else {
-                    $error = 'Preset was not found.';
+                    $error = 'Scope type preset could not be removed (not found or storage is not writable).';
                 }
             } elseif (($formAction === 'upload_image_preview') && trim($wikipediaUrlInput) !== '') {
                 try {
@@ -226,9 +229,12 @@ if (isset($adminSections[$path])) {
                             'wikiStatus' => 'not_requested',
                         ];
 
-                        write_json(DATA_PATH . '/images.json', $images);
-                        $success = 'Image uploaded successfully.';
-                        $wikipediaUrlInput = '';
+                        if (!write_json(DATA_PATH . '/images.json', $images)) {
+                            $error = 'Image metadata could not be saved because storage is not writable.';
+                        } else {
+                            $success = 'Image uploaded successfully.';
+                            $wikipediaUrlInput = '';
+                        }
                     } catch (Throwable $throwable) {
                         $error = $throwable->getMessage();
                     }
