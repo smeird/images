@@ -134,6 +134,55 @@ main {
 .hero-feature h2 { margin: 0 0 0.7rem; font-size: 1.05rem; color: #cae0ff; }
 .hero-feature p { margin-bottom: 0; color: var(--muted); }
 
+
+.filter-toolbar {
+  margin: 0 0 1rem;
+  padding: 1rem;
+  border-radius: 16px;
+  border: 1px solid var(--border);
+  background: var(--panel);
+  box-shadow: var(--shadow);
+}
+
+.filter-toolbar__grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: 0.7rem;
+}
+
+.filter-toolbar label {
+  margin: 0;
+}
+
+.filter-toolbar select,
+.filter-toolbar input {
+  margin-top: 0.35rem;
+  border-radius: 999px;
+  padding-inline: 0.8rem;
+  background: rgba(6, 16, 33, 0.85);
+  border: 1px solid rgba(137, 170, 230, 0.35);
+}
+
+.filter-toolbar__actions {
+  margin-top: 0.8rem;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.7rem;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.filter-toolbar__actions .muted {
+  margin: 0;
+}
+
+#filter-reset {
+  width: auto;
+  padding: 0.5rem 0.95rem;
+  border-radius: 999px;
+  margin-top: 0;
+}
+
 .grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
@@ -489,4 +538,23 @@ button.danger {
 .inline-form button[disabled] {
   opacity: 0.65;
   cursor: not-allowed;
+}
+
+
+@media (max-width: 620px) {
+  .filter-toolbar {
+    padding: 0.85rem;
+  }
+
+  .filter-toolbar__grid {
+    grid-template-columns: 1fr;
+  }
+
+  .filter-toolbar__actions {
+    align-items: stretch;
+  }
+
+  #filter-reset {
+    width: 100%;
+  }
 }

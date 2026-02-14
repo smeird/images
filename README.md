@@ -13,6 +13,7 @@ Implemented now:
 - image detail fullscreen pill is anchored at the top-right of the image for quicker access before scrolling metadata
 - Repository intentionally does not include bundled `.jpg` sample images; upload your own media through the admin flow.
 - metadata display (capture, object type, structured equipment setup incl. scope type/telescope/mount/camera/filter chain, exposure, processing, tags)
+- homepage filter toolbar with object type/tag/date-range/text search + client-side sort controls (newest/oldest/exposure/title) backed by embedded JSON payload and query-param state persistence for shareable gallery URLs
 - secure admin route with session auth, CSRF protection, basic login rate limiting, task-based admin portal pages (upload/setup presets/media/security), in-session password change controls, and authenticated image deletion
 - redesigned admin control center UX with guided task cards, clearer navigation labels, and inline help so uploads/presets/library/security actions are easier to discover.
 - admin media library now supports spotlight selection plus navigation into a dedicated edit page for full metadata + SEO updates (with preset pills available while editing).
@@ -26,7 +27,7 @@ Implemented now:
 - social preview tags on detail pages now point to the generated 800x500 JPEG thumbnail (instead of full original) to improve WhatsApp/Facebook card rendering reliability.
 
 Planned next:
-- richer filtering/search and stronger production hardening.
+- continue production hardening (filter/search + client-side sorting now available on homepage with shareable query-parameter URLs).
 
 ## Runtime/build assumptions
 
@@ -123,6 +124,7 @@ You can override route and limits via env vars:
 - `public/index.php` — front controller/router for public + admin routes.
 - `public/src/bootstrap.php` — shared helpers, auth, upload + thumbnail logic.
 - `public/src/views/` — HTML view templates.
+- `public/src/views/home.php` now embeds homepage image JSON payload for client-side filtering/sorting without full-page reloads.
 - `public/src/services/wikipedia.php` — Wikipedia URL validation + metadata normalization helper service.
 - `public/assets/style.css` — cinematic dark UI styling and interaction polish.
 - `storage/data/images.json` — image metadata records (including Wikipedia cache fields, spotlight flag, and editable SEO meta tags).
@@ -139,16 +141,18 @@ You can override route and limits via env vars:
 ```mermaid
 flowchart TD
   A[Visitor lands on homepage] --> B[See cinematic hero + spotlight capture]
-  B --> C[Browse thumbnail gallery]
-  C --> D[Open image detail]
-  D --> E[Review metadata\nobject + equipment + exposure + tags]
-  E --> I[Copy image-specific share link]
+  B --> C[Set filter/sort controls on gallery toolbar]
+  C --> D[Grid re-renders client-side + URL query params sync]
+  D --> E[Browse filtered thumbnail gallery]
+  E --> F[Open image detail]
+  F --> G[Review metadata\nobject + equipment + exposure + tags]
+  G --> I[Copy image-specific share link]
   I --> J[Paste in Facebook/WhatsApp/iMessage]
   J --> K[Preview card shows image + title]
-  K --> D
-  E --> F{Wikipedia data available?}
-  F -- yes --> G[Show extract + thumbnail + read more link + attribution note]
-  F -- no/fetch failed --> H[Show fallback: No external reference yet]
+  K --> F
+  G --> H{Wikipedia data available?}
+  H -- yes --> WIKI[Show extract + thumbnail + read more link + attribution note]
+  H -- no/fetch failed --> L[Show fallback: No external reference yet]
 ```
 
 ## Admin upload flow
