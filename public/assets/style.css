@@ -373,7 +373,7 @@ main {
 
 .detail {
   display: grid;
-  grid-template-columns: minmax(0, 1.8fr) minmax(320px, 1fr);
+  grid-template-columns: minmax(0, 1.8fr) minmax(640px, 2fr);
   gap: 1.1rem;
 }
 
