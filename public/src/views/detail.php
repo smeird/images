@@ -1,9 +1,17 @@
 <article class="detail">
-  <figure class="detail-media" data-detail-media>
-    <img class="detail-image" src="/media.php?type=original&file=<?= urlencode($image['original']) ?>" alt="<?= htmlspecialchars($image['title']) ?>" data-detail-image>
+  <figure class="detail-media skeleton-card" data-detail-media data-skeleton-card>
+    <div class="skeleton-shimmer skeleton-media-block detail-media-skeleton" data-skeleton-placeholder aria-hidden="true"></div>
+    <img class="detail-image fade-asset" src="/media.php?type=original&file=<?= urlencode($image['original']) ?>" alt="<?= htmlspecialchars($image['title']) ?>" data-detail-image data-skeleton-image>
     <button type="button" class="fullscreen-toggle" data-fullscreen-toggle aria-label="View image in fullscreen">View fullscreen</button>
   </figure>
-  <div class="panel">
+  <div class="panel skeleton-card" data-skeleton-card>
+    <div class="skeleton-meta-lines detail-meta-skeleton" data-skeleton-placeholder aria-hidden="true">
+      <span class="skeleton-shimmer skeleton-line skeleton-line-title"></span>
+      <span class="skeleton-shimmer skeleton-line skeleton-line-copy"></span>
+      <span class="skeleton-shimmer skeleton-line skeleton-line-copy"></span>
+      <span class="skeleton-shimmer skeleton-line skeleton-line-copy skeleton-line-short"></span>
+    </div>
+
     <h1><?= htmlspecialchars($image['title']) ?></h1>
     <p><?= nl2br(htmlspecialchars($image['description'])) ?></p>
     <ul class="metadata-list">
@@ -118,6 +126,28 @@
     const shareInput = document.getElementById('image-share-url');
     const shareButton = document.querySelector('[data-copy-share-link]');
     const shareStatus = document.querySelector('[data-copy-share-status]');
+    const skeletonCards = document.querySelectorAll('[data-skeleton-card]');
+
+    skeletonCards.forEach((card) => {
+      const targetImage = card.querySelector('[data-skeleton-image]');
+      if (!targetImage) {
+        return;
+      }
+
+      card.classList.add('is-loading');
+
+      const reveal = () => {
+        card.classList.remove('is-loading');
+        card.classList.add('is-loaded');
+      };
+
+      if (targetImage.complete && targetImage.naturalWidth > 0) {
+        reveal();
+      } else {
+        targetImage.addEventListener('load', reveal, { once: true });
+        targetImage.addEventListener('error', reveal, { once: true });
+      }
+    });
 
     if (!media || !image || !button || !document.fullscreenEnabled) {
       if (button) {

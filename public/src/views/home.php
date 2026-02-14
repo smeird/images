@@ -148,11 +148,20 @@ sort($tagOptions, SORT_NATURAL | SORT_FLAG_CASE);
     <p>No images yet. Admins can upload from the secure route.</p>
   <?php else: ?>
     <?php foreach ($images as $image): ?>
-      <article class="card">
+      <article class="card skeleton-card" data-skeleton-card>
         <a href="/image.php?id=<?= urlencode($image['id']) ?>">
-          <img loading="lazy" src="/media.php?type=thumb&file=<?= urlencode($image['thumb']) ?>" alt="<?= htmlspecialchars($image['title']) ?>">
-          <h3><?= htmlspecialchars($image['title']) ?></h3>
-          <p><?= htmlspecialchars($image['object_name']) ?> · <?= htmlspecialchars($image['captured_at']) ?></p>
+          <div class="skeleton-media-wrap">
+            <div class="skeleton-shimmer skeleton-media-block" data-skeleton-placeholder aria-hidden="true"></div>
+            <img class="fade-asset" loading="lazy" src="/media.php?type=thumb&file=<?= urlencode($image['thumb']) ?>" alt="<?= htmlspecialchars($image['title']) ?>" data-skeleton-image>
+          </div>
+          <div class="skeleton-meta-wrap">
+            <div class="skeleton-meta-lines" data-skeleton-placeholder aria-hidden="true">
+              <span class="skeleton-shimmer skeleton-line skeleton-line-title"></span>
+              <span class="skeleton-shimmer skeleton-line skeleton-line-copy"></span>
+            </div>
+            <h3><?= htmlspecialchars($image['title']) ?></h3>
+            <p><?= htmlspecialchars($image['object_name']) ?> · <?= htmlspecialchars($image['captured_at']) ?></p>
+          </div>
         </a>
       </article>
     <?php endforeach; ?>
