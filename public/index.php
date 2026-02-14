@@ -77,6 +77,11 @@ if ($path === '/media.php') {
 }
 
 if ($path === $adminBase . '/login') {
+    if (is_admin()) {
+        header('Location: ' . $adminBase . '/upload');
+        exit;
+    }
+
     $error = null;
     $ip = $_SERVER['REMOTE_ADDR'] ?? 'unknown';
 
