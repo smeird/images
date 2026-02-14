@@ -168,21 +168,27 @@ if (isset($adminSections[$path])) {
             } elseif ($formAction === 'add_setup_preset') {
                 $presetCategory = (string) ($_POST['preset_category'] ?? '');
                 $presetValue = (string) ($_POST['preset_value'] ?? '');
+                $presetCategoryLabels = setup_preset_categories();
+                $presetCategoryLabel = (string) ($presetCategoryLabels[$presetCategory] ?? 'Preset');
                 if (add_setup_preset($presetCategory, $presetValue)) {
                     $success = 'Preset saved.';
                 } else {
-                    $scopeTypeName = trim((string) ($_POST['scope_type_name'] ?? ''));
-                    $error = $scopeTypeName === ''
-                        ? 'Please enter a valid scope type name.'
-                        : 'Scope type preset could not be saved because storage is not writable.';
+                    $normalizedPresetValue = trim($presetValue);
+                    if ($normalizedPresetValue === '' || !array_key_exists($presetCategory, $presetCategoryLabels)) {
+                        $error = sprintf('Please enter a valid %s preset value.', strtolower($presetCategoryLabel));
+                    } else {
+                        $error = sprintf('%s preset could not be saved because storage is not writable.', $presetCategoryLabel);
+                    }
                 }
             } elseif ($formAction === 'delete_setup_preset') {
                 $presetCategory = (string) ($_POST['preset_category'] ?? '');
                 $presetValue = (string) ($_POST['preset_value'] ?? '');
+                $presetCategoryLabels = setup_preset_categories();
+                $presetCategoryLabel = (string) ($presetCategoryLabels[$presetCategory] ?? 'Preset');
                 if (delete_setup_preset($presetCategory, $presetValue)) {
                     $success = 'Preset removed.';
                 } else {
-                    $error = 'Scope type preset could not be removed (not found or storage is not writable).';
+                    $error = sprintf('%s preset could not be removed (not found or storage is not writable).', $presetCategoryLabel);
                 }
             } elseif (($formAction === 'upload_image_preview') && trim($wikipediaUrlInput) !== '') {
                 try {
