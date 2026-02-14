@@ -42,10 +42,12 @@ $tagOptions = array_keys($tags);
 sort($objectTypeOptions, SORT_NATURAL | SORT_FLAG_CASE);
 sort($tagOptions, SORT_NATURAL | SORT_FLAG_CASE);
 ?>
-<section class="hero hero--immersive">
+<section class="hero hero--immersive" id="immersive-hero">
+  <div class="hero-spectral hero-spectral--ha" aria-hidden="true"></div>
+  <div class="hero-spectral hero-spectral--oiii" aria-hidden="true"></div>
   <div class="hero-copy">
     <h1>A cinematic wall of the night sky</h1>
-    <p>Start with the images first. Use filters only when you want to narrow the field.</p>
+    <p>Start with the images first. H-alpha and OIII accents drift with scroll while filters stay quietly in the background until you need them.</p>
     <div class="statline">
       <span class="pill"><?= count($images) ?> published captures</span>
       <span class="pill">Large-format gallery wall</span>
@@ -98,47 +100,53 @@ sort($tagOptions, SORT_NATURAL | SORT_FLAG_CASE);
   </aside>
 </section>
 <section class="filter-toolbar" aria-label="Gallery filters">
-  <p class="filter-toolbar__lead">Filters are available, but the gallery stays center stage.</p>
-  <div class="filter-toolbar__grid">
-    <label>
-      Object type
-      <select id="filter-object-type" name="object_type">
-        <option value="">All object types</option>
-        <?php foreach ($objectTypeOptions as $objectType): ?>
-          <option value="<?= htmlspecialchars($objectType) ?>" <?= $selectedObjectType === $objectType ? 'selected' : '' ?>><?= htmlspecialchars($objectType) ?></option>
-        <?php endforeach; ?>
-      </select>
-    </label>
-    <label>
-      Tag
-      <select id="filter-tag" name="tag">
-        <option value="">All tags</option>
-        <?php foreach ($tagOptions as $tag): ?>
-          <option value="<?= htmlspecialchars($tag) ?>" <?= $selectedTag === $tag ? 'selected' : '' ?>><?= htmlspecialchars($tag) ?></option>
-        <?php endforeach; ?>
-      </select>
-    </label>
-    <label>
-      Capture from
-      <input id="filter-date-from" type="date" name="date_from" value="<?= htmlspecialchars($selectedDateFrom) ?>">
-    </label>
-    <label>
-      Capture to
-      <input id="filter-date-to" type="date" name="date_to" value="<?= htmlspecialchars($selectedDateTo) ?>">
-    </label>
-    <label>
-      Search
-      <input id="filter-search" type="search" name="search" value="<?= htmlspecialchars($selectedSearch) ?>" placeholder="Title, object, tags…">
-    </label>
-    <label>
-      Sort
-      <select id="filter-sort" name="sort">
-        <option value="newest" <?= $selectedSort === 'newest' ? 'selected' : '' ?>>Newest</option>
-        <option value="oldest" <?= $selectedSort === 'oldest' ? 'selected' : '' ?>>Oldest</option>
-        <option value="exposure" <?= $selectedSort === 'exposure' ? 'selected' : '' ?>>Exposure length</option>
-        <option value="title" <?= $selectedSort === 'title' ? 'selected' : '' ?>>A–Z title</option>
-      </select>
-    </label>
+  <div class="filter-toolbar__summary">
+    <p class="filter-toolbar__lead">Active filters</p>
+    <div id="filter-chip-summary" class="filter-chip-summary" aria-live="polite"></div>
+    <button id="filter-refine-toggle" type="button" class="button-link secondary filter-refine-toggle" aria-expanded="false" aria-controls="filter-refine-panel">Refine</button>
+  </div>
+  <div id="filter-refine-panel" class="filter-refine-panel" hidden>
+    <div class="filter-toolbar__grid">
+      <label>
+        Object type
+        <select id="filter-object-type" name="object_type">
+          <option value="">All object types</option>
+          <?php foreach ($objectTypeOptions as $objectType): ?>
+            <option value="<?= htmlspecialchars($objectType) ?>" <?= $selectedObjectType === $objectType ? 'selected' : '' ?>><?= htmlspecialchars($objectType) ?></option>
+          <?php endforeach; ?>
+        </select>
+      </label>
+      <label>
+        Tag
+        <select id="filter-tag" name="tag">
+          <option value="">All tags</option>
+          <?php foreach ($tagOptions as $tag): ?>
+            <option value="<?= htmlspecialchars($tag) ?>" <?= $selectedTag === $tag ? 'selected' : '' ?>><?= htmlspecialchars($tag) ?></option>
+          <?php endforeach; ?>
+        </select>
+      </label>
+      <label>
+        Capture from
+        <input id="filter-date-from" type="date" name="date_from" value="<?= htmlspecialchars($selectedDateFrom) ?>">
+      </label>
+      <label>
+        Capture to
+        <input id="filter-date-to" type="date" name="date_to" value="<?= htmlspecialchars($selectedDateTo) ?>">
+      </label>
+      <label>
+        Search
+        <input id="filter-search" type="search" name="search" value="<?= htmlspecialchars($selectedSearch) ?>" placeholder="Title, object, tags…">
+      </label>
+      <label>
+        Sort
+        <select id="filter-sort" name="sort">
+          <option value="newest" <?= $selectedSort === 'newest' ? 'selected' : '' ?>>Newest</option>
+          <option value="oldest" <?= $selectedSort === 'oldest' ? 'selected' : '' ?>>Oldest</option>
+          <option value="exposure" <?= $selectedSort === 'exposure' ? 'selected' : '' ?>>Exposure length</option>
+          <option value="title" <?= $selectedSort === 'title' ? 'selected' : '' ?>>A–Z title</option>
+        </select>
+      </label>
+    </div>
   </div>
   <div class="filter-toolbar__actions">
     <p id="filter-results" class="muted" aria-live="polite"></p>
@@ -189,6 +197,10 @@ sort($tagOptions, SORT_NATURAL | SORT_FLAG_CASE);
 
   const allImages = JSON.parse(payloadEl.textContent || '[]');
   const controls = {
+    hero: document.getElementById('immersive-hero'),
+    chipSummary: document.getElementById('filter-chip-summary'),
+    refineToggle: document.getElementById('filter-refine-toggle'),
+    refinePanel: document.getElementById('filter-refine-panel'),
     objectType: document.getElementById('filter-object-type'),
     tag: document.getElementById('filter-tag'),
     dateFrom: document.getElementById('filter-date-from'),
@@ -234,6 +246,61 @@ sort($tagOptions, SORT_NATURAL | SORT_FLAG_CASE);
     search: controls.search.value.trim().toLowerCase(),
     sort: controls.sort.value.trim() || 'newest'
   });
+
+  const updateRefinePanelVisibility = (isOpen) => {
+    if (!controls.refinePanel || !controls.refineToggle) return;
+    controls.refinePanel.hidden = !isOpen;
+    controls.refineToggle.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
+    controls.refineToggle.textContent = isOpen ? 'Hide refine controls' : 'Refine';
+  };
+
+  if (controls.refineToggle) {
+    controls.refineToggle.addEventListener('click', () => {
+      const isOpen = controls.refinePanel ? controls.refinePanel.hidden : true;
+      updateRefinePanelVisibility(isOpen);
+    });
+  }
+
+  const setHeroParallax = () => {
+    if (!controls.hero || !advancedMotionEnabled) return;
+    const maxDrift = 56;
+    const scrollFactor = Math.min(window.scrollY / 900, 1);
+    controls.hero.style.setProperty('--spectral-ha-shift', (scrollFactor * -maxDrift).toFixed(1) + 'px');
+    controls.hero.style.setProperty('--spectral-oiii-shift', (scrollFactor * (maxDrift * 0.72)).toFixed(1) + 'px');
+  };
+
+  const renderChipSummary = (state) => {
+    if (!controls.chipSummary) return;
+
+    const chips = [];
+    if (state.object_type) chips.push({ label: 'Object', value: state.object_type, key: 'objectType' });
+    if (state.tag) chips.push({ label: 'Tag', value: state.tag, key: 'tag' });
+    if (state.date_from) chips.push({ label: 'From', value: state.date_from, key: 'dateFrom' });
+    if (state.date_to) chips.push({ label: 'To', value: state.date_to, key: 'dateTo' });
+    if (state.search) chips.push({ label: 'Search', value: state.search, key: 'search' });
+    if (state.sort && state.sort !== 'newest') chips.push({ label: 'Sort', value: state.sort, key: 'sort' });
+
+    if (!chips.length) {
+      controls.chipSummary.innerHTML = '<span class="filter-chip-summary__empty">No active filters · showing full gallery</span>';
+      return;
+    }
+
+    controls.chipSummary.innerHTML = chips.map((chip) => (
+      '<button type="button" class="filter-chip" data-filter-clear="' + chip.key + '">' + escapeHtml(chip.label + ': ' + chip.value) + ' ×</button>'
+    )).join('');
+  };
+
+  if (controls.chipSummary) {
+    controls.chipSummary.addEventListener('click', (event) => {
+      const button = event.target.closest('[data-filter-clear]');
+      if (!button) return;
+      const controlKey = button.getAttribute('data-filter-clear');
+      const control = controls[controlKey];
+      if (!control) return;
+      control.value = controlKey === 'sort' ? 'newest' : '';
+      run();
+    });
+  }
 
   const escapeHtml = (value) => String(value || '')
     .replace(/&/g, '&amp;')
@@ -301,6 +368,12 @@ sort($tagOptions, SORT_NATURAL | SORT_FLAG_CASE);
     prefersReducedMotion.addEventListener('change', (event) => {
       advancedMotionEnabled = !event.matches;
       initCardMotion();
+      if (!advancedMotionEnabled && controls.hero) {
+        controls.hero.style.setProperty('--spectral-ha-shift', '0px');
+        controls.hero.style.setProperty('--spectral-oiii-shift', '0px');
+      } else {
+        setHeroParallax();
+      }
     });
   }
 
@@ -375,6 +448,7 @@ sort($tagOptions, SORT_NATURAL | SORT_FLAG_CASE);
     });
 
     renderCards(filtered);
+    renderChipSummary(state);
     if (controls.results) {
       controls.results.textContent = filtered.length + ' of ' + allImages.length + ' captures shown';
     }
@@ -400,7 +474,12 @@ sort($tagOptions, SORT_NATURAL | SORT_FLAG_CASE);
     });
   }
 
+  if (typeof window.addEventListener === 'function') {
+    window.addEventListener('scroll', setHeroParallax, { passive: true });
+  }
+
   initCardMotion();
+  setHeroParallax();
   run();
 })();
 </script>
