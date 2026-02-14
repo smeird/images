@@ -14,7 +14,8 @@ Implemented now:
 - image detail fullscreen pill is anchored at the top-right of the image for quicker access before scrolling metadata
 - Repository intentionally does not include bundled `.jpg` sample images; upload your own media through the admin flow.
 - metadata display (capture, object type, structured equipment setup incl. scope type/telescope/mount/camera/filter chain, exposure, processing, tags)
-- homepage now prioritizes an immersive, denser image wall (wider canvas + larger thumbnail coverage) while keeping a compact filter toolbar (object type/tag/date-range/text search + sort) with shareable query-parameter state
+- homepage now prioritizes an immersive, denser image wall (wider canvas + larger thumbnail coverage) with subtle scroll-linked spectral parallax accents (H-alpha/OIII-inspired gradients) that respect reduced-motion settings.
+- filters now default to a low-prominence chip summary under the hero, while full controls live behind a Refine toggle (object type/tag/date-range/text search + sort) and still sync via shareable query-parameter state.
 - secure admin route with session auth, CSRF protection, basic login rate limiting, task-based admin portal pages (upload/setup presets/media/security), in-session password change controls, and authenticated image deletion
 - redesigned admin control center UX with guided task cards, clearer navigation labels, and inline help so uploads/presets/library/security actions are easier to discover.
 - admin media library now supports spotlight selection plus navigation into a dedicated edit page for full metadata + SEO updates (with preset pills available while editing).
@@ -125,7 +126,7 @@ You can override route and limits via env vars:
 - `public/index.php` — front controller/router for public + admin routes.
 - `public/src/bootstrap.php` — shared helpers, auth, upload + thumbnail logic.
 - `public/src/views/` — HTML view templates.
-- `public/src/views/home.php` embeds homepage image JSON payload for client-side filtering/sorting and now renders an image-first landing layout with compact filters and reduced text weight.
+- `public/src/views/home.php` embeds homepage image JSON payload for client-side filtering/sorting and now renders an image-first landing layout with spectral parallax accents plus chip-summary-first filtering with a Refine toggle for advanced controls.
 - `public/src/services/wikipedia.php` — Wikipedia URL validation + metadata normalization helper service.
 - `public/assets/style.css` — cinematic dark UI styling and interaction polish.
 - `storage/data/images.json` — image metadata records (including Wikipedia cache fields, spotlight flag, and editable SEO meta tags).
@@ -141,9 +142,12 @@ You can override route and limits via env vars:
 
 ```mermaid
 flowchart TD
-  Visitor_lands_on_homepage --> See_cinematic_hero_and_rotating_spotlight_capture
-  See_cinematic_hero_and_rotating_spotlight_capture --> Read_Tonights_Highlight_facts_and_open_details_CTA
-  Read_Tonights_Highlight_facts_and_open_details_CTA --> Browse_thumbnail_gallery
+  Visitor_lands_on_homepage --> See_cinematic_hero_rotating_spotlight_and_subtle_spectral_parallax
+  See_cinematic_hero_rotating_spotlight_and_subtle_spectral_parallax --> Read_Tonights_Highlight_facts_and_open_details_CTA
+  Read_Tonights_Highlight_facts_and_open_details_CTA --> Review_active_filter_chip_summary
+  Review_active_filter_chip_summary -->|optional| Open_Refine_panel_for_full_filter_controls
+  Open_Refine_panel_for_full_filter_controls --> Browse_thumbnail_gallery
+  Review_active_filter_chip_summary --> Browse_thumbnail_gallery
   Browse_thumbnail_gallery --> Open_image_detail
   Open_image_detail --> Review_metadata_object_equipment_exposure_and_tags
   Review_metadata_object_equipment_exposure_and_tags --> Copy_image_specific_share_link
@@ -197,7 +201,7 @@ graph LR
   Public_Browser --> PHP_Front_Controller
   Admin_Browser --> PHP_Front_Controller
   PHP_Front_Controller --> Template_Views
-  Template_Views --> Cinematic_CSS_Theme_Layer_subtle_twinkle_gradient_drift_split_desktop_mobile_detail_viewer_shell
+  Template_Views --> Cinematic_CSS_Theme_Layer_subtle_twinkle_gradient_drift_spectral_parallax_split_desktop_mobile_detail_viewer_shell
   Template_Views --> Canonical_and_Open_Graph_meta_tags
   PHP_Front_Controller --> Auth_CSRF_and_Rate_Limit
   PHP_Front_Controller --> JSON_metadata_users_wiki_cache_spotlight_and_SEO_fields
