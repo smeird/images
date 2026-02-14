@@ -19,7 +19,7 @@ Implemented now:
 - redesigned admin control center UX with guided task cards, clearer navigation labels, and inline help so uploads/presets/library/security actions are easier to discover.
 - admin media library now supports spotlight selection plus navigation into a dedicated edit page for full metadata + SEO updates (with preset pills available while editing).
 - image upload pipeline with MIME/size validation, thumbnail generation, and admin-side storage-capacity visibility
-- admin setup-preset management for one-click upload pills across observatory gear (scope type/object type/telescope/mount/camera/filter wheel/filters/filter set)
+- admin setup-preset management for one-click upload/edit pills across observatory gear + metadata (scope type/object type/telescope/mount/camera/filter wheel/filters/filter set/processing software/tags)
 - admin setup-preset changes now persist correctly to `setup_presets.json` for all categories, eliminating PHP notices during preset saves.
 - graceful oversize-upload handling that reports when server (`post_max_size` / `upload_max_filesize`) or app (`MAX_UPLOAD_BYTES`) limits reject a request before PHP can parse form fields
 - graceful storage-write error handling in admin actions (setup presets across all categories and uploads) when `storage/data` is not writable, avoiding PHP warnings exposed to users
@@ -132,7 +132,7 @@ You can override route and limits via env vars:
 - `storage/sessions/` — file-backed PHP session storage used for admin auth + CSRF continuity.
 - `storage/logs/app.log` — background/lazy refresh failure logs for non-fatal runtime issues.
 - `storage/data/users.json` — admin credential hashes.
-- `storage/data/setup_presets.json` — reusable setup preset pills (scope type, object type, telescope, mount, camera, filter wheel, filters, filter set) for admin uploads.
+- `storage/data/setup_presets.json` — reusable setup preset pills (scope type, object type, telescope, mount, camera, filter wheel, filters, filter set, processing software, tags) for admin upload/edit workflows.
 - `storage/data/scope_types.json` — legacy scope-type preset store still read for backward compatibility.
 - `WEBSITE_TASKS.md` — implementation tracker.
 - `CODEX_PARALLEL_TASKS.md` — parallel work planning.
@@ -171,6 +171,7 @@ flowchart TD
   Admin_control_center_and_guided_help_cards --> Security_page
   Upload_page --> Review_storage_and_upload_limits
   Upload_page --> Use_setup_preset_pills_and_enter_capture_details
+  Use_setup_preset_pills_and_enter_capture_details --> Multi_select_append_pills_for_tags_and_processing_software
   Upload_page --> Upload_image_and_metadata
   Upload_image_and_metadata --> Body_exceeds_effective_upload_limit
   Body_exceeds_effective_upload_limit -->|yes| Show_actionable_size_limit_error
@@ -181,6 +182,7 @@ flowchart TD
   Media_library_page --> Set_or_change_homepage_spotlight_capture_for_homepage_rotation
   Media_library_page --> Open_dedicated_edit_page_for_a_capture
   Dedicated_edit_page --> Edit_all_metadata_fields_preset_pills_and_SEO_tags
+  Edit_all_metadata_fields_preset_pills_and_SEO_tags --> Multi_select_append_pills_for_tags_and_processing_software
   Edit_all_metadata_fields_preset_pills_and_SEO_tags --> If_Wikipedia_URL_changed_clear_old_cache_and_refresh_wiki_summary_and_facts
   Media_library_page --> Delete_image_with_CSRF_confirm
   Delete_image_with_CSRF_confirm --> Remove_JSON_record_and_media_files

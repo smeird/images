@@ -129,9 +129,23 @@ function field_value(string $field, $editingImage): string
       <?php endforeach; ?>
 
       <label>Exposure <input required name="exposure" placeholder="30x180s @ ISO 800" value="<?= htmlspecialchars((string) ($_POST['exposure'] ?? '')) ?>"></label>
-      <label>Processing <input required name="processing" placeholder="Siril + PixInsight" value="<?= htmlspecialchars((string) ($_POST['processing'] ?? '')) ?>"></label>
+      <label>Processing <input required id="processing-input" name="processing" placeholder="Siril + PixInsight" value="<?= htmlspecialchars((string) ($_POST['processing'] ?? '')) ?>"></label>
+      <?php if (!empty($setupPresetValues['processing'])): ?>
+        <div class="preset-pill-wrap" data-preset-group="processing">
+          <?php foreach ($setupPresetValues['processing'] as $preset): ?>
+            <button type="button" class="secondary preset-pill" data-preset-pill="processing" data-preset-mode="append" data-preset-value="<?= htmlspecialchars((string) $preset) ?>"><?= htmlspecialchars((string) $preset) ?></button>
+          <?php endforeach; ?>
+        </div>
+      <?php endif; ?>
       <label>Wikipedia URL <input name="wikipedia_url" type="url" placeholder="https://en.wikipedia.org/wiki/Orion_Nebula" value="<?= htmlspecialchars((string) ($wikipedia_url ?? '')) ?>"></label>
-      <label>Tags (comma-separated) <input name="tags" placeholder="nebula, narrowband" value="<?= htmlspecialchars((string) ($_POST['tags'] ?? '')) ?>"></label>
+      <label>Tags (comma-separated) <input id="tags-input" name="tags" placeholder="nebula, narrowband" value="<?= htmlspecialchars((string) ($_POST['tags'] ?? '')) ?>"></label>
+      <?php if (!empty($setupPresetValues['tags'])): ?>
+        <div class="preset-pill-wrap" data-preset-group="tags">
+          <?php foreach ($setupPresetValues['tags'] as $preset): ?>
+            <button type="button" class="secondary preset-pill" data-preset-pill="tags" data-preset-mode="append" data-preset-value="<?= htmlspecialchars((string) $preset) ?>"><?= htmlspecialchars((string) $preset) ?></button>
+          <?php endforeach; ?>
+        </div>
+      <?php endif; ?>
       <div class="button-row">
         <button type="submit">Upload image</button>
       </div>
@@ -281,9 +295,23 @@ function field_value(string $field, $editingImage): string
         <?php endforeach; ?>
 
         <label>Exposure <input name="exposure" value="<?= htmlspecialchars(field_value('exposure', $editingImage)) ?>"></label>
-        <label>Processing <input name="processing" value="<?= htmlspecialchars(field_value('processing', $editingImage)) ?>"></label>
+        <label>Processing <input id="edit-processing-input" name="processing" value="<?= htmlspecialchars(field_value('processing', $editingImage)) ?>"></label>
+        <?php if (!empty($setupPresetValues['processing'])): ?>
+          <div class="preset-pill-wrap" data-preset-group="processing">
+            <?php foreach ($setupPresetValues['processing'] as $preset): ?>
+              <button type="button" class="secondary preset-pill" data-preset-pill="processing" data-preset-target="edit" data-preset-mode="append" data-preset-value="<?= htmlspecialchars((string) $preset) ?>"><?= htmlspecialchars((string) $preset) ?></button>
+            <?php endforeach; ?>
+          </div>
+        <?php endif; ?>
         <label>Wikipedia URL <input name="wikipedia_url" type="url" value="<?= htmlspecialchars(field_value('wikipedia_url', $editingImage) !== '' ? field_value('wikipedia_url', $editingImage) : field_value('wikipediaUrl', $editingImage)) ?>"></label>
-        <label>Tags (comma-separated) <input name="tags" value="<?= htmlspecialchars(field_value('tags', $editingImage)) ?>"></label>
+        <label>Tags (comma-separated) <input id="edit-tags-input" name="tags" value="<?= htmlspecialchars(field_value('tags', $editingImage)) ?>"></label>
+        <?php if (!empty($setupPresetValues['tags'])): ?>
+          <div class="preset-pill-wrap" data-preset-group="tags">
+            <?php foreach ($setupPresetValues['tags'] as $preset): ?>
+              <button type="button" class="secondary preset-pill" data-preset-pill="tags" data-preset-target="edit" data-preset-mode="append" data-preset-value="<?= htmlspecialchars((string) $preset) ?>"><?= htmlspecialchars((string) $preset) ?></button>
+            <?php endforeach; ?>
+          </div>
+        <?php endif; ?>
 
         <h4>Meta tags</h4>
         <label>Meta title <input name="meta_title" placeholder="Custom share/search title" value="<?= htmlspecialchars(field_value('meta_title', $editingImage)) ?>"></label>
@@ -330,7 +358,9 @@ function field_value(string $field, $editingImage): string
         camera: 'camera-input',
         filter_wheel: 'filter-wheel-input',
         filters: 'filters-input',
-        filter_set: 'filter-set-input'
+        filter_set: 'filter-set-input',
+        processing: 'processing-input',
+        tags: 'tags-input'
       },
       edit: {
         object_type: 'edit-object-type-input',
@@ -340,7 +370,9 @@ function field_value(string $field, $editingImage): string
         camera: 'edit-camera-input',
         filter_wheel: 'edit-filter-wheel-input',
         filters: 'edit-filters-input',
-        filter_set: 'edit-filter-set-input'
+        filter_set: 'edit-filter-set-input',
+        processing: 'edit-processing-input',
+        tags: 'edit-tags-input'
       }
     };
 
@@ -360,7 +392,23 @@ function field_value(string $field, $editingImage): string
           return;
         }
 
-        input.value = value;
+        const mode = button.getAttribute('data-preset-mode') || 'replace';
+
+        if (mode === 'append') {
+          const currentValues = input.value
+            .split(',')
+            .map((item) => item.trim())
+            .filter((item) => item !== '');
+
+          if (!currentValues.includes(value)) {
+            currentValues.push(value);
+          }
+
+          input.value = currentValues.join(', ');
+        } else {
+          input.value = value;
+        }
+
         input.focus();
       });
     });

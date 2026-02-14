@@ -96,7 +96,7 @@ This task plan is designed for a Linux + Apache + PHP environment and optimized 
 ## 6) Core feature #3: Equipment and capture details
 
 - [ ] Create structured equipment sections (camera, optics, mount, guiding, filters).
-- [x] Add optional reusable “equipment presets” in admin to avoid repetitive typing. (implemented as reusable setup-preset pills for scope type/object type/telescope/mount/camera/filter wheel/filters/filter set)
+- [x] Add optional reusable “equipment presets” in admin to avoid repetitive typing. (implemented as reusable setup-preset pills for scope type/object type/telescope/mount/camera/filter wheel/filters/filter set/processing software/tags, with append-style pill clicks for multi-value fields like tags and processing)
 - [ ] Display equipment metadata cleanly on detail pages with badges/icons.
 - [x] Add searchable/filterable fields (homepage toolbar supports object type, tag, capture date range, text search, and shareable sort/filter query params).
 

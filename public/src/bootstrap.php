@@ -169,6 +169,8 @@ function setup_preset_categories(): array
         'filter_wheel' => 'Filter wheel',
         'filters' => 'Filters',
         'filter_set' => 'Filter set',
+        'processing' => 'Processing software',
+        'tags' => 'Tags',
     ];
 }
 
