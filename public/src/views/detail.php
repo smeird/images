@@ -34,6 +34,15 @@
       </section>
     <?php endif; ?>
 
+    <div class="share-link">
+      <label for="image-share-url"><strong>Share preview link</strong></label>
+      <div class="share-link-row">
+        <input id="image-share-url" type="text" readonly value="<?= htmlspecialchars(absolute_url('/image.php?id=' . rawurlencode((string) $image['id']))) ?>">
+        <button type="button" class="secondary share-link-button" data-copy-share-link>Copy link</button>
+      </div>
+      <p class="muted" data-copy-share-status>Paste this URL in Facebook, WhatsApp, or iMessage to show this image preview.</p>
+    </div>
+
     <?php if (!empty($image['tags'])): ?>
       <div class="tag-list">
         <?php foreach ($image['tags'] as $tag): ?>
@@ -76,31 +85,57 @@
     const media = document.querySelector('[data-detail-media]');
     const image = document.querySelector('[data-detail-image]');
     const button = document.querySelector('[data-fullscreen-toggle]');
+    const shareInput = document.getElementById('image-share-url');
+    const shareButton = document.querySelector('[data-copy-share-link]');
+    const shareStatus = document.querySelector('[data-copy-share-status]');
 
     if (!media || !image || !button || !document.fullscreenEnabled) {
       if (button) {
         button.hidden = true;
       }
-      return;
+    } else {
+      const setButtonLabel = () => {
+        const active = document.fullscreenElement === media;
+        button.textContent = active ? 'Exit fullscreen' : 'View fullscreen';
+        button.setAttribute('aria-label', active ? 'Exit fullscreen view' : 'View image in fullscreen');
+        media.classList.toggle('is-fullscreen', active);
+      };
+
+      button.addEventListener('click', () => {
+        if (document.fullscreenElement === media) {
+          document.exitFullscreen();
+          return;
+        }
+
+        media.requestFullscreen();
+      });
+
+      document.addEventListener('fullscreenchange', setButtonLabel);
+      setButtonLabel();
     }
 
-    const setButtonLabel = () => {
-      const active = document.fullscreenElement === media;
-      button.textContent = active ? 'Exit fullscreen' : 'View fullscreen';
-      button.setAttribute('aria-label', active ? 'Exit fullscreen view' : 'View image in fullscreen');
-      media.classList.toggle('is-fullscreen', active);
-    };
+    if (shareInput && shareButton) {
+      shareButton.addEventListener('click', async () => {
+        const link = shareInput.value;
+        try {
+          if (navigator.clipboard && window.isSecureContext) {
+            await navigator.clipboard.writeText(link);
+          } else {
+            shareInput.focus();
+            shareInput.select();
+            document.execCommand('copy');
+          }
 
-    button.addEventListener('click', () => {
-      if (document.fullscreenElement === media) {
-        document.exitFullscreen();
-        return;
-      }
+          if (shareStatus) {
+            shareStatus.textContent = 'Link copied. You can now paste it into Facebook, WhatsApp, or iMessage.';
+          }
+        } catch (error) {
+          if (shareStatus) {
+            shareStatus.textContent = 'Could not copy automatically. Copy the URL manually.';
+          }
+        }
+      });
+    }
 
-      media.requestFullscreen();
-    });
-
-    document.addEventListener('fullscreenchange', setButtonLabel);
-    setButtonLabel();
   })();
 </script>

@@ -12,6 +12,7 @@ Implemented now:
 - ambient micro-interactions (hover lift/glow, metadata chips, richer card transitions)
 - Repository intentionally does not include bundled `.jpg` sample images; upload your own media through the admin flow.
 - metadata display (capture, equipment, exposure, processing, tags)
+- social preview support on image detail pages via Open Graph/Twitter meta tags plus a copyable per-image share link for Facebook/WhatsApp/iMessage
 - secure admin route with session auth, CSRF protection, basic login rate limiting, and in-session password change controls
 - image upload pipeline with MIME/size validation and thumbnail generation
 - graceful oversize-upload handling that reports when server (`post_max_size` / `upload_max_filesize`) or app (`MAX_UPLOAD_BYTES`) limits reject a request before PHP can parse form fields
@@ -104,6 +105,7 @@ You can override route and limits via env vars:
 - Wikipedia panel includes attribution/license note and gracefully falls back when external fetch is unavailable.
 - Uploaded files are stored outside the public web root and served through `media.php`.
 - Wikipedia metadata fetches only allow trusted Wikipedia hosts (`en.wikipedia.org` plus optional language subdomains) and return structured error codes for UI-safe fallbacks.
+- Social preview URLs are generated from request host/scheme headers, so production deployments should keep trusted proxy/host header handling correctly configured.
 
 ## Folder/file map
 
@@ -127,6 +129,10 @@ flowchart TD
   B --> C[Browse thumbnail gallery]
   C --> D[Open image detail]
   D --> E[Review metadata\nobject + equipment + exposure + tags]
+  E --> I[Copy image-specific share link]
+  I --> J[Paste in Facebook/WhatsApp/iMessage]
+  J --> K[Preview card shows image + title]
+  K --> D
   E --> F{Wikipedia data available?}
   F -- yes --> G[Show extract + thumbnail + read more link + attribution note]
   F -- no/fetch failed --> H[Show fallback: No external reference yet]
@@ -159,6 +165,7 @@ graph LR
   A[Admin Browser] --> APP
   APP --> VIEWS[Template Views]
   VIEWS --> THEME[Cinematic CSS Theme Layer]
+  VIEWS --> SEO[Canonical + Open Graph meta tags]
   APP --> SEC[Auth + CSRF + Rate Limit]
   APP --> DATA[(JSON metadata/users + wiki cache fields)]
   APP --> WIKI[Wikipedia REST summary API]
