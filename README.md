@@ -97,6 +97,7 @@ You can override route and limits via env vars:
 
 - Admin route is hidden but also protected with real authentication.
 - Passwords are stored as `password_hash` values (bcrypt) and can be rotated from the authenticated admin area.
+- Admin login supports an optional 30-day remember-me device cookie; tokens are stored server-side as SHA-256 hashes, rotated after auto-login, and revoked on logout/password change.
 - CSRF token required on login, upload, delete, and password-change forms, backed by file-based PHP sessions in `storage/sessions` to avoid token mismatches when default system session paths are unavailable.
 - Basic per-IP login throttling is enforced.
 - Uploads accept only JPEG/PNG/WebP and enforce max-size limit; effective limit is the minimum of `MAX_UPLOAD_BYTES`, `upload_max_filesize`, and `post_max_size`.
@@ -142,7 +143,7 @@ flowchart TD
 
 ```mermaid
 flowchart TD
-  A[Admin opens hidden route] --> B[Login form + CSRF]
+  A[Admin opens hidden route] --> B[Login form + CSRF + optional remember-me]
   B --> C[Credential check + rate limit]
   C --> D[Admin portal task navigation]
   D --> U[Upload image page]

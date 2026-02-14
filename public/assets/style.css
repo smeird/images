@@ -257,6 +257,18 @@ main {
 }
 
 label { display: block; margin: 0.65rem 0; color: #d8e6ff; }
+label.checkbox {
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+  color: var(--muted);
+}
+
+label.checkbox input {
+  width: auto;
+  margin: 0;
+}
+
 input, textarea, button {
   width: 100%;
   padding: 0.62rem 0.7rem;
