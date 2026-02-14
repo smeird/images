@@ -457,7 +457,7 @@ main {
 
 .detail {
   display: grid;
-  grid-template-columns: minmax(0, 1.8fr) minmax(640px, 2fr);
+  grid-template-columns: minmax(0, 1.55fr) minmax(700px, 2.25fr);
   gap: 1.1rem;
 }
 
@@ -478,6 +478,19 @@ main {
 
 .detail-primary-copy {
   min-width: 0;
+}
+
+.detail-primary-copy h1 {
+  margin-top: 0;
+  font-size: clamp(1.45rem, 1.75vw, 1.95rem);
+  line-height: 1.1;
+  margin-bottom: 0.55rem;
+}
+
+.detail-primary-copy p {
+  font-size: 0.92rem;
+  line-height: 1.35;
+  margin-top: 0;
 }
 
 .detail-metadata-grid {
@@ -570,8 +583,8 @@ main {
   padding: 0.6rem 0.78rem;
   border-radius: 10px;
   overflow-wrap: anywhere;
-  font-size: 0.92rem;
-  line-height: 1.35;
+  font-size: 0.83rem;
+  line-height: 1.28;
 }
 
 .tag-list {
@@ -637,7 +650,7 @@ footer {
 
 @media (min-width: 1200px) {
   .detail-viewer-layout {
-    grid-template-columns: minmax(0, 2.1fr) minmax(560px, 1fr);
+    grid-template-columns: minmax(0, 1.75fr) minmax(660px, 1.25fr);
     width: min(1700px, calc(100vw - 4rem));
     margin-left: 50%;
     transform: translateX(-50%);
@@ -849,6 +862,25 @@ button.secondary {
   border-top: none;
   border-left: 1px solid rgba(128, 157, 214, 0.22);
   padding-left: 1rem;
+  font-size: 0.88rem;
+}
+
+.detail-wiki-column h2 {
+  margin: 0 0 0.55rem;
+  font-size: 1.5rem;
+  line-height: 1.1;
+}
+
+.detail-wiki-column h3 {
+  margin: 0 0 0.5rem;
+  font-size: 1.15rem;
+  line-height: 1.18;
+}
+
+.detail-wiki-column p,
+.detail-wiki-column .attribution-note {
+  font-size: 0.84rem;
+  line-height: 1.3;
 }
 
 @media (max-width: 1100px) {
