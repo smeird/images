@@ -8,12 +8,12 @@ Astronomy image showcase website with a public gallery and a secure admin upload
 
 Implemented now:
 - public gallery and image detail pages
-- cinematic dark-sky visual treatment with starfield texture, spotlight hero card, and glassmorphism-style panels
-- ambient micro-interactions (hover lift/glow, metadata chips, richer card transitions)
-- mobile-first utility row for quick Gallery/About/Search access on narrow screens, plus larger touch targets for nav links, gallery cards, and detail actions
+- cinematic dark-sky visual treatment with starfield texture, rotating spotlight hero card rules (latest/featured/daily deterministic date hash), and glassmorphism-style panels
+- ambient micro-interactions (hover lift/glow, metadata chips, richer card transitions, and subtle hero twinkle/gradient drift that respects reduced-motion settings)
 - image detail fullscreen pill is anchored at the top-right of the image for quicker access before scrolling metadata
 - Repository intentionally does not include bundled `.jpg` sample images; upload your own media through the admin flow.
 - metadata display (capture, object type, structured equipment setup incl. scope type/telescope/mount/camera/filter chain, exposure, processing, tags)
+- homepage filter toolbar with object type/tag/date-range/text search + client-side sort controls (newest/oldest/exposure/title) backed by embedded JSON payload and query-param state persistence for shareable gallery URLs
 - secure admin route with session auth, CSRF protection, basic login rate limiting, task-based admin portal pages (upload/setup presets/media/security), in-session password change controls, and authenticated image deletion
 - redesigned admin control center UX with guided task cards, clearer navigation labels, and inline help so uploads/presets/library/security actions are easier to discover.
 - admin media library now supports spotlight selection plus navigation into a dedicated edit page for full metadata + SEO updates (with preset pills available while editing).
@@ -27,7 +27,7 @@ Implemented now:
 - social preview tags on detail pages now point to the generated 800x500 JPEG thumbnail (instead of full original) to improve WhatsApp/Facebook card rendering reliability.
 
 Planned next:
-- richer filtering/search and stronger production hardening.
+- continue production hardening (filter/search + client-side sorting now available on homepage with shareable query-parameter URLs).
 
 ## Runtime/build assumptions
 
@@ -124,6 +124,7 @@ You can override route and limits via env vars:
 - `public/index.php` — front controller/router for public + admin routes.
 - `public/src/bootstrap.php` — shared helpers, auth, upload + thumbnail logic.
 - `public/src/views/` — HTML view templates.
+- `public/src/views/home.php` now embeds homepage image JSON payload for client-side filtering/sorting without full-page reloads.
 - `public/src/services/wikipedia.php` — Wikipedia URL validation + metadata normalization helper service.
 - `public/assets/style.css` — cinematic dark UI styling and interaction polish.
 - `storage/data/images.json` — image metadata records (including Wikipedia cache fields, spotlight flag, and editable SEO meta tags).
@@ -139,18 +140,18 @@ You can override route and limits via env vars:
 
 ```mermaid
 flowchart TD
-  A[Visitor lands on homepage] --> B[See cinematic hero + spotlight capture]
-  B --> C[Use compact mobile utility row\nfor Gallery/About/Search jump links]
-  C --> D[Browse thumbnail gallery]
-  D --> E[Open image detail]
-  E --> F[Review metadata\nobject + equipment + exposure + tags]
-  F --> G[Copy image-specific share link]
-  G --> H[Paste in Facebook/WhatsApp/iMessage]
-  H --> I[Preview card shows image + title]
-  I --> E
-  F --> J{Wikipedia data available?}
-  J -- yes --> K[Show extract + thumbnail + read more link + attribution note]
-  J -- no/fetch failed --> L[Show fallback: No external reference yet]
+  A[Visitor lands on homepage] --> B[See cinematic hero + rotating spotlight capture]
+  B --> B2[Read Tonight's Highlight facts + open details CTA]
+  B2 --> C[Browse thumbnail gallery]
+  C --> D[Open image detail]
+  D --> E[Review metadata\nobject + equipment + exposure + tags]
+  E --> I[Copy image-specific share link]
+  I --> J[Paste in Facebook/WhatsApp/iMessage]
+  J --> K[Preview card shows image + title]
+  K --> F
+  G --> H{Wikipedia data available?}
+  H -- yes --> WIKI[Show extract + thumbnail + read more link + attribution note]
+  H -- no/fetch failed --> L[Show fallback: No external reference yet]
 ```
 
 ## Admin upload flow
@@ -176,7 +177,8 @@ flowchart TD
   Z --> AA[Store original + generate thumbnail + write metadata JSON]
   AA --> AB[Image appears in public gallery]
   P --> AC[Add/delete reusable preset pills in setup_presets.json]
-  M --> AD[Set or change homepage spotlight capture]
+  M --> AD[Set or change homepage spotlight capture
+(featured rule input for homepage rotation)]
   M --> AE[Open dedicated edit page for a capture]
   EDP --> AJ[Edit all metadata fields + preset pills + SEO tags]
   AJ --> AK[If Wikipedia URL changed, clear old cache and refresh wiki summary/facts]
@@ -194,7 +196,7 @@ graph LR
   A[Admin Browser] --> APP
   APP --> VIEWS[Template Views]
   VIEWS --> THEME[Cinematic CSS Theme Layer
-(includes mobile utility row + touch sizing)]
+(subtle twinkle + gradient drift on hero panels)]
   VIEWS --> SEO[Canonical + Open Graph meta tags]
   APP --> SEC[Auth + CSRF + Rate Limit]
   APP --> DATA[(JSON metadata/users + wiki cache/spotlight/SEO fields)]
