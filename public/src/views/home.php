@@ -41,14 +41,14 @@ $tagOptions = array_keys($tags);
 sort($objectTypeOptions, SORT_NATURAL | SORT_FLAG_CASE);
 sort($tagOptions, SORT_NATURAL | SORT_FLAG_CASE);
 ?>
-<section class="hero">
+<section class="hero hero--immersive">
   <div class="hero-copy">
-    <h1>Night sky captures with full capture transparency</h1>
-    <p>Explore deep-sky imaging sessions with complete equipment notes, exposure breakdowns, and post-processing context so every frame tells the full story.</p>
+    <h1>A cinematic wall of the night sky</h1>
+    <p>Start with the images first. Use filters only when you want to narrow the field.</p>
     <div class="statline">
       <span class="pill"><?= count($images) ?> published captures</span>
-      <span class="pill">Curated astrophotography workflow</span>
-      <span class="pill">Metadata-first presentation</span>
+      <span class="pill">Large-format gallery wall</span>
+      <span class="pill">Capture context on every detail page</span>
     </div>
   </div>
   <aside class="hero-feature">
@@ -97,6 +97,7 @@ sort($tagOptions, SORT_NATURAL | SORT_FLAG_CASE);
   </aside>
 </section>
 <section class="filter-toolbar" aria-label="Gallery filters">
+  <p class="filter-toolbar__lead">Filters are available, but the gallery stays center stage.</p>
   <div class="filter-toolbar__grid">
     <label>
       Object type

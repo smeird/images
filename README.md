@@ -14,7 +14,7 @@ Implemented now:
 - image detail fullscreen pill is anchored at the top-right of the image for quicker access before scrolling metadata
 - Repository intentionally does not include bundled `.jpg` sample images; upload your own media through the admin flow.
 - metadata display (capture, object type, structured equipment setup incl. scope type/telescope/mount/camera/filter chain, exposure, processing, tags)
-- homepage filter toolbar with object type/tag/date-range/text search + client-side sort controls (newest/oldest/exposure/title) backed by embedded JSON payload and query-param state persistence for shareable gallery URLs
+- homepage now prioritizes an immersive, denser image wall (wider canvas + larger thumbnail coverage) while keeping a compact filter toolbar (object type/tag/date-range/text search + sort) with shareable query-parameter state
 - secure admin route with session auth, CSRF protection, basic login rate limiting, task-based admin portal pages (upload/setup presets/media/security), in-session password change controls, and authenticated image deletion
 - redesigned admin control center UX with guided task cards, clearer navigation labels, and inline help so uploads/presets/library/security actions are easier to discover.
 - admin media library now supports spotlight selection plus navigation into a dedicated edit page for full metadata + SEO updates (with preset pills available while editing).
@@ -125,7 +125,7 @@ You can override route and limits via env vars:
 - `public/index.php` — front controller/router for public + admin routes.
 - `public/src/bootstrap.php` — shared helpers, auth, upload + thumbnail logic.
 - `public/src/views/` — HTML view templates.
-- `public/src/views/home.php` now embeds homepage image JSON payload for client-side filtering/sorting without full-page reloads.
+- `public/src/views/home.php` embeds homepage image JSON payload for client-side filtering/sorting and now renders an image-first landing layout with compact filters and reduced text weight.
 - `public/src/services/wikipedia.php` — Wikipedia URL validation + metadata normalization helper service.
 - `public/assets/style.css` — cinematic dark UI styling and interaction polish.
 - `storage/data/images.json` — image metadata records (including Wikipedia cache fields, spotlight flag, and editable SEO meta tags).
