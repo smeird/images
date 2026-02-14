@@ -40,6 +40,15 @@
         <?php else: ?>
           <p>Wikipedia summary is not cached yet.</p>
         <?php endif; ?>
+        <?php if (!empty($image['wikiFacts']) && is_array($image['wikiFacts'])): ?>
+          <ul class="metadata-list wiki-facts-list">
+            <?php foreach ($image['wikiFacts'] as $fact): ?>
+              <?php if (!empty($fact['label']) && !empty($fact['value'])): ?>
+                <li><strong><?= htmlspecialchars((string) $fact['label']) ?>:</strong> <?= htmlspecialchars((string) $fact['value']) ?></li>
+              <?php endif; ?>
+            <?php endforeach; ?>
+          </ul>
+        <?php endif; ?>
         <p>
           <a href="<?= htmlspecialchars($image['wikipediaUrl']) ?>" target="_blank" rel="noopener noreferrer">Read on Wikipedia</a>
         </p>
@@ -71,6 +80,15 @@
         <?php endif; ?>
         <?php if (!empty($wikipedia_data['extract'])): ?>
           <p><?= htmlspecialchars((string) $wikipedia_data['extract']) ?></p>
+        <?php endif; ?>
+        <?php if (!empty($wikipedia_data['key_facts']) && is_array($wikipedia_data['key_facts'])): ?>
+          <ul class="metadata-list wiki-facts-list">
+            <?php foreach ($wikipedia_data['key_facts'] as $fact): ?>
+              <?php if (!empty($fact['label']) && !empty($fact['value'])): ?>
+                <li><strong><?= htmlspecialchars((string) $fact['label']) ?>:</strong> <?= htmlspecialchars((string) $fact['value']) ?></li>
+              <?php endif; ?>
+            <?php endforeach; ?>
+          </ul>
         <?php endif; ?>
         <?php if (!empty($wikipedia_data['canonical_url'])): ?>
           <p>

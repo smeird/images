@@ -237,6 +237,30 @@ function delete_scope_type_preset(string $value): bool
     return delete_setup_preset('scope_type', $value);
 }
 
+function normalize_wiki_facts($facts): array
+{
+    if (!is_array($facts)) {
+        return [];
+    }
+
+    $normalized = [];
+    foreach ($facts as $fact) {
+        if (!is_array($fact)) {
+            continue;
+        }
+
+        $label = trim((string) ($fact['label'] ?? ''));
+        $value = trim((string) ($fact['value'] ?? ''));
+        if ($label === '' || $value === '') {
+            continue;
+        }
+
+        $normalized[] = ['label' => $label, 'value' => $value];
+    }
+
+    return $normalized;
+}
+
 function compose_equipment_summary(array $record): string
 {
     $parts = [];
@@ -266,6 +290,7 @@ function normalize_image_record(array $record): array
     $record['wikiThumbnail'] = trim((string) ($record['wikiThumbnail'] ?? ''));
     $record['wikiFetchedAt'] = trim((string) ($record['wikiFetchedAt'] ?? ''));
     $record['wikiStatus'] = trim((string) ($record['wikiStatus'] ?? 'not_requested'));
+    $record['wikiFacts'] = normalize_wiki_facts($record['wikiFacts'] ?? []);
     $record['meta_title'] = trim((string) ($record['meta_title'] ?? ''));
     $record['meta_description'] = trim((string) ($record['meta_description'] ?? ''));
     $record['meta_keywords'] = trim((string) ($record['meta_keywords'] ?? ''));
@@ -341,6 +366,9 @@ function update_image_metadata(string $id, array $input): ?string
         return 'Wikipedia URL must be a valid wikipedia.org/wiki/... article link.';
     }
 
+    $existingWikipediaUrl = trim((string) ($images[$targetIndex]['wikipediaUrl'] ?? ''));
+    $wikiUrlChanged = $existingWikipediaUrl !== $wikipediaUrl;
+
     $images[$targetIndex]['title'] = $title;
     $images[$targetIndex]['object_name'] = $objectName;
     $images[$targetIndex]['object_type'] = trim((string) ($input['object_type'] ?? ''));
@@ -359,6 +387,26 @@ function update_image_metadata(string $id, array $input): ?string
     $images[$targetIndex]['tags'] = $tags;
     $images[$targetIndex]['wikipedia_url'] = $wikipediaUrl;
     $images[$targetIndex]['wikipediaUrl'] = $wikipediaUrl;
+
+    if ($wikiUrlChanged) {
+        $images[$targetIndex]['wikiTitle'] = '';
+        $images[$targetIndex]['wikiExtract'] = '';
+        $images[$targetIndex]['wikiThumbnail'] = '';
+        $images[$targetIndex]['wikiFetchedAt'] = '';
+        $images[$targetIndex]['wikiStatus'] = $wikipediaUrl === '' ? 'not_requested' : 'pending_refresh';
+        $images[$targetIndex]['wikiFacts'] = [];
+
+        if ($wikipediaUrl !== '') {
+            try {
+                $wikiData = fetch_wikipedia_summary($wikipediaUrl);
+                $images[$targetIndex] = array_merge($images[$targetIndex], $wikiData);
+            } catch (Throwable $throwable) {
+                $images[$targetIndex]['wikiStatus'] = 'error';
+                log_event('Wikipedia refresh failed during metadata update for image ' . $id . ': ' . $throwable->getMessage());
+            }
+        }
+    }
+
     $images[$targetIndex]['meta_title'] = trim((string) ($input['meta_title'] ?? ''));
     $images[$targetIndex]['meta_description'] = trim((string) ($input['meta_description'] ?? ''));
     $images[$targetIndex]['meta_keywords'] = trim((string) ($input['meta_keywords'] ?? ''));
@@ -442,6 +490,7 @@ function fetch_wikipedia_summary(string $wikipediaUrl): array
         'wikiThumbnail' => trim((string) (($decoded['thumbnail']['source'] ?? ''))),
         'wikiFetchedAt' => gmdate('c'),
         'wikiStatus' => 'ok',
+        'wikiFacts' => normalize_wiki_facts($decoded['keyFacts'] ?? []),
     ];
 }
 
@@ -967,5 +1016,6 @@ function wikipedia_summary_from_url(string $url): array
         'extract' => (string) ($data['summary'] ?? ''),
         'thumbnail' => (string) ($data['thumbnail'] ?? ''),
         'canonical_url' => (string) ($data['canonicalUrl'] ?? ''),
+        'key_facts' => normalize_wiki_facts($data['keyFacts'] ?? []),
     ];
 }
