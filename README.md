@@ -10,7 +10,7 @@ Implemented now:
 - public gallery and image detail pages
 - cinematic dark-sky visual treatment with starfield texture, rotating spotlight hero card rules (latest/featured/daily deterministic date hash), and glassmorphism-style panels
 - ambient micro-interactions (hover lift/glow, metadata chips, richer card transitions, and subtle hero twinkle/gradient drift that respects reduced-motion settings)
-- detail viewer now has explicit split responsive experiences: widescreen desktop layout (expanded media canvas + a widened side metadata/Wikipedia column for readability) and a stacked long-form mobile layout tuned for narrow screens.
+- detail viewer now has explicit split responsive experiences: widescreen desktop layout (expanded media canvas + extra-wide side metadata/Wikipedia column to avoid cramped equipment/fact chips, with slightly reduced metadata chip typography for fit) and a stacked long-form mobile layout tuned for narrow screens.
 - image detail fullscreen pill is anchored at the top-right of the image for quicker access before scrolling metadata
 - Repository intentionally does not include bundled `.jpg` sample images; upload your own media through the admin flow.
 - metadata display (capture, object type, structured equipment setup incl. scope type/telescope/mount/camera/filter chain, exposure, processing, tags)
