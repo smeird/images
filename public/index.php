@@ -36,11 +36,22 @@ if ($path === '/image.php') {
         }
     }
 
+    $detailPath = '/image.php?id=' . rawurlencode((string) $image['id']);
+    $detailUrl = absolute_url($detailPath);
+    $ogDescription = trim((string) ($image['description'] ?? ''));
+    if ($ogDescription === '') {
+        $ogDescription = 'Astrophotography capture: ' . (string) ($image['title'] ?? 'Untitled image');
+    }
+
     render('detail', [
         'title' => $image['title'],
         'image' => $image,
         'wikipedia_data' => $wikipediaData,
         'wikipedia_error' => $wikipediaError,
+        'canonical_url' => $detailUrl,
+        'meta_title' => $image['title'] . ' · ' . $config['site_name'],
+        'meta_description' => $ogDescription,
+        'meta_image' => absolute_url('/media.php?type=original&file=' . rawurlencode((string) $image['original'])),
     ]);
     exit;
 }

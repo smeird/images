@@ -82,7 +82,7 @@ This task plan is designed for a Linux + Apache + PHP environment and optimized 
   - Tags
 - [x] Validate uploads:
   - Allowed MIME types (JPEG/PNG/WebP/TIFF if needed)
-  - Max upload size (set >2MB, e.g., 10MB headroom)
+  - Max upload size (default now 150MB via `MAX_UPLOAD_BYTES`; keep PHP limits aligned)
   - Server-side image verification and sanitization
 - [x] Surface actionable admin errors when request body exceeds PHP/app upload limits (e.g., `post_max_size`, `upload_max_filesize`, `MAX_UPLOAD_BYTES`).
 - [x] On successful upload:
@@ -126,6 +126,7 @@ This task plan is designed for a Linux + Apache + PHP environment and optimized 
 ## 10) SEO and discoverability
 
 - [ ] Add semantic page titles, meta descriptions, Open Graph tags.
+  - [x] Implement image detail canonical URL + Open Graph/Twitter image/title metadata for rich social link previews.
 - [ ] Include alt text strategy for each image.
 - [ ] Auto-generate XML sitemap.
 - [ ] Add schema.org metadata for images/creative works.

@@ -28,7 +28,7 @@ function load_config(): array
     return [
         'site_name' => getenv('SITE_NAME') ?: 'Night Sky Atlas',
         'admin_route' => getenv('ADMIN_ROUTE') ?: '/hidden-admin',
-        'max_upload_bytes' => (int) (getenv('MAX_UPLOAD_BYTES') ?: 10 * 1024 * 1024),
+        'max_upload_bytes' => (int) (getenv('MAX_UPLOAD_BYTES') ?: 150 * 1024 * 1024),
         'allowed_mime' => ['image/jpeg', 'image/png', 'image/webp'],
     ];
 }
@@ -325,6 +325,25 @@ function render(string $view, array $vars = []): void
     require ROOT_PATH . '/src/views/layout_top.php';
     require ROOT_PATH . '/src/views/' . $view . '.php';
     require ROOT_PATH . '/src/views/layout_bottom.php';
+}
+
+function request_origin(): string
+{
+    $forwardedProto = trim((string) ($_SERVER['HTTP_X_FORWARDED_PROTO'] ?? ''));
+    if ($forwardedProto !== '') {
+        $scheme = strtolower(explode(',', $forwardedProto)[0]);
+    } else {
+        $https = strtolower((string) ($_SERVER['HTTPS'] ?? ''));
+        $scheme = ($https !== '' && $https !== 'off') ? 'https' : 'http';
+    }
+
+    $host = trim((string) ($_SERVER['HTTP_HOST'] ?? 'localhost'));
+    return $scheme . '://' . $host;
+}
+
+function absolute_url(string $path): string
+{
+    return request_origin() . $path;
 }
 
 function csrf_token(): string

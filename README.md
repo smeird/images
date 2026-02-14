@@ -59,11 +59,11 @@ Use `public/` as the Apache document root so that `storage/` is never directly w
     # Optional runtime overrides
     SetEnv ADMIN_ROUTE /hidden-admin
     SetEnv SITE_NAME "Night Sky Atlas"
-    SetEnv MAX_UPLOAD_BYTES 33554432
+    SetEnv MAX_UPLOAD_BYTES 157286400
 
     # Keep Apache/PHP body limits aligned for large uploads
-    php_value upload_max_filesize 32M
-    php_value post_max_size 32M
+    php_value upload_max_filesize 150M
+    php_value post_max_size 150M
 
     ErrorLog ${APACHE_LOG_DIR}/images-error.log
     CustomLog ${APACHE_LOG_DIR}/images-access.log combined
@@ -90,7 +90,7 @@ If you deploy behind HTTPS, keep the same `DocumentRoot` and route all HTTP traf
 You can override route and limits via env vars:
 - `ADMIN_ROUTE` (default `/hidden-admin`)
 - `SITE_NAME` (default `Night Sky Atlas`)
-- `MAX_UPLOAD_BYTES` (default `10485760`)
+- `MAX_UPLOAD_BYTES` (default `157286400`, i.e., 150MB)
 - `upload_max_filesize` and `post_max_size` (PHP ini/virtual-host values; should be >= `MAX_UPLOAD_BYTES`)
 
 ## Security notes (admin/backdoor)
@@ -104,6 +104,7 @@ You can override route and limits via env vars:
 - Wikipedia panel includes attribution/license note and gracefully falls back when external fetch is unavailable.
 - Uploaded files are stored outside the public web root and served through `media.php`.
 - Wikipedia metadata fetches only allow trusted Wikipedia hosts (`en.wikipedia.org` plus optional language subdomains) and return structured error codes for UI-safe fallbacks.
+- Social preview URLs are generated from request host/scheme headers, so production deployments should keep trusted proxy/host header handling correctly configured.
 
 ## Folder/file map
 
@@ -127,6 +128,10 @@ flowchart TD
   B --> C[Browse thumbnail gallery]
   C --> D[Open image detail]
   D --> E[Review metadata\nobject + equipment + exposure + tags]
+  E --> I[Copy image-specific share link]
+  I --> J[Paste in Facebook/WhatsApp/iMessage]
+  J --> K[Preview card shows image + title]
+  K --> D
   E --> F{Wikipedia data available?}
   F -- yes --> G[Show extract + thumbnail + read more link + attribution note]
   F -- no/fetch failed --> H[Show fallback: No external reference yet]
@@ -165,6 +170,7 @@ graph LR
   A[Admin Browser] --> APP
   APP --> VIEWS[Template Views]
   VIEWS --> THEME[Cinematic CSS Theme Layer]
+  VIEWS --> SEO[Canonical + Open Graph meta tags]
   APP --> SEC[Auth + CSRF + Rate Limit]
   APP --> DATA[(JSON metadata/users + wiki cache fields)]
   APP --> WIKI[Wikipedia REST summary API]
