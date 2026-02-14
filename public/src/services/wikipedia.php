@@ -127,7 +127,7 @@ function normalize_wikipedia_url(string $rawUrl, array $options = []): array
     parse_str((string) ($parts['query'] ?? ''), $query);
 
     $title = '';
-    if (str_starts_with($path, '/wiki/')) {
+    if (strpos($path, '/wiki/') === 0) {
         $title = rawurldecode(substr($path, strlen('/wiki/')));
     } elseif (!empty($query['title']) && is_string($query['title'])) {
         $title = rawurldecode($query['title']);
