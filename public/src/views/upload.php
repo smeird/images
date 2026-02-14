@@ -4,6 +4,20 @@
   <?php if (!empty($limit_error)): ?><p class="error"><?= htmlspecialchars($limit_error) ?></p><?php endif; ?>
   <?php if (!empty($success)): ?><p class="success"><?= htmlspecialchars($success) ?></p><?php endif; ?>
   <p>Maximum accepted upload size: <strong><?= htmlspecialchars((string) ($effective_upload_limit_human ?? '10.0 MB')) ?></strong></p>
+
+  <?php if (!empty($storage_summary) && is_array($storage_summary)): ?>
+    <section class="storage-summary">
+      <h2>System storage</h2>
+      <p class="muted">Available space: <strong><?= htmlspecialchars((string) ($storage_summary['free_human'] ?? 'Unknown')) ?></strong></p>
+      <ul class="storage-list">
+        <li><strong>Used:</strong> <?= htmlspecialchars((string) ($storage_summary['used_human'] ?? 'Unknown')) ?></li>
+        <li><strong>Total:</strong> <?= htmlspecialchars((string) ($storage_summary['total_human'] ?? 'Unknown')) ?></li>
+      </ul>
+    </section>
+  <?php else: ?>
+    <p class="muted">System storage information is unavailable in this environment.</p>
+  <?php endif; ?>
+
   <form method="post" enctype="multipart/form-data">
     <input type="hidden" name="form_action" value="upload_image">
     <input type="hidden" name="csrf_token" value="<?= htmlspecialchars(csrf_token()) ?>">
@@ -38,6 +52,30 @@
   <?php endif; ?>
 
   <p><a href="<?= htmlspecialchars($config['admin_route']) ?>/logout">Sign out</a></p>
+</section>
+
+<section class="panel">
+  <h2>Manage uploaded images</h2>
+  <?php if (empty($images)): ?>
+    <p class="muted">No uploaded images yet.</p>
+  <?php else: ?>
+    <ul class="admin-image-list">
+      <?php foreach ($images as $image): ?>
+        <li>
+          <div>
+            <strong><?= htmlspecialchars((string) ($image['title'] ?? 'Untitled')) ?></strong>
+            <p class="muted"><?= htmlspecialchars((string) ($image['captured_at'] ?? 'Unknown date')) ?> · ID: <?= htmlspecialchars((string) ($image['id'] ?? '')) ?></p>
+          </div>
+          <form method="post" class="inline-form" onsubmit="return confirm('Delete this image permanently?');">
+            <input type="hidden" name="csrf_token" value="<?= htmlspecialchars(csrf_token()) ?>">
+            <input type="hidden" name="form_action" value="delete_image">
+            <input type="hidden" name="image_id" value="<?= htmlspecialchars((string) ($image['id'] ?? '')) ?>">
+            <button type="submit" class="danger">Delete</button>
+          </form>
+        </li>
+      <?php endforeach; ?>
+    </ul>
+  <?php endif; ?>
 </section>
 
 

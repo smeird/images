@@ -134,7 +134,7 @@ This task plan is designed for a Linux + Apache + PHP environment and optimized 
 
 - [ ] Add admin tools:
   - Edit metadata after upload
-  - Delete/unpublish image
+  - [x] Delete/unpublish image
   - Mark featured images
 - [ ] Add logging and error monitoring.
 - [ ] Create deployment checklist for Apache/PHP config updates.

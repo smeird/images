@@ -124,6 +124,13 @@ if ($path === $adminBase . '/upload') {
                     $passwordError = $updateError;
                 }
             }
+        } elseif ((string) ($_POST['form_action'] ?? '') === 'delete_image') {
+            $imageId = (string) ($_POST['image_id'] ?? '');
+            if (delete_image_by_id($imageId)) {
+                $success = 'Image deleted successfully.';
+            } else {
+                $error = 'Image could not be deleted (record not found).';
+            }
         } elseif (empty($_FILES['image']) || ($_FILES['image']['error'] ?? UPLOAD_ERR_NO_FILE) !== UPLOAD_ERR_OK) {
             $error = 'Image upload failed. Please try again.';
         } else {
@@ -155,7 +162,6 @@ if ($path === $adminBase . '/upload') {
                 write_json(DATA_PATH . '/images.json', $images);
                 $success = 'Image uploaded successfully.';
                 $wikipediaUrlInput = '';
-                $preview = null;
             } catch (Throwable $throwable) {
                 $error = $throwable->getMessage();
             }
@@ -172,6 +178,8 @@ if ($path === $adminBase . '/upload') {
         'password_success' => $passwordSuccess,
         'wikipedia_url' => $wikipediaUrlInput,
         'wikipedia_preview' => null,
+        'images' => image_records(),
+        'storage_summary' => storage_space_summary(),
     ]);
     exit;
 }
