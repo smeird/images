@@ -59,11 +59,11 @@ Use `public/` as the Apache document root so that `storage/` is never directly w
     # Optional runtime overrides
     SetEnv ADMIN_ROUTE /hidden-admin
     SetEnv SITE_NAME "Night Sky Atlas"
-    SetEnv MAX_UPLOAD_BYTES 33554432
+    SetEnv MAX_UPLOAD_BYTES 157286400
 
     # Keep Apache/PHP body limits aligned for large uploads
-    php_value upload_max_filesize 32M
-    php_value post_max_size 32M
+    php_value upload_max_filesize 150M
+    php_value post_max_size 150M
 
     ErrorLog ${APACHE_LOG_DIR}/images-error.log
     CustomLog ${APACHE_LOG_DIR}/images-access.log combined
@@ -90,7 +90,7 @@ If you deploy behind HTTPS, keep the same `DocumentRoot` and route all HTTP traf
 You can override route and limits via env vars:
 - `ADMIN_ROUTE` (default `/hidden-admin`)
 - `SITE_NAME` (default `Night Sky Atlas`)
-- `MAX_UPLOAD_BYTES` (default `10485760`)
+- `MAX_UPLOAD_BYTES` (default `157286400`, i.e., 150MB)
 - `upload_max_filesize` and `post_max_size` (PHP ini/virtual-host values; should be >= `MAX_UPLOAD_BYTES`)
 
 ## Security notes (admin/backdoor)
