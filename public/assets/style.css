@@ -1099,18 +1099,44 @@ button.danger {
   background: linear-gradient(120deg, #8f2a4a, #c13f5f);
 }
 
+.admin-layout {
+  display: grid;
+  grid-template-columns: minmax(220px, 280px) minmax(0, 1fr);
+  gap: 0.9rem;
+  align-items: start;
+}
+
+.admin-sidebar {
+  position: sticky;
+  top: 0.85rem;
+  display: grid;
+  gap: 0.9rem;
+}
+
+.admin-main {
+  display: grid;
+  gap: 0.9rem;
+}
+
+.admin-status-panel {
+  min-height: 0;
+}
+
+.admin-signout-panel {
+  margin: 0;
+}
+
 .admin-nav {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.55rem;
+  display: grid;
+  gap: 0.5rem;
   margin-top: 0.9rem;
 }
 
 .admin-nav a {
   text-decoration: none;
-  padding: 0.45rem 0.8rem;
+  padding: 0.58rem 0.72rem;
   border: 1px solid rgba(132, 168, 236, 0.4);
-  border-radius: 999px;
+  border-radius: 10px;
   background: rgba(43, 73, 131, 0.26);
 }
 
@@ -1193,6 +1219,21 @@ button.danger {
   cursor: not-allowed;
 }
 
+
+
+@media (max-width: 920px) {
+  .admin-layout {
+    grid-template-columns: 1fr;
+  }
+
+  .admin-sidebar {
+    position: static;
+  }
+
+  .admin-nav {
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  }
+}
 
 @media (prefers-reduced-motion: reduce) {
   .hero-copy,
