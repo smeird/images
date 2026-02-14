@@ -1,10 +1,41 @@
 {
   "scope_type": [],
-  "object_type": [],
+  "object_type": [
+    "Galaxy",
+    "Nebula",
+    "Open Cluster",
+    "Globular Cluster",
+    "Supernova Remnant",
+    "Planetary Nebula",
+    "Emission Nebula",
+    "Reflection Nebula",
+    "Dark Nebula"
+  ],
   "telescope": [],
   "mount": [],
   "camera": [],
   "filter_wheel": [],
   "filters": [],
-  "filter_set": []
+  "filter_set": [],
+  "processing": [
+    "PixInsight",
+    "Siril",
+    "DeepSkyStacker",
+    "AstroPixelProcessor",
+    "Photoshop",
+    "Lightroom",
+    "GIMP"
+  ],
+  "tags": [
+    "nebula",
+    "galaxy",
+    "supernova",
+    "cluster",
+    "planetary-nebula",
+    "narrowband",
+    "broadband",
+    "sho",
+    "hubble-palette",
+    "lrgb"
+  ]
 }
