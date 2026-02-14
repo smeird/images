@@ -95,7 +95,7 @@ This task plan is designed for a Linux + Apache + PHP environment and optimized 
 ## 6) Core feature #3: Equipment and capture details
 
 - [ ] Create structured equipment sections (camera, optics, mount, guiding, filters).
-- [ ] Add optional reusable “equipment presets” in admin to avoid repetitive typing.
+- [x] Add optional reusable “equipment presets” in admin to avoid repetitive typing. (implemented as reusable scope-type response presets selectable from upload pills)
 - [ ] Display equipment metadata cleanly on detail pages with badges/icons.
 - [ ] Add searchable/filterable fields (e.g., show all photos taken with one telescope).
 
@@ -134,7 +134,8 @@ This task plan is designed for a Linux + Apache + PHP environment and optimized 
 
 ## 11) Operations and maintainability
 
-- [ ] Add admin tools:
+- [x] Add admin tools:
+  - [x] Task-based admin portal pages (Upload image / Scope type responses / Manage images / Security)
   - Edit metadata after upload
   - [x] Delete/unpublish image
   - Mark featured images

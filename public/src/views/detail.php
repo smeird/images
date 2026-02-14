@@ -10,6 +10,9 @@
       <li><strong>Object:</strong> <?= htmlspecialchars($image['object_name']) ?></li>
       <li><strong>Captured:</strong> <?= htmlspecialchars($image['captured_at']) ?></li>
       <li><strong>Equipment:</strong> <?= htmlspecialchars($image['equipment']) ?></li>
+      <?php if (!empty($image['scope_type'])): ?>
+        <li><strong>Scope type:</strong> <?= htmlspecialchars((string) $image['scope_type']) ?></li>
+      <?php endif; ?>
       <li><strong>Exposure:</strong> <?= htmlspecialchars($image['exposure']) ?></li>
       <li><strong>Processing:</strong> <?= htmlspecialchars($image['processing']) ?></li>
     </ul>
