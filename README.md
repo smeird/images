@@ -17,6 +17,7 @@ Implemented now:
 - image upload pipeline with MIME/size validation, thumbnail generation, and admin-side storage-capacity visibility
 - graceful oversize-upload handling that reports when server (`post_max_size` / `upload_max_filesize`) or app (`MAX_UPLOAD_BYTES`) limits reject a request before PHP can parse form fields
 - Wikipedia URL normalization uses PHP 7.4-compatible string checks (no PHP 8-only helpers) to avoid runtime fatals on older deployments.
+- social preview tags on detail pages now point to the generated 800x500 JPEG thumbnail (instead of full original) to improve WhatsApp/Facebook card rendering reliability.
 
 Planned next:
 - richer filtering/search, metadata editing, and stronger production hardening.
@@ -107,6 +108,7 @@ You can override route and limits via env vars:
 - Uploaded files are stored outside the public web root and served through `media.php`.
 - Wikipedia metadata fetches only allow trusted Wikipedia hosts (`en.wikipedia.org` plus optional language subdomains) and return structured error codes for UI-safe fallbacks.
 - Social preview URLs are generated from request host/scheme headers, so production deployments should keep trusted proxy/host header handling correctly configured.
+- Open Graph image metadata now includes type + dimensions so social crawlers can parse previews more consistently.
 
 ## Folder/file map
 

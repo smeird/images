@@ -51,7 +51,10 @@ if ($path === '/image.php') {
         'canonical_url' => $detailUrl,
         'meta_title' => $image['title'] . ' · ' . $config['site_name'],
         'meta_description' => $ogDescription,
-        'meta_image' => absolute_url('/media.php?type=original&file=' . rawurlencode((string) $image['original'])),
+        'meta_image' => absolute_url('/media.php?type=thumb&file=' . rawurlencode((string) $image['thumb'])),
+        'meta_image_type' => 'image/jpeg',
+        'meta_image_width' => 800,
+        'meta_image_height' => 500,
     ]);
     exit;
 }
