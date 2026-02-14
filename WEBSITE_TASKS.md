@@ -5,7 +5,7 @@ This task plan is designed for a Linux + Apache + PHP environment and optimized 
 ## 1) Product vision and UX direction
 
 - [x] Define brand and visual direction (dark sky palette, starfield accents, modern typography).
-- [ ] Choose homepage storytelling approach (hero image + mission statement + featured captures).
+- [x] Choose homepage storytelling approach (hero image + mission statement + rotating featured/spotlight capture with nightly highlight facts).
 - [ ] Create moodboard (NASA/APOD-inspired visual references, typography, spacing, card styles).
 - [ ] Decide wow-factor interactions (subtle parallax stars, animated constellation lines, smooth image reveal transitions).
 
@@ -105,7 +105,7 @@ This task plan is designed for a Linux + Apache + PHP environment and optimized 
 - [x] Cinematic dark theme with starfield background and subtle motion (respect reduced-motion accessibility setting).
 - [x] Lightbox/fullscreen viewer with smooth zoom transitions. (implemented fullscreen mode on image detail page; control pill positioned at top-right of media)
 - [ ] Before/after slider (stacked vs processed image), optional for advanced showcase.
-- [ ] “Image of the month” spotlight section on homepage.
+- [x] Spotlight section on homepage with rotating selection rules (latest, featured override, daily deterministic pick).
 - [ ] Constellation-style timeline view by capture date.
 - [x] Ambient micro-interactions (hover glows, metadata fade-ins, elegant loading skeletons).
 
@@ -158,7 +158,7 @@ This task plan is designed for a Linux + Apache + PHP environment and optimized 
 ### Phase 2 — Polish (1 week)
 - [x] Add image detail page enhancements and filtering. (homepage filtering + sorting delivered)
 - [x] Improve visual design and transitions.
-- [ ] Add homepage featured section.
+- [x] Add homepage featured section (implemented as rotating hero spotlight + Tonight's Highlight caption block).
 
 ### Phase 3 — Advanced (later)
 - [ ] Add before/after comparisons.
