@@ -259,6 +259,25 @@ function render(string $view, array $vars = []): void
     require ROOT_PATH . '/src/views/layout_bottom.php';
 }
 
+function request_origin(): string
+{
+    $forwardedProto = trim((string) ($_SERVER['HTTP_X_FORWARDED_PROTO'] ?? ''));
+    if ($forwardedProto !== '') {
+        $scheme = strtolower(explode(',', $forwardedProto)[0]);
+    } else {
+        $https = strtolower((string) ($_SERVER['HTTPS'] ?? ''));
+        $scheme = ($https !== '' && $https !== 'off') ? 'https' : 'http';
+    }
+
+    $host = trim((string) ($_SERVER['HTTP_HOST'] ?? 'localhost'));
+    return $scheme . '://' . $host;
+}
+
+function absolute_url(string $path): string
+{
+    return request_origin() . $path;
+}
+
 function csrf_token(): string
 {
     if (empty($_SESSION['csrf'])) {

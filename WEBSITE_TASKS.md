@@ -126,6 +126,7 @@ This task plan is designed for a Linux + Apache + PHP environment and optimized 
 ## 10) SEO and discoverability
 
 - [ ] Add semantic page titles, meta descriptions, Open Graph tags.
+  - [x] Implement image detail canonical URL + Open Graph/Twitter image/title metadata for rich social link previews.
 - [ ] Include alt text strategy for each image.
 - [ ] Auto-generate XML sitemap.
 - [ ] Add schema.org metadata for images/creative works.
