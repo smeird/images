@@ -373,8 +373,31 @@ main {
 
 .detail {
   display: grid;
-  grid-template-columns: 1.45fr 1fr;
+  grid-template-columns: minmax(0, 1.8fr) minmax(320px, 1fr);
+  gap: 1.1rem;
+}
+
+.detail-viewer-layout {
+  align-items: start;
+}
+
+.detail-panel {
+  min-width: 0;
+}
+
+.detail-info-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1.2fr) minmax(280px, 0.8fr);
   gap: 1rem;
+  align-items: start;
+}
+
+.detail-primary-copy {
+  min-width: 0;
+}
+
+.detail-metadata-grid {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
 }
 
 .detail-media {
@@ -526,6 +549,21 @@ footer {
   z-index: 1;
 }
 
+@media (min-width: 1200px) {
+  .detail-viewer-layout {
+    grid-template-columns: minmax(0, 2.15fr) minmax(430px, 1fr);
+    width: min(1700px, calc(100vw - 4rem));
+    margin-left: 50%;
+    transform: translateX(-50%);
+  }
+
+  .detail-image {
+    max-height: calc(100vh - 10.5rem);
+    object-fit: contain;
+    background: rgba(1, 6, 16, 0.3);
+  }
+}
+
 @media (max-width: 900px) {
   .hero,
   .detail {
@@ -583,6 +621,23 @@ footer {
 
   .card img {
     height: 152px;
+  }
+
+  .detail {
+    gap: 0.85rem;
+  }
+
+  .detail-panel {
+    padding: 0.95rem;
+  }
+
+  .detail-image {
+    border-radius: 12px;
+  }
+
+  .fullscreen-toggle {
+    top: 0.55rem;
+    right: 0.55rem;
   }
 }
 
@@ -660,6 +715,32 @@ button.secondary {
   margin-top: 1rem;
   padding-top: 1rem;
   border-top: 1px solid rgba(128, 157, 214, 0.25);
+}
+
+.detail-wiki-column {
+  margin-top: 0;
+  padding-top: 0;
+  border-top: none;
+  border-left: 1px solid rgba(128, 157, 214, 0.22);
+  padding-left: 1rem;
+}
+
+@media (max-width: 1100px) {
+  .detail-info-layout {
+    grid-template-columns: 1fr;
+  }
+
+  .detail-wiki-column {
+    margin-top: 1rem;
+    padding-top: 1rem;
+    border-top: 1px solid rgba(128, 157, 214, 0.25);
+    border-left: none;
+    padding-left: 0;
+  }
+
+  .detail-metadata-grid {
+    grid-template-columns: 1fr;
+  }
 }
 
 .wiki-thumb {
