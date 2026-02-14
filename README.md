@@ -16,6 +16,7 @@ Implemented now:
 - secure admin route with session auth, CSRF protection, basic login rate limiting, task-based admin portal pages (upload/setup presets/media/security), in-session password change controls, and authenticated image deletion
 - image upload pipeline with MIME/size validation, thumbnail generation, and admin-side storage-capacity visibility
 - admin setup-preset management for one-click upload pills across observatory gear (scope type/object type/telescope/mount/camera/filter wheel/filters/filter set)
+- admin setup-preset changes now persist correctly to `setup_presets.json` for all categories, eliminating PHP notices during preset saves.
 - graceful oversize-upload handling that reports when server (`post_max_size` / `upload_max_filesize`) or app (`MAX_UPLOAD_BYTES`) limits reject a request before PHP can parse form fields
 - graceful storage-write error handling in admin actions (scope-type presets and uploads) when `storage/data` is not writable, avoiding PHP warnings exposed to users
 - Wikipedia URL normalization uses PHP 7.4-compatible string checks (no PHP 8-only helpers) to avoid runtime fatals on older deployments.
