@@ -8,8 +8,8 @@ Astronomy image showcase website with a public gallery and a secure admin upload
 
 Implemented now:
 - public gallery and image detail pages
-- cinematic dark-sky visual treatment with starfield texture, spotlight hero card, and glassmorphism-style panels
-- ambient micro-interactions (hover lift/glow, metadata chips, richer card transitions)
+- cinematic dark-sky visual treatment with starfield texture, rotating spotlight hero card rules (latest/featured/daily deterministic date hash), and glassmorphism-style panels
+- ambient micro-interactions (hover lift/glow, metadata chips, richer card transitions, and subtle hero twinkle/gradient drift that respects reduced-motion settings)
 - image detail fullscreen pill is anchored at the top-right of the image for quicker access before scrolling metadata
 - Repository intentionally does not include bundled `.jpg` sample images; upload your own media through the admin flow.
 - metadata display (capture, object type, structured equipment setup incl. scope type/telescope/mount/camera/filter chain, exposure, processing, tags)
@@ -138,8 +138,9 @@ You can override route and limits via env vars:
 
 ```mermaid
 flowchart TD
-  A[Visitor lands on homepage] --> B[See cinematic hero + spotlight capture]
-  B --> C[Browse thumbnail gallery]
+  A[Visitor lands on homepage] --> B[See cinematic hero + rotating spotlight capture]
+  B --> B2[Read Tonight's Highlight facts + open details CTA]
+  B2 --> C[Browse thumbnail gallery]
   C --> D[Open image detail]
   D --> E[Review metadata\nobject + equipment + exposure + tags]
   E --> I[Copy image-specific share link]
@@ -174,7 +175,8 @@ flowchart TD
   Z --> AA[Store original + generate thumbnail + write metadata JSON]
   AA --> AB[Image appears in public gallery]
   P --> AC[Add/delete reusable preset pills in setup_presets.json]
-  M --> AD[Set or change homepage spotlight capture]
+  M --> AD[Set or change homepage spotlight capture
+(featured rule input for homepage rotation)]
   M --> AE[Open dedicated edit page for a capture]
   EDP --> AJ[Edit all metadata fields + preset pills + SEO tags]
   AJ --> AK[If Wikipedia URL changed, clear old cache and refresh wiki summary/facts]
@@ -191,7 +193,8 @@ graph LR
   U[Public Browser] --> APP[PHP Front Controller]
   A[Admin Browser] --> APP
   APP --> VIEWS[Template Views]
-  VIEWS --> THEME[Cinematic CSS Theme Layer]
+  VIEWS --> THEME[Cinematic CSS Theme Layer
+(subtle twinkle + gradient drift on hero panels)]
   VIEWS --> SEO[Canonical + Open Graph meta tags]
   APP --> SEC[Auth + CSRF + Rate Limit]
   APP --> DATA[(JSON metadata/users + wiki cache/spotlight/SEO fields)]
