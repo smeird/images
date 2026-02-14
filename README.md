@@ -10,6 +10,7 @@ Implemented now:
 - public gallery and image detail pages
 - cinematic dark-sky visual treatment with starfield texture, rotating spotlight hero card rules (latest/featured/daily deterministic date hash), and glassmorphism-style panels
 - ambient micro-interactions (hover lift/glow, metadata chips, richer card transitions, and subtle hero twinkle/gradient drift that respects reduced-motion settings)
+- detail viewer now has explicit split responsive experiences: widescreen desktop layout (expanded media canvas + side-by-side metadata/Wikipedia columns) and a stacked long-form mobile layout tuned for narrow screens.
 - image detail fullscreen pill is anchored at the top-right of the image for quicker access before scrolling metadata
 - Repository intentionally does not include bundled `.jpg` sample images; upload your own media through the admin flow.
 - metadata display (capture, object type, structured equipment setup incl. scope type/telescope/mount/camera/filter chain, exposure, processing, tags)
@@ -196,7 +197,7 @@ graph LR
   A[Admin Browser] --> APP
   APP --> VIEWS[Template Views]
   VIEWS --> THEME[Cinematic CSS Theme Layer
-(subtle twinkle + gradient drift on hero panels)]
+(subtle twinkle + gradient drift on hero panels, plus split desktop/mobile detail viewer shell)]
   VIEWS --> SEO[Canonical + Open Graph meta tags]
   APP --> SEC[Auth + CSRF + Rate Limit]
   APP --> DATA[(JSON metadata/users + wiki cache/spotlight/SEO fields)]
