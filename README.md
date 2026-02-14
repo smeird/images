@@ -17,7 +17,7 @@ Implemented now:
 - homepage now prioritizes an immersive, denser image wall (wider canvas + larger thumbnail coverage) with subtle scroll-linked spectral parallax accents (H-alpha/OIII-inspired gradients) that respect reduced-motion settings.
 - filters now default to a low-prominence chip summary under the hero, while full controls live behind a Refine toggle (object type/tag/date-range/text search + sort) and still sync via shareable query-parameter state.
 - secure admin route with session auth, CSRF protection, basic login rate limiting, task-based admin portal pages (upload/setup presets/media/security), in-session password change controls, and authenticated image deletion
-- redesigned admin control center UX with a dedicated sidebar task navigator, guided help cards, and clearer labels so uploads/presets/library/security actions are easier to discover.
+- redesigned admin control center UX with a dedicated side navigation rail, top-of-workspace guided help cards, and wider content panels so uploads/presets/library/security actions are easier to discover and use on desktop screens.
 - admin media library now supports spotlight selection plus navigation into a dedicated edit page for full metadata + SEO updates (with preset pills available while editing).
 - image upload pipeline with MIME/size validation, thumbnail generation, and admin-side storage-capacity visibility
 - admin setup-preset management for one-click upload/edit pills across observatory gear + metadata (scope type/object type/telescope/mount/camera/filter wheel/filters/filter set/processing software/tags)
@@ -164,15 +164,15 @@ flowchart TD
 ```mermaid
 flowchart TD
   Admin_opens_hidden_route --> Already_authenticated
-  Already_authenticated -->|yes| Admin_control_center_sidebar_and_guided_help_cards
+  Already_authenticated -->|yes| Admin_control_center_with_side_navigation_and_wide_workspace
   Already_authenticated -->|no| Login_form_with_CSRF_and_optional_remember_me
   Login_form_with_CSRF_and_optional_remember_me --> Credential_check_and_rate_limit
-  Credential_check_and_rate_limit --> Admin_control_center_sidebar_and_guided_help_cards
-  Admin_control_center_sidebar_and_guided_help_cards --> Upload_page
-  Admin_control_center_sidebar_and_guided_help_cards --> Setup_presets_page
-  Admin_control_center_sidebar_and_guided_help_cards --> Media_library_page
-  Admin_control_center_sidebar_and_guided_help_cards --> Dedicated_edit_page
-  Admin_control_center_sidebar_and_guided_help_cards --> Security_page
+  Credential_check_and_rate_limit --> Admin_control_center_with_side_navigation_and_wide_workspace
+  Admin_control_center_with_side_navigation_and_wide_workspace --> Upload_page
+  Admin_control_center_with_side_navigation_and_wide_workspace --> Setup_presets_page
+  Admin_control_center_with_side_navigation_and_wide_workspace --> Media_library_page
+  Admin_control_center_with_side_navigation_and_wide_workspace --> Dedicated_edit_page
+  Admin_control_center_with_side_navigation_and_wide_workspace --> Security_page
   Upload_page --> Review_storage_and_upload_limits
   Upload_page --> Use_setup_preset_pills_and_enter_capture_details
   Use_setup_preset_pills_and_enter_capture_details --> Multi_select_append_pills_for_tags_and_processing_software
@@ -201,7 +201,7 @@ graph LR
   Public_Browser --> PHP_Front_Controller
   Admin_Browser --> PHP_Front_Controller
   PHP_Front_Controller --> Template_Views
-  Template_Views --> Cinematic_CSS_Theme_Layer_subtle_twinkle_gradient_drift_spectral_parallax_split_desktop_mobile_detail_viewer_shell
+  Template_Views --> Cinematic_CSS_Theme_Layer_subtle_twinkle_gradient_drift_spectral_parallax_split_desktop_mobile_detail_viewer_shell_and_wide_admin_two_column_workspace
   Template_Views --> Canonical_and_Open_Graph_meta_tags
   PHP_Front_Controller --> Auth_CSRF_and_Rate_Limit
   PHP_Front_Controller --> JSON_metadata_users_wiki_cache_spotlight_and_SEO_fields
