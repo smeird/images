@@ -3,16 +3,61 @@ $adminSection = (string) ($admin_section ?? 'upload');
 $adminBase = (string) ($config['admin_route'] ?? '/hidden-admin');
 $presetCategories = is_array($setup_preset_categories ?? null) ? $setup_preset_categories : [];
 $setupPresetValues = is_array($setup_presets ?? null) ? $setup_presets : [];
+$images = is_array($images ?? null) ? $images : [];
+$currentEditId = (string) ($_GET['edit'] ?? '');
+$editingImage = null;
+
+foreach ($images as $imageRecord) {
+    if (($imageRecord['id'] ?? '') === $currentEditId) {
+        $editingImage = $imageRecord;
+        break;
+    }
+}
+
+function field_value(string $field, $editingImage): string
+{
+    if (array_key_exists($field, $_POST)) {
+        return trim((string) $_POST[$field]);
+    }
+
+    if (is_array($editingImage) && array_key_exists($field, $editingImage)) {
+        $value = $editingImage[$field];
+        if (is_array($value)) {
+            return implode(', ', $value);
+        }
+
+        return trim((string) $value);
+    }
+
+    return '';
+}
 ?>
-<section class="panel">
-  <h1>Admin portal</h1>
-  <p class="muted">Use task pages to upload images, manage reusable setup presets, curate media, and update security settings.</p>
+<section class="panel admin-shell">
+  <div class="admin-shell-header">
+    <h1>Admin control center</h1>
+    <p class="muted">A guided workspace for uploads, setup presets, homepage spotlight control, and metadata editing.</p>
+  </div>
   <nav class="admin-nav" aria-label="Admin tasks">
-    <a href="<?= htmlspecialchars($adminBase) ?>/upload" class="<?= $adminSection === 'upload' ? 'is-active' : '' ?>">Upload image</a>
-    <a href="<?= htmlspecialchars($adminBase) ?>/setup-presets" class="<?= $adminSection === 'setup_presets' ? 'is-active' : '' ?>">Setup presets</a>
-    <a href="<?= htmlspecialchars($adminBase) ?>/manage-images" class="<?= $adminSection === 'manage_images' ? 'is-active' : '' ?>">Manage images</a>
-    <a href="<?= htmlspecialchars($adminBase) ?>/security" class="<?= $adminSection === 'security' ? 'is-active' : '' ?>">Security</a>
+    <a href="<?= htmlspecialchars($adminBase) ?>/upload" class="<?= $adminSection === 'upload' ? 'is-active' : '' ?>">1) Upload</a>
+    <a href="<?= htmlspecialchars($adminBase) ?>/setup-presets" class="<?= $adminSection === 'setup_presets' ? 'is-active' : '' ?>">2) Presets</a>
+    <a href="<?= htmlspecialchars($adminBase) ?>/manage-images" class="<?= $adminSection === 'manage_images' ? 'is-active' : '' ?>">3) Media library</a>
+    <a href="<?= htmlspecialchars($adminBase) ?>/security" class="<?= $adminSection === 'security' ? 'is-active' : '' ?>">4) Security</a>
   </nav>
+
+  <div class="admin-help-grid">
+    <article class="admin-help-card">
+      <h3>Fast upload workflow</h3>
+      <p class="muted">Use preset pills under each equipment field so repeat gear entries are one click away.</p>
+    </article>
+    <article class="admin-help-card">
+      <h3>Spotlight curation</h3>
+      <p class="muted">On <strong>Media library</strong>, set one capture as the homepage spotlight card.</p>
+    </article>
+    <article class="admin-help-card">
+      <h3>SEO + metadata edits</h3>
+      <p class="muted">Use <strong>Edit metadata</strong> to update details and meta tags for any previous upload.</p>
+    </article>
+  </div>
 
   <?php if (!empty($error)): ?><p class="error"><?= htmlspecialchars($error) ?></p><?php endif; ?>
   <?php if (!empty($limit_error)): ?><p class="error"><?= htmlspecialchars($limit_error) ?></p><?php endif; ?>
@@ -22,6 +67,7 @@ $setupPresetValues = is_array($setup_presets ?? null) ? $setup_presets : [];
 <?php if ($adminSection === 'upload'): ?>
   <section class="panel">
     <h2>Upload image</h2>
+    <p class="muted">Tip: required fields are focused on capture identity + technical context. Everything else can be refined later from the Media library editor.</p>
     <p>Maximum accepted upload size: <strong><?= htmlspecialchars((string) ($effective_upload_limit_human ?? '10.0 MB')) ?></strong></p>
 
     <?php if (!empty($storage_summary) && is_array($storage_summary)): ?>
@@ -57,89 +103,36 @@ $setupPresetValues = is_array($setup_presets ?? null) ? $setup_presets : [];
       <label>Description <textarea name="description"><?= htmlspecialchars((string) ($_POST['description'] ?? '')) ?></textarea></label>
 
       <h3>Capture setup</h3>
-      <label>Scope type
-        <input id="scope-type-input" name="scope_type" placeholder="e.g. APO refractor, Newtonian reflector" value="<?= htmlspecialchars((string) ($_POST['scope_type'] ?? '')) ?>">
-      </label>
-      <?php if (!empty($setupPresetValues['scope_type'])): ?>
-        <div class="preset-pill-wrap" data-preset-group="scope_type">
-          <?php foreach ($setupPresetValues['scope_type'] as $preset): ?>
-            <button type="button" class="secondary preset-pill" data-preset-pill="scope_type" data-preset-value="<?= htmlspecialchars((string) $preset) ?>"><?= htmlspecialchars((string) $preset) ?></button>
-          <?php endforeach; ?>
-        </div>
-      <?php endif; ?>
-
-      <label>Telescope / tube
-        <input id="telescope-input" name="telescope" placeholder="e.g. Esprit 120" value="<?= htmlspecialchars((string) ($_POST['telescope'] ?? '')) ?>">
-      </label>
-      <?php if (!empty($setupPresetValues['telescope'])): ?>
-        <div class="preset-pill-wrap" data-preset-group="telescope">
-          <?php foreach ($setupPresetValues['telescope'] as $preset): ?>
-            <button type="button" class="secondary preset-pill" data-preset-pill="telescope" data-preset-value="<?= htmlspecialchars((string) $preset) ?>"><?= htmlspecialchars((string) $preset) ?></button>
-          <?php endforeach; ?>
-        </div>
-      <?php endif; ?>
-
-      <label>Mount
-        <input id="mount-input" name="mount" placeholder="e.g. EQ6-R Pro" value="<?= htmlspecialchars((string) ($_POST['mount'] ?? '')) ?>">
-      </label>
-      <?php if (!empty($setupPresetValues['mount'])): ?>
-        <div class="preset-pill-wrap" data-preset-group="mount">
-          <?php foreach ($setupPresetValues['mount'] as $preset): ?>
-            <button type="button" class="secondary preset-pill" data-preset-pill="mount" data-preset-value="<?= htmlspecialchars((string) $preset) ?>"><?= htmlspecialchars((string) $preset) ?></button>
-          <?php endforeach; ?>
-        </div>
-      <?php endif; ?>
-
-      <label>Camera
-        <input id="camera-input" name="camera" placeholder="e.g. ASI2600MM" value="<?= htmlspecialchars((string) ($_POST['camera'] ?? '')) ?>">
-      </label>
-      <?php if (!empty($setupPresetValues['camera'])): ?>
-        <div class="preset-pill-wrap" data-preset-group="camera">
-          <?php foreach ($setupPresetValues['camera'] as $preset): ?>
-            <button type="button" class="secondary preset-pill" data-preset-pill="camera" data-preset-value="<?= htmlspecialchars((string) $preset) ?>"><?= htmlspecialchars((string) $preset) ?></button>
-          <?php endforeach; ?>
-        </div>
-      <?php endif; ?>
-
-      <label>Filter wheel
-        <input id="filter-wheel-input" name="filter_wheel" placeholder="e.g. ZWO 7x2\" EFW" value="<?= htmlspecialchars((string) ($_POST['filter_wheel'] ?? '')) ?>">
-      </label>
-      <?php if (!empty($setupPresetValues['filter_wheel'])): ?>
-        <div class="preset-pill-wrap" data-preset-group="filter_wheel">
-          <?php foreach ($setupPresetValues['filter_wheel'] as $preset): ?>
-            <button type="button" class="secondary preset-pill" data-preset-pill="filter_wheel" data-preset-value="<?= htmlspecialchars((string) $preset) ?>"><?= htmlspecialchars((string) $preset) ?></button>
-          <?php endforeach; ?>
-        </div>
-      <?php endif; ?>
-
-      <label>Filters
-        <input id="filters-input" name="filters" placeholder="e.g. Ha, OIII, SII" value="<?= htmlspecialchars((string) ($_POST['filters'] ?? '')) ?>">
-      </label>
-      <?php if (!empty($setupPresetValues['filters'])): ?>
-        <div class="preset-pill-wrap" data-preset-group="filters">
-          <?php foreach ($setupPresetValues['filters'] as $preset): ?>
-            <button type="button" class="secondary preset-pill" data-preset-pill="filters" data-preset-value="<?= htmlspecialchars((string) $preset) ?>"><?= htmlspecialchars((string) $preset) ?></button>
-          <?php endforeach; ?>
-        </div>
-      <?php endif; ?>
-
-      <label>Filter set
-        <input id="filter-set-input" name="filter_set" placeholder="e.g. SHO narrowband" value="<?= htmlspecialchars((string) ($_POST['filter_set'] ?? '')) ?>">
-      </label>
-      <?php if (!empty($setupPresetValues['filter_set'])): ?>
-        <div class="preset-pill-wrap" data-preset-group="filter_set">
-          <?php foreach ($setupPresetValues['filter_set'] as $preset): ?>
-            <button type="button" class="secondary preset-pill" data-preset-pill="filter_set" data-preset-value="<?= htmlspecialchars((string) $preset) ?>"><?= htmlspecialchars((string) $preset) ?></button>
-          <?php endforeach; ?>
-        </div>
-      <?php endif; ?>
+      <?php
+        $setupFields = [
+            'scope_type' => ['Scope type', 'e.g. APO refractor, Newtonian reflector'],
+            'telescope' => ['Telescope / tube', 'e.g. Esprit 120'],
+            'mount' => ['Mount', 'e.g. EQ6-R Pro'],
+            'camera' => ['Camera', 'e.g. ASI2600MM'],
+            'filter_wheel' => ['Filter wheel', 'e.g. ZWO 7x2" EFW'],
+            'filters' => ['Filters', 'e.g. Ha, OIII, SII'],
+            'filter_set' => ['Filter set', 'e.g. SHO narrowband'],
+        ];
+      ?>
+      <?php foreach ($setupFields as $fieldKey => [$fieldLabel, $placeholder]): ?>
+        <label><?= htmlspecialchars($fieldLabel) ?>
+          <input id="<?= htmlspecialchars(str_replace('_', '-', $fieldKey)) ?>-input" name="<?= htmlspecialchars($fieldKey) ?>" placeholder="<?= htmlspecialchars($placeholder) ?>" value="<?= htmlspecialchars((string) ($_POST[$fieldKey] ?? '')) ?>">
+        </label>
+        <?php if (!empty($setupPresetValues[$fieldKey])): ?>
+          <div class="preset-pill-wrap" data-preset-group="<?= htmlspecialchars($fieldKey) ?>">
+            <?php foreach ($setupPresetValues[$fieldKey] as $preset): ?>
+              <button type="button" class="secondary preset-pill" data-preset-pill="<?= htmlspecialchars($fieldKey) ?>" data-preset-value="<?= htmlspecialchars((string) $preset) ?>"><?= htmlspecialchars((string) $preset) ?></button>
+            <?php endforeach; ?>
+          </div>
+        <?php endif; ?>
+      <?php endforeach; ?>
 
       <label>Exposure <input required name="exposure" placeholder="30x180s @ ISO 800" value="<?= htmlspecialchars((string) ($_POST['exposure'] ?? '')) ?>"></label>
       <label>Processing <input required name="processing" placeholder="Siril + PixInsight" value="<?= htmlspecialchars((string) ($_POST['processing'] ?? '')) ?>"></label>
       <label>Wikipedia URL <input name="wikipedia_url" type="url" placeholder="https://en.wikipedia.org/wiki/Orion_Nebula" value="<?= htmlspecialchars((string) ($wikipedia_url ?? '')) ?>"></label>
       <label>Tags (comma-separated) <input name="tags" placeholder="nebula, narrowband" value="<?= htmlspecialchars((string) ($_POST['tags'] ?? '')) ?>"></label>
       <div class="button-row">
-        <button type="submit">Upload</button>
+        <button type="submit">Upload image</button>
       </div>
     </form>
   </section>
@@ -148,7 +141,7 @@ $setupPresetValues = is_array($setup_presets ?? null) ? $setup_presets : [];
 <?php if ($adminSection === 'setup_presets'): ?>
   <section class="panel">
     <h2>Setup presets</h2>
-    <p class="muted">Store reusable observatory items so uploads can be completed by clicking pills.</p>
+    <p class="muted">Save frequently used equipment values so the upload workflow stays fast and consistent.</p>
 
     <form method="post">
       <input type="hidden" name="csrf_token" value="<?= htmlspecialchars(csrf_token()) ?>">
@@ -194,33 +187,86 @@ $setupPresetValues = is_array($setup_presets ?? null) ? $setup_presets : [];
 
 <?php if ($adminSection === 'manage_images'): ?>
   <section class="panel">
-    <h2>Manage uploaded images</h2>
+    <h2>Media library</h2>
+    <p class="muted">Set homepage spotlight, edit existing metadata/meta tags, or permanently delete entries.</p>
     <?php if (empty($images)): ?>
       <p class="muted">No uploaded images yet.</p>
     <?php else: ?>
       <ul class="admin-image-list">
         <?php foreach ($images as $image): ?>
+          <?php $isSpotlight = !empty($image['is_spotlight']); ?>
           <li>
             <div>
               <strong><?= htmlspecialchars((string) ($image['title'] ?? 'Untitled')) ?></strong>
               <p class="muted"><?= htmlspecialchars((string) ($image['captured_at'] ?? 'Unknown date')) ?> · ID: <?= htmlspecialchars((string) ($image['id'] ?? '')) ?></p>
+              <?php if ($isSpotlight): ?><p class="success">Current homepage spotlight</p><?php endif; ?>
             </div>
-            <form method="post" class="inline-form" onsubmit="return confirm('Delete this image permanently?');">
-              <input type="hidden" name="csrf_token" value="<?= htmlspecialchars(csrf_token()) ?>">
-              <input type="hidden" name="form_action" value="delete_image">
-              <input type="hidden" name="image_id" value="<?= htmlspecialchars((string) ($image['id'] ?? '')) ?>">
-              <button type="submit" class="danger">Delete</button>
-            </form>
+            <div class="admin-row-actions">
+              <a class="button-link secondary" href="<?= htmlspecialchars($adminBase) ?>/manage-images?edit=<?= urlencode((string) ($image['id'] ?? '')) ?>">Edit metadata</a>
+              <form method="post" class="inline-form">
+                <input type="hidden" name="csrf_token" value="<?= htmlspecialchars(csrf_token()) ?>">
+                <input type="hidden" name="form_action" value="set_spotlight">
+                <input type="hidden" name="image_id" value="<?= htmlspecialchars((string) ($image['id'] ?? '')) ?>">
+                <button type="submit" class="secondary" <?= $isSpotlight ? 'disabled' : '' ?>><?= $isSpotlight ? 'Spotlight set' : 'Set spotlight' ?></button>
+              </form>
+              <form method="post" class="inline-form" onsubmit="return confirm('Delete this image permanently?');">
+                <input type="hidden" name="csrf_token" value="<?= htmlspecialchars(csrf_token()) ?>">
+                <input type="hidden" name="form_action" value="delete_image">
+                <input type="hidden" name="image_id" value="<?= htmlspecialchars((string) ($image['id'] ?? '')) ?>">
+                <button type="submit" class="danger">Delete</button>
+              </form>
+            </div>
           </li>
         <?php endforeach; ?>
       </ul>
     <?php endif; ?>
   </section>
+
+  <?php if ($editingImage !== null): ?>
+    <section class="panel">
+      <h3>Edit metadata · <?= htmlspecialchars((string) ($editingImage['title'] ?? 'Untitled')) ?></h3>
+      <p class="muted">Update metadata and SEO tags for this previously uploaded image.</p>
+      <form method="post">
+        <input type="hidden" name="csrf_token" value="<?= htmlspecialchars(csrf_token()) ?>">
+        <input type="hidden" name="form_action" value="update_image_metadata">
+        <input type="hidden" name="image_id" value="<?= htmlspecialchars((string) ($editingImage['id'] ?? '')) ?>">
+
+        <label>Title <input required name="title" value="<?= htmlspecialchars(field_value('title', $editingImage)) ?>"></label>
+        <label>Object name <input required name="object_name" value="<?= htmlspecialchars(field_value('object_name', $editingImage)) ?>"></label>
+        <label>Object type <input name="object_type" value="<?= htmlspecialchars(field_value('object_type', $editingImage)) ?>"></label>
+        <label>Captured at <input required type="date" name="captured_at" value="<?= htmlspecialchars(field_value('captured_at', $editingImage)) ?>"></label>
+        <label>Description <textarea name="description"><?= htmlspecialchars(field_value('description', $editingImage)) ?></textarea></label>
+
+        <h4>Equipment + processing</h4>
+        <label>Scope type <input name="scope_type" value="<?= htmlspecialchars(field_value('scope_type', $editingImage)) ?>"></label>
+        <label>Telescope / tube <input name="telescope" value="<?= htmlspecialchars(field_value('telescope', $editingImage)) ?>"></label>
+        <label>Mount <input name="mount" value="<?= htmlspecialchars(field_value('mount', $editingImage)) ?>"></label>
+        <label>Camera <input name="camera" value="<?= htmlspecialchars(field_value('camera', $editingImage)) ?>"></label>
+        <label>Filter wheel <input name="filter_wheel" value="<?= htmlspecialchars(field_value('filter_wheel', $editingImage)) ?>"></label>
+        <label>Filters <input name="filters" value="<?= htmlspecialchars(field_value('filters', $editingImage)) ?>"></label>
+        <label>Filter set <input name="filter_set" value="<?= htmlspecialchars(field_value('filter_set', $editingImage)) ?>"></label>
+        <label>Exposure <input name="exposure" value="<?= htmlspecialchars(field_value('exposure', $editingImage)) ?>"></label>
+        <label>Processing <input name="processing" value="<?= htmlspecialchars(field_value('processing', $editingImage)) ?>"></label>
+        <label>Wikipedia URL <input name="wikipedia_url" type="url" value="<?= htmlspecialchars(field_value('wikipedia_url', $editingImage) !== '' ? field_value('wikipedia_url', $editingImage) : field_value('wikipediaUrl', $editingImage)) ?>"></label>
+        <label>Tags (comma-separated) <input name="tags" value="<?= htmlspecialchars(field_value('tags', $editingImage)) ?>"></label>
+
+        <h4>Meta tags</h4>
+        <label>Meta title <input name="meta_title" placeholder="Custom share/search title" value="<?= htmlspecialchars(field_value('meta_title', $editingImage)) ?>"></label>
+        <label>Meta description <textarea name="meta_description" placeholder="Custom summary for social/search cards"><?= htmlspecialchars(field_value('meta_description', $editingImage)) ?></textarea></label>
+        <label>Meta keywords <input name="meta_keywords" placeholder="astrophotography, nebula, narrowband" value="<?= htmlspecialchars(field_value('meta_keywords', $editingImage)) ?>"></label>
+        <div class="button-row">
+          <button type="submit">Save metadata updates</button>
+          <a class="button-link secondary" href="<?= htmlspecialchars($adminBase) ?>/manage-images">Done editing</a>
+        </div>
+      </form>
+    </section>
+  <?php endif; ?>
 <?php endif; ?>
 
 <?php if ($adminSection === 'security'): ?>
   <section class="panel">
     <h2>Change admin password</h2>
+    <p class="muted">Use a long, unique passphrase. This invalidates active remember-me tokens.</p>
     <?php if (!empty($password_error)): ?><p class="error"><?= htmlspecialchars($password_error) ?></p><?php endif; ?>
     <?php if (!empty($password_success)): ?><p class="success"><?= htmlspecialchars($password_success) ?></p><?php endif; ?>
     <form method="post">

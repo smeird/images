@@ -14,6 +14,8 @@ Implemented now:
 - Repository intentionally does not include bundled `.jpg` sample images; upload your own media through the admin flow.
 - metadata display (capture, object type, structured equipment setup incl. scope type/telescope/mount/camera/filter chain, exposure, processing, tags)
 - secure admin route with session auth, CSRF protection, basic login rate limiting, task-based admin portal pages (upload/setup presets/media/security), in-session password change controls, and authenticated image deletion
+- redesigned admin control center UX with guided task cards, clearer navigation labels, and inline help so uploads/presets/library/security actions are easier to discover.
+- admin media library now supports spotlight selection for the homepage hero card and inline metadata editing for previously uploaded captures (including SEO meta title/description/keywords).
 - image upload pipeline with MIME/size validation, thumbnail generation, and admin-side storage-capacity visibility
 - admin setup-preset management for one-click upload pills across observatory gear (scope type/object type/telescope/mount/camera/filter wheel/filters/filter set)
 - admin setup-preset changes now persist correctly to `setup_presets.json` for all categories, eliminating PHP notices during preset saves.
@@ -24,7 +26,7 @@ Implemented now:
 - social preview tags on detail pages now point to the generated 800x500 JPEG thumbnail (instead of full original) to improve WhatsApp/Facebook card rendering reliability.
 
 Planned next:
-- richer filtering/search, metadata editing, and stronger production hardening.
+- richer filtering/search and stronger production hardening.
 
 ## Runtime/build assumptions
 
@@ -114,6 +116,7 @@ You can override route and limits via env vars:
 - Wikipedia metadata fetches only allow trusted Wikipedia hosts (`en.wikipedia.org` plus optional language subdomains) and return structured error codes for UI-safe fallbacks.
 - Social preview URLs are generated from request host/scheme headers, so production deployments should keep trusted proxy/host header handling correctly configured.
 - Open Graph image metadata now includes type + dimensions so social crawlers can parse previews more consistently.
+- Admin metadata editor validates required fields and Wikipedia URLs before persisting updates, reducing accidental malformed records in JSON storage.
 
 ## Folder/file map
 
@@ -122,7 +125,7 @@ You can override route and limits via env vars:
 - `public/src/views/` — HTML view templates.
 - `public/src/services/wikipedia.php` — Wikipedia URL validation + metadata normalization helper service.
 - `public/assets/style.css` — cinematic dark UI styling and interaction polish.
-- `storage/data/images.json` — image metadata records (including Wikipedia cache fields).
+- `storage/data/images.json` — image metadata records (including Wikipedia cache fields, spotlight flag, and editable SEO meta tags).
 - `storage/sessions/` — file-backed PHP session storage used for admin auth + CSRF continuity.
 - `storage/logs/app.log` — background/lazy refresh failure logs for non-fatal runtime issues.
 - `storage/data/users.json` — admin credential hashes.
@@ -153,16 +156,16 @@ flowchart TD
 ```mermaid
 flowchart TD
   A[Admin opens hidden route] --> B{Already authenticated?}
-  B -- yes --> D[Admin portal task navigation]
+  B -- yes --> D[Admin control center + guided help cards]
   B -- no --> C[Login form + CSRF + optional remember-me]
   C --> E[Credential check + rate limit]
   E --> D
-  D --> U[Upload image page]
+  D --> U[Upload page]
   D --> P[Setup presets page]
-  D --> M[Manage images page]
+  D --> M[Media library page]
   D --> S[Security page]
-  U --> T[Show storage summary]
-  U --> V[Select object/setup fields via preset pills or manual entry]
+  U --> T[Review storage + upload limits]
+  U --> V[Use setup preset pills + enter capture details]
   U --> W[Upload image + metadata]
   W --> X{Body exceeds effective upload limit?}
   X -- yes --> Y[Show actionable size-limit error]
@@ -170,10 +173,12 @@ flowchart TD
   Z --> AA[Store original + generate thumbnail + write metadata JSON]
   AA --> AB[Image appears in public gallery]
   P --> AC[Add/delete reusable preset pills in setup_presets.json]
-  M --> AD[Delete image + CSRF confirm]
-  AD --> AE[Remove JSON record + media files]
-  S --> AF[Verify current password + enforce 12+ chars]
-  AF --> AG[Write updated password_hash to users JSON]
+  M --> AD[Set or change homepage spotlight capture]
+  M --> AE[Edit existing image metadata + SEO meta tags]
+  M --> AF[Delete image + CSRF confirm]
+  AF --> AG[Remove JSON record + media files]
+  S --> AH[Verify current password + enforce 12+ chars]
+  AH --> AI[Write updated password_hash to users JSON]
 ```
 
 ## High-level architecture
@@ -186,7 +191,7 @@ graph LR
   VIEWS --> THEME[Cinematic CSS Theme Layer]
   VIEWS --> SEO[Canonical + Open Graph meta tags]
   APP --> SEC[Auth + CSRF + Rate Limit]
-  APP --> DATA[(JSON metadata/users + wiki cache fields)]
+  APP --> DATA[(JSON metadata/users + wiki cache/spotlight/SEO fields)]
   APP --> WIKI[Wikipedia REST summary API]
   APP --> LOGS[(storage/logs/app.log)]
   APP --> IMG[(Originals + Thumbs in storage/)]
