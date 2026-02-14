@@ -161,6 +161,103 @@ main {
 .card h3 { margin: 0.8rem 0 0.25rem; }
 .card p { margin-top: 0; padding-bottom: 0.95rem; color: var(--muted); }
 
+.skeleton-media-wrap {
+  position: relative;
+}
+
+.skeleton-media-block {
+  display: none;
+  border-radius: 12px;
+  border: 1px solid rgba(123, 154, 210, 0.2);
+  background: rgba(30, 47, 80, 0.4);
+}
+
+.hero-feature .skeleton-media-block,
+.card .skeleton-media-block {
+  position: absolute;
+  inset: 0;
+}
+
+.hero-feature .skeleton-media-wrap {
+  min-height: 210px;
+}
+
+.card .skeleton-media-wrap {
+  min-height: 180px;
+}
+
+.skeleton-meta-lines {
+  display: none;
+  gap: 0.5rem;
+  margin-top: 0.8rem;
+}
+
+.skeleton-line {
+  display: block;
+  height: 0.8rem;
+  border-radius: 999px;
+  border: 1px solid rgba(123, 154, 210, 0.18);
+  background: rgba(30, 47, 80, 0.36);
+}
+
+.skeleton-line-title {
+  width: 72%;
+  height: 1rem;
+}
+
+.skeleton-line-copy {
+  width: 88%;
+}
+
+.skeleton-line-short {
+  width: 56%;
+}
+
+@keyframes skeleton-shimmer {
+  0% { background-position: 170% 0; }
+  100% { background-position: -170% 0; }
+}
+
+.skeleton-shimmer {
+  background-image: linear-gradient(100deg, rgba(33, 52, 88, 0.5) 20%, rgba(91, 122, 181, 0.24) 45%, rgba(33, 52, 88, 0.5) 70%);
+  background-size: 220% 100%;
+  animation: skeleton-shimmer 1.5s ease-in-out infinite;
+}
+
+.fade-asset {
+  opacity: 1;
+  transition: opacity 320ms ease;
+}
+
+.skeleton-card.is-loading .fade-asset,
+.skeleton-card.is-loading h1,
+.skeleton-card.is-loading h3,
+.skeleton-card.is-loading p,
+.skeleton-card.is-loading .metadata-list {
+  opacity: 0;
+}
+
+.skeleton-card.is-loading .skeleton-media-block,
+.skeleton-card.is-loading .skeleton-meta-lines {
+  display: grid;
+}
+
+.skeleton-card.is-loaded .fade-asset,
+.skeleton-card.is-loaded h1,
+.skeleton-card.is-loaded h3,
+.skeleton-card.is-loaded p,
+.skeleton-card.is-loaded .metadata-list {
+  opacity: 1;
+}
+
+.skeleton-card h1,
+.skeleton-card h3,
+.skeleton-card p,
+.skeleton-card .metadata-list,
+.skeleton-card .fade-asset {
+  transition: opacity 320ms ease;
+}
+
 .detail {
   display: grid;
   grid-template-columns: 1.45fr 1fr;
@@ -170,6 +267,17 @@ main {
 .detail-media {
   margin: 0;
   position: relative;
+}
+
+.detail-media-skeleton {
+  position: absolute;
+  inset: 0;
+  min-height: 320px;
+}
+
+.detail-meta-skeleton {
+  margin-top: 0;
+  margin-bottom: 0.9rem;
 }
 
 .detail-image {

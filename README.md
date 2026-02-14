@@ -10,6 +10,7 @@ Implemented now:
 - public gallery and image detail pages
 - cinematic dark-sky visual treatment with starfield texture, spotlight hero card, and glassmorphism-style panels
 - ambient micro-interactions (hover lift/glow, metadata chips, richer card transitions)
+- progressive image-loading skeleton placeholders on gallery/detail media and metadata, swapped via JS `load` events with low-contrast fade-in transitions (while keeping direct image fallbacks when JS is unavailable)
 - image detail fullscreen pill is anchored at the top-right of the image for quicker access before scrolling metadata
 - Repository intentionally does not include bundled `.jpg` sample images; upload your own media through the admin flow.
 - metadata display (capture, object type, structured equipment setup incl. scope type/telescope/mount/camera/filter chain, exposure, processing, tags)

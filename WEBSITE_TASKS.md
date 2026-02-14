@@ -108,6 +108,7 @@ This task plan is designed for a Linux + Apache + PHP environment and optimized 
 - [ ] “Image of the month” spotlight section on homepage.
 - [ ] Constellation-style timeline view by capture date.
 - [x] Ambient micro-interactions (hover glows, metadata fade-ins, elegant loading skeletons).
+- [x] Use JS image `load` events to transition skeleton placeholders into final gallery/detail assets with graceful non-JS fallback.
 
 ## 8) Performance and image delivery
 
