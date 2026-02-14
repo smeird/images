@@ -68,6 +68,7 @@ This task plan is designed for a Linux + Apache + PHP environment and optimized 
 
 - [x] Implement secure admin login (session-based auth + strong password hashing).
 - [x] Add optional remember-me admin login with revocable, rotated device tokens.
+- [x] Redirect already-authenticated admins away from the login screen to the admin portal to keep active sessions feeling persistent.
 - [x] Add authenticated admin password rotation form (current password verification + minimum length checks).
 - [ ] Restrict admin route by:
   - Obscure route path (not security by itself)
