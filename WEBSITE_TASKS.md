@@ -110,7 +110,7 @@ This task plan is designed for a Linux + Apache + PHP environment and optimized 
 - [x] Ambient micro-interactions (hover glows, metadata fade-ins, elegant loading skeletons).
 - [x] Reimagined landing page as an image-first experience (wider gallery utilization, compact filter footprint, and reduced gallery text emphasis for stronger visual impact).
 - [x] Mobile ergonomics polish for 360–430px widths (sticky utility row, larger 44px touch targets, tighter typography/spacing, overflow-safe title + metadata chip handling).
-- [x] Define clearly distinct detail-view experiences by breakpoint: widescreen desktop layout that uses horizontal space and long-thin stacked mobile layout for narrow screens.
+- [x] Define clearly distinct detail-view experiences by breakpoint: widescreen desktop layout that uses horizontal space with overflow-safe metadata/Wikipedia divider behavior, and long-thin stacked mobile layout for narrow screens.
 
 ## 8) Performance and image delivery
 
