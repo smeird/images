@@ -10,7 +10,7 @@ Implemented now:
 - public gallery and image detail pages
 - cinematic dark-sky visual treatment with starfield texture, rotating spotlight hero card rules (latest/featured/daily deterministic date hash), and glassmorphism-style panels
 - ambient micro-interactions (hover lift/glow, metadata chips, richer card transitions, and subtle hero twinkle/gradient drift that respects reduced-motion settings)
-- detail viewer now has explicit split responsive experiences: widescreen desktop layout (expanded media canvas + side-by-side metadata/Wikipedia columns) and a stacked long-form mobile layout tuned for narrow screens.
+- detail viewer now has explicit split responsive experiences: widescreen desktop layout (expanded media canvas + a widened side metadata/Wikipedia column for readability) and a stacked long-form mobile layout tuned for narrow screens.
 - image detail fullscreen pill is anchored at the top-right of the image for quicker access before scrolling metadata
 - Repository intentionally does not include bundled `.jpg` sample images; upload your own media through the admin flow.
 - metadata display (capture, object type, structured equipment setup incl. scope type/telescope/mount/camera/filter chain, exposure, processing, tags)
@@ -141,71 +141,68 @@ You can override route and limits via env vars:
 
 ```mermaid
 flowchart TD
-  A[Visitor lands on homepage] --> B[See cinematic hero + rotating spotlight capture]
-  B --> B1[Compact filter rail remains available]
-  B --> C[Browse dense image-first gallery wall]
-  B1 --> C
-  C --> D[Open image detail]
-  D --> E[Review metadata\nobject + equipment + exposure + tags]
-  E --> I[Copy image-specific share link]
-  I --> J[Paste in Facebook/WhatsApp/iMessage]
-  J --> K[Preview card shows image + title]
-  K --> F
-  G --> H{Wikipedia data available?}
-  H -- yes --> WIKI[Show extract + thumbnail + read more link + attribution note]
-  H -- no/fetch failed --> L[Show fallback: No external reference yet]
+  Visitor_lands_on_homepage --> See_cinematic_hero_and_rotating_spotlight_capture
+  See_cinematic_hero_and_rotating_spotlight_capture --> Read_Tonights_Highlight_facts_and_open_details_CTA
+  Read_Tonights_Highlight_facts_and_open_details_CTA --> Browse_thumbnail_gallery
+  Browse_thumbnail_gallery --> Open_image_detail
+  Open_image_detail --> Review_metadata_object_equipment_exposure_and_tags
+  Review_metadata_object_equipment_exposure_and_tags --> Copy_image_specific_share_link
+  Copy_image_specific_share_link --> Paste_in_Facebook_WhatsApp_or_iMessage
+  Paste_in_Facebook_WhatsApp_or_iMessage --> Preview_card_shows_image_and_title
+  Preview_card_shows_image_and_title --> Continue_browsing_gallery
+  Open_image_detail --> Wikipedia_data_available
+  Wikipedia_data_available -->|yes| Show_extract_thumbnail_read_more_link_and_attribution_note
+  Wikipedia_data_available -->|no_or_fetch_failed| Show_fallback_no_external_reference_yet
 ```
 
 ## Admin upload flow
 
 ```mermaid
 flowchart TD
-  A[Admin opens hidden route] --> B{Already authenticated?}
-  B -- yes --> D[Admin control center + guided help cards]
-  B -- no --> C[Login form + CSRF + optional remember-me]
-  C --> E[Credential check + rate limit]
-  E --> D
-  D --> U[Upload page]
-  D --> P[Setup presets page]
-  D --> M[Media library page]
-  D --> EDP[Dedicated edit page]
-  D --> S[Security page]
-  U --> T[Review storage + upload limits]
-  U --> V[Use setup preset pills + enter capture details]
-  U --> W[Upload image + metadata]
-  W --> X{Body exceeds effective upload limit?}
-  X -- yes --> Y[Show actionable size-limit error]
-  X -- no --> Z[MIME/size validation]
-  Z --> AA[Store original + generate thumbnail + write metadata JSON]
-  AA --> AB[Image appears in public gallery]
-  P --> AC[Add/delete reusable preset pills in setup_presets.json]
-  M --> AD[Set or change homepage spotlight capture
-(featured rule input for homepage rotation)]
-  M --> AE[Open dedicated edit page for a capture]
-  EDP --> AJ[Edit all metadata fields + preset pills + SEO tags]
-  AJ --> AK[If Wikipedia URL changed, clear old cache and refresh wiki summary/facts]
-  M --> AF[Delete image + CSRF confirm]
-  AF --> AG[Remove JSON record + media files]
-  S --> AH[Verify current password + enforce 12+ chars]
-  AH --> AI[Write updated password_hash to users JSON]
+  Admin_opens_hidden_route --> Already_authenticated
+  Already_authenticated -->|yes| Admin_control_center_and_guided_help_cards
+  Already_authenticated -->|no| Login_form_with_CSRF_and_optional_remember_me
+  Login_form_with_CSRF_and_optional_remember_me --> Credential_check_and_rate_limit
+  Credential_check_and_rate_limit --> Admin_control_center_and_guided_help_cards
+  Admin_control_center_and_guided_help_cards --> Upload_page
+  Admin_control_center_and_guided_help_cards --> Setup_presets_page
+  Admin_control_center_and_guided_help_cards --> Media_library_page
+  Admin_control_center_and_guided_help_cards --> Dedicated_edit_page
+  Admin_control_center_and_guided_help_cards --> Security_page
+  Upload_page --> Review_storage_and_upload_limits
+  Upload_page --> Use_setup_preset_pills_and_enter_capture_details
+  Upload_page --> Upload_image_and_metadata
+  Upload_image_and_metadata --> Body_exceeds_effective_upload_limit
+  Body_exceeds_effective_upload_limit -->|yes| Show_actionable_size_limit_error
+  Body_exceeds_effective_upload_limit -->|no| MIME_and_size_validation
+  MIME_and_size_validation --> Store_original_generate_thumbnail_and_write_metadata_JSON
+  Store_original_generate_thumbnail_and_write_metadata_JSON --> Image_appears_in_public_gallery
+  Setup_presets_page --> Add_or_delete_reusable_preset_pills_in_setup_presets_json
+  Media_library_page --> Set_or_change_homepage_spotlight_capture_for_homepage_rotation
+  Media_library_page --> Open_dedicated_edit_page_for_a_capture
+  Dedicated_edit_page --> Edit_all_metadata_fields_preset_pills_and_SEO_tags
+  Edit_all_metadata_fields_preset_pills_and_SEO_tags --> If_Wikipedia_URL_changed_clear_old_cache_and_refresh_wiki_summary_and_facts
+  Media_library_page --> Delete_image_with_CSRF_confirm
+  Delete_image_with_CSRF_confirm --> Remove_JSON_record_and_media_files
+  Security_page --> Verify_current_password_and_enforce_12_plus_chars
+  Verify_current_password_and_enforce_12_plus_chars --> Write_updated_password_hash_to_users_JSON
 ```
 
 ## High-level architecture
 
 ```mermaid
 graph LR
-  U[Public Browser] --> APP[PHP Front Controller]
-  A[Admin Browser] --> APP
-  APP --> VIEWS[Template Views]
-  VIEWS --> THEME[Cinematic CSS Theme Layer
-(subtle twinkle + gradient drift on hero panels, image-first landing grid, plus split desktop/mobile detail viewer shell)]
-  VIEWS --> SEO[Canonical + Open Graph meta tags]
-  APP --> SEC[Auth + CSRF + Rate Limit]
-  APP --> DATA[(JSON metadata/users + wiki cache/spotlight/SEO fields)]
-  APP --> WIKI[Wikipedia APIs (summary + parse infobox)]
-  APP --> LOGS[(storage/logs/app.log)]
-  APP --> IMG[(Originals + Thumbs in storage/)]
-  APP --> WIKI[Wikipedia REST summary fetch]
+  Public_Browser --> PHP_Front_Controller
+  Admin_Browser --> PHP_Front_Controller
+  PHP_Front_Controller --> Template_Views
+  Template_Views --> Cinematic_CSS_Theme_Layer_subtle_twinkle_gradient_drift_split_desktop_mobile_detail_viewer_shell
+  Template_Views --> Canonical_and_Open_Graph_meta_tags
+  PHP_Front_Controller --> Auth_CSRF_and_Rate_Limit
+  PHP_Front_Controller --> JSON_metadata_users_wiki_cache_spotlight_and_SEO_fields
+  PHP_Front_Controller --> Wikipedia_APIs_summary_and_parse_infobox
+  PHP_Front_Controller --> storage_logs_app_log
+  PHP_Front_Controller --> Originals_and_Thumbs_in_storage
+  PHP_Front_Controller --> Wikipedia_REST_summary_fetch
 ```
 
 ## Wikipedia cache behavior
