@@ -98,7 +98,7 @@ This task plan is designed for a Linux + Apache + PHP environment and optimized 
 - [ ] Create structured equipment sections (camera, optics, mount, guiding, filters).
 - [x] Add optional reusable “equipment presets” in admin to avoid repetitive typing. (implemented as reusable setup-preset pills for scope type/object type/telescope/mount/camera/filter wheel/filters/filter set)
 - [ ] Display equipment metadata cleanly on detail pages with badges/icons.
-- [ ] Add searchable/filterable fields (e.g., show all photos taken with one telescope).
+- [x] Add searchable/filterable fields (homepage toolbar supports object type, tag, capture date range, text search, and shareable sort/filter query params).
 
 ## 7) “Wow factor” enhancements
 
@@ -156,7 +156,7 @@ This task plan is designed for a Linux + Apache + PHP environment and optimized 
 - [x] Launch with core styling and mobile responsiveness.
 
 ### Phase 2 — Polish (1 week)
-- [ ] Add image detail page enhancements and filtering.
+- [x] Add image detail page enhancements and filtering. (homepage filtering + sorting delivered)
 - [x] Improve visual design and transitions.
 - [ ] Add homepage featured section.
 
