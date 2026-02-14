@@ -82,11 +82,14 @@ if ($path === $adminBase . '/login') {
             $error = 'Invalid CSRF token.';
         } elseif (too_many_attempts($ip)) {
             $error = 'Too many attempts. Please wait and retry.';
-        } elseif (authenticate((string) ($_POST['username'] ?? ''), (string) ($_POST['password'] ?? ''))) {
-            clear_failed_attempts($ip);
-            header('Location: ' . $adminBase . '/upload');
-            exit;
         } else {
+            $rememberMe = !empty($_POST['remember_me']);
+            if (authenticate((string) ($_POST['username'] ?? ''), (string) ($_POST['password'] ?? ''), $rememberMe)) {
+                clear_failed_attempts($ip);
+                header('Location: ' . $adminBase . '/upload');
+                exit;
+            }
+
             register_failed_attempt($ip);
             $error = 'Invalid credentials.';
         }
@@ -97,7 +100,7 @@ if ($path === $adminBase . '/login') {
 }
 
 if ($path === $adminBase . '/logout') {
-    session_destroy();
+    logout_admin();
     header('Location: /');
     exit;
 }

@@ -12,7 +12,7 @@ Implemented now:
 - ambient micro-interactions (hover lift/glow, metadata chips, richer card transitions)
 - Repository intentionally does not include bundled `.jpg` sample images; upload your own media through the admin flow.
 - metadata display (capture, equipment, exposure, processing, tags)
-- secure admin route with session auth, CSRF protection, basic login rate limiting, in-session password change controls, and authenticated image deletion
+- secure admin route with session auth, optional remember-me device cookie, CSRF protection, basic login rate limiting, in-session password change controls, and authenticated image deletion
 - image upload pipeline with MIME/size validation, thumbnail generation, and admin-side storage-capacity visibility
 - graceful oversize-upload handling that reports when server (`post_max_size` / `upload_max_filesize`) or app (`MAX_UPLOAD_BYTES`) limits reject a request before PHP can parse form fields
 - Wikipedia URL normalization uses PHP 7.4-compatible string checks (no PHP 8-only helpers) to avoid runtime fatals on older deployments.
@@ -97,6 +97,7 @@ You can override route and limits via env vars:
 
 - Admin route is hidden but also protected with real authentication.
 - Passwords are stored as `password_hash` values (bcrypt) and can be rotated from the authenticated admin area.
+- Admin login supports an optional 30-day remember-me device cookie; tokens are stored server-side as SHA-256 hashes, rotated after auto-login, and revoked on logout/password change.
 - CSRF token required on login, upload, delete, and password-change forms, backed by file-based PHP sessions in `storage/sessions` to avoid token mismatches when default system session paths are unavailable.
 - Basic per-IP login throttling is enforced.
 - Uploads accept only JPEG/PNG/WebP and enforce max-size limit; effective limit is the minimum of `MAX_UPLOAD_BYTES`, `upload_max_filesize`, and `post_max_size`.
@@ -116,7 +117,7 @@ You can override route and limits via env vars:
 - `storage/data/images.json` — image metadata records (including Wikipedia cache fields).
 - `storage/sessions/` — file-backed PHP session storage used for admin auth + CSRF continuity.
 - `storage/logs/app.log` — background/lazy refresh failure logs for non-fatal runtime issues.
-- `storage/data/users.json` — admin credential hashes.
+- `storage/data/users.json` — admin credential hashes plus remember-me token hash/expiry metadata.
 - `WEBSITE_TASKS.md` — implementation tracker.
 - `CODEX_PARALLEL_TASKS.md` — parallel work planning.
 
@@ -141,10 +142,14 @@ flowchart TD
 
 ```mermaid
 flowchart TD
-  A[Admin opens hidden route] --> B[Login form + CSRF]
+  A[Admin opens hidden route] --> B[Login form + CSRF + optional remember-me]
   B --> C[Credential check + rate limit]
-  C --> S[Show storage summary
+  C --> C1{Remember me checked?}
+  C1 -- yes --> C2[Issue hashed remember token + secure HttpOnly cookie]
+  C1 -- no --> C3[Session-only login]
+  C2 --> S[Show storage summary
 free/used/total disk space]
+  C3 --> S
   C --> D[Upload image + enter metadata]
   D --> M{Body exceeds effective upload limit?}
   M -- yes --> N[Show actionable size-limit error]

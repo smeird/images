@@ -23,6 +23,9 @@ session_start();
 
 require_once ROOT_PATH . '/src/services/wikipedia.php';
 
+const ADMIN_REMEMBER_COOKIE = 'admin_remember';
+const ADMIN_REMEMBER_DAYS = 30;
+
 function load_config(): array
 {
     return [
@@ -393,7 +396,160 @@ function clear_failed_attempts(string $ip): void
 
 function is_admin(): bool
 {
+    restore_admin_from_remember_cookie();
     return !empty($_SESSION['admin_authenticated']);
+}
+
+function set_admin_session(string $username): void
+{
+    $_SESSION['admin_authenticated'] = true;
+    $_SESSION['admin_user'] = $username;
+}
+
+function forget_admin_session(): void
+{
+    unset($_SESSION['admin_authenticated'], $_SESSION['admin_user'], $_SESSION['csrf']);
+}
+
+function request_is_https(): bool
+{
+    $forwardedProto = trim((string) ($_SERVER['HTTP_X_FORWARDED_PROTO'] ?? ''));
+    if ($forwardedProto !== '') {
+        $proto = strtolower(explode(',', $forwardedProto)[0]);
+        return $proto === 'https';
+    }
+
+    $https = strtolower((string) ($_SERVER['HTTPS'] ?? ''));
+    return $https !== '' && $https !== 'off';
+}
+
+function write_remember_cookie(string $username, string $token): void
+{
+    setcookie(ADMIN_REMEMBER_COOKIE, $username . ':' . $token, [
+        'expires' => time() + (ADMIN_REMEMBER_DAYS * 24 * 60 * 60),
+        'path' => '/',
+        'secure' => request_is_https(),
+        'httponly' => true,
+        'samesite' => 'Lax',
+    ]);
+}
+
+function clear_remember_cookie(): void
+{
+    setcookie(ADMIN_REMEMBER_COOKIE, '', [
+        'expires' => time() - 3600,
+        'path' => '/',
+        'secure' => request_is_https(),
+        'httponly' => true,
+        'samesite' => 'Lax',
+    ]);
+}
+
+function rotate_remember_token(string $username): void
+{
+    $token = bin2hex(random_bytes(32));
+    $expiresAt = gmdate('c', time() + (ADMIN_REMEMBER_DAYS * 24 * 60 * 60));
+
+    $users = users();
+    foreach ($users as $index => $user) {
+        if (($user['username'] ?? '') !== $username) {
+            continue;
+        }
+
+        $users[$index]['remember_token_hash'] = hash('sha256', $token);
+        $users[$index]['remember_token_expires_at'] = $expiresAt;
+        write_json(DATA_PATH . '/users.json', $users);
+        write_remember_cookie($username, $token);
+        return;
+    }
+}
+
+function clear_remember_token_for_user(string $username): void
+{
+    if ($username === '') {
+        return;
+    }
+
+    $users = users();
+    $changed = false;
+
+    foreach ($users as $index => $user) {
+        if (($user['username'] ?? '') !== $username) {
+            continue;
+        }
+
+        if (!empty($users[$index]['remember_token_hash']) || !empty($users[$index]['remember_token_expires_at'])) {
+            unset($users[$index]['remember_token_hash'], $users[$index]['remember_token_expires_at']);
+            $changed = true;
+        }
+    }
+
+    if ($changed) {
+        write_json(DATA_PATH . '/users.json', $users);
+    }
+}
+
+function restore_admin_from_remember_cookie(): void
+{
+    if (!empty($_SESSION['admin_authenticated'])) {
+        return;
+    }
+
+    $cookie = (string) ($_COOKIE[ADMIN_REMEMBER_COOKIE] ?? '');
+    if ($cookie === '' || strpos($cookie, ':') === false) {
+        return;
+    }
+
+    [$username, $token] = explode(':', $cookie, 2);
+    $username = trim($username);
+    if ($username === '' || $token === '') {
+        clear_remember_cookie();
+        return;
+    }
+
+    foreach (users() as $user) {
+        if (($user['username'] ?? '') !== $username) {
+            continue;
+        }
+
+        $storedHash = (string) ($user['remember_token_hash'] ?? '');
+        $expiresAt = (string) ($user['remember_token_expires_at'] ?? '');
+        $expiryTs = strtotime($expiresAt);
+
+        if ($storedHash === '' || $expiryTs === false || $expiryTs < time()) {
+            clear_remember_cookie();
+            clear_remember_token_for_user($username);
+            return;
+        }
+
+        if (!hash_equals($storedHash, hash('sha256', $token))) {
+            clear_remember_cookie();
+            clear_remember_token_for_user($username);
+            return;
+        }
+
+        set_admin_session($username);
+        rotate_remember_token($username);
+        return;
+    }
+
+    clear_remember_cookie();
+}
+
+function logout_admin(): void
+{
+    $sessionUsername = (string) ($_SESSION['admin_user'] ?? '');
+    $cookie = (string) ($_COOKIE[ADMIN_REMEMBER_COOKIE] ?? '');
+    $cookieUsername = '';
+    if ($cookie !== '' && strpos($cookie, ':') !== false) {
+        [$cookieUsername] = explode(':', $cookie, 2);
+    }
+
+    clear_remember_cookie();
+    clear_remember_token_for_user(trim($sessionUsername) !== '' ? trim($sessionUsername) : trim($cookieUsername));
+
+    forget_admin_session();
+    session_regenerate_id(true);
 }
 
 function require_admin(): void
@@ -409,12 +565,17 @@ function users(): array
     return read_json(DATA_PATH . '/users.json');
 }
 
-function authenticate(string $username, string $password): bool
+function authenticate(string $username, string $password, bool $rememberMe = false): bool
 {
     foreach (users() as $user) {
         if (($user['username'] ?? '') === $username && password_verify($password, (string) ($user['password_hash'] ?? ''))) {
-            $_SESSION['admin_authenticated'] = true;
-            $_SESSION['admin_user'] = $username;
+            set_admin_session($username);
+            if ($rememberMe) {
+                rotate_remember_token($username);
+            } else {
+                clear_remember_cookie();
+                clear_remember_token_for_user($username);
+            }
             return true;
         }
     }
@@ -442,7 +603,9 @@ function update_user_password(string $username, string $currentPassword, string 
         }
 
         $users[$index]['password_hash'] = password_hash($newPassword, PASSWORD_DEFAULT);
+        unset($users[$index]['remember_token_hash'], $users[$index]['remember_token_expires_at']);
         write_json(DATA_PATH . '/users.json', $users);
+        clear_remember_cookie();
         return null;
     }
 
