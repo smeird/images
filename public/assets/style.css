@@ -1101,8 +1101,8 @@ button.danger {
 
 .admin-layout {
   display: grid;
-  grid-template-columns: minmax(220px, 280px) minmax(0, 1fr);
-  gap: 0.9rem;
+  grid-template-columns: minmax(230px, 300px) minmax(0, 1fr);
+  gap: 1rem;
   align-items: start;
 }
 
@@ -1111,11 +1111,22 @@ button.danger {
   top: 0.85rem;
   display: grid;
   gap: 0.9rem;
+  max-height: calc(100vh - 1.7rem);
+  overflow-y: auto;
 }
 
 .admin-main {
   display: grid;
   gap: 0.9rem;
+  grid-template-columns: repeat(12, minmax(0, 1fr));
+}
+
+.admin-main > .panel {
+  grid-column: 1 / -1;
+}
+
+.admin-status-panel {
+  grid-column: 1 / -1;
 }
 
 .admin-status-panel {
@@ -1171,9 +1182,9 @@ button.danger {
 
 .admin-help-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  grid-column: 1 / -1;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
   gap: 0.6rem;
-  margin-top: 0.8rem;
 }
 
 .admin-help-card {
@@ -1221,13 +1232,15 @@ button.danger {
 
 
 
-@media (max-width: 920px) {
+@media (max-width: 1040px) {
   .admin-layout {
     grid-template-columns: 1fr;
   }
 
   .admin-sidebar {
     position: static;
+    max-height: none;
+    overflow: visible;
   }
 
   .admin-nav {

@@ -46,7 +46,13 @@ function field_value(string $field, $editingImage): string
       <a href="<?= htmlspecialchars($adminBase) ?>/security" class="<?= $adminSection === 'security' ? 'is-active' : '' ?>">5) Security</a>
     </nav>
 
-    <div class="admin-help-grid">
+    <section class="panel admin-signout-panel">
+      <p><a href="<?= htmlspecialchars($config['admin_route']) ?>/logout">Sign out</a></p>
+    </section>
+  </aside>
+
+  <div class="admin-main">
+    <section class="admin-help-grid" aria-label="Admin workspace tips">
       <article class="admin-help-card">
         <h3>Fast upload workflow</h3>
         <p class="muted">Use preset pills under each equipment field so repeat gear entries are one click away.</p>
@@ -59,14 +65,8 @@ function field_value(string $field, $editingImage): string
         <h3>SEO + metadata edits</h3>
         <p class="muted">Use the <strong>Edit page</strong> task to update all fields and meta tags for any previous upload.</p>
       </article>
-    </div>
-
-    <section class="panel admin-signout-panel">
-      <p><a href="<?= htmlspecialchars($config['admin_route']) ?>/logout">Sign out</a></p>
     </section>
-  </aside>
 
-  <div class="admin-main">
     <section class="panel admin-status-panel">
       <?php if (!empty($error)): ?><p class="error"><?= htmlspecialchars($error) ?></p><?php endif; ?>
       <?php if (!empty($limit_error)): ?><p class="error"><?= htmlspecialchars($limit_error) ?></p><?php endif; ?>
