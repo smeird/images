@@ -188,12 +188,7 @@ function add_setup_preset(string $category, string $value): bool
         $presets[$category] = array_values($presets[$category]);
     }
 
-    natcasesort($presets);
-    if (!write_json(DATA_PATH . '/scope_types.json', array_values($presets))) {
-        return false;
-    }
-
-    return true;
+    return write_json(DATA_PATH . '/setup_presets.json', $presets);
 }
 
 function delete_setup_preset(string $category, string $value): bool
@@ -210,7 +205,9 @@ function delete_setup_preset(string $category, string $value): bool
         return false;
     }
 
-    return write_json(DATA_PATH . '/scope_types.json', $remaining);
+    $presets[$category] = $remaining;
+
+    return write_json(DATA_PATH . '/setup_presets.json', $presets);
 }
 
 function scope_type_presets(): array
