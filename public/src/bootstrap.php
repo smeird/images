@@ -121,6 +121,17 @@ function image_records(): array
     return $records;
 }
 
+function featured_image(array $records): ?array
+{
+    foreach ($records as $record) {
+        if (!empty($record['is_spotlight'])) {
+            return $record;
+        }
+    }
+
+    return $records[0] ?? null;
+}
+
 function setup_preset_categories(): array
 {
     return [
@@ -255,6 +266,10 @@ function normalize_image_record(array $record): array
     $record['wikiThumbnail'] = trim((string) ($record['wikiThumbnail'] ?? ''));
     $record['wikiFetchedAt'] = trim((string) ($record['wikiFetchedAt'] ?? ''));
     $record['wikiStatus'] = trim((string) ($record['wikiStatus'] ?? 'not_requested'));
+    $record['meta_title'] = trim((string) ($record['meta_title'] ?? ''));
+    $record['meta_description'] = trim((string) ($record['meta_description'] ?? ''));
+    $record['meta_keywords'] = trim((string) ($record['meta_keywords'] ?? ''));
+    $record['is_spotlight'] = !empty($record['is_spotlight']);
     $record['equipment'] = trim((string) ($record['equipment'] ?? ''));
 
     if ($record['equipment'] === '') {
@@ -262,6 +277,97 @@ function normalize_image_record(array $record): array
     }
 
     return $record;
+}
+
+function set_spotlight_image(string $id): bool
+{
+    $id = trim($id);
+    if ($id === '') {
+        return false;
+    }
+
+    $images = read_json(DATA_PATH . '/images.json');
+    $found = false;
+
+    foreach ($images as $index => $record) {
+        $isTarget = (($record['id'] ?? '') === $id);
+        $images[$index]['is_spotlight'] = $isTarget;
+        if ($isTarget) {
+            $found = true;
+        }
+    }
+
+    if (!$found) {
+        return false;
+    }
+
+    return write_json(DATA_PATH . '/images.json', $images);
+}
+
+function update_image_metadata(string $id, array $input): ?string
+{
+    $id = trim($id);
+    if ($id === '') {
+        return 'Image ID is required.';
+    }
+
+    $images = read_json(DATA_PATH . '/images.json');
+    $targetIndex = null;
+
+    foreach ($images as $index => $record) {
+        if (($record['id'] ?? '') === $id) {
+            $targetIndex = $index;
+            $images[$index] = normalize_image_record($record);
+            break;
+        }
+    }
+
+    if ($targetIndex === null) {
+        return 'Image not found.';
+    }
+
+    $title = trim((string) ($input['title'] ?? ''));
+    $objectName = trim((string) ($input['object_name'] ?? ''));
+    $capturedAt = trim((string) ($input['captured_at'] ?? ''));
+    if ($title === '' || $objectName === '' || $capturedAt === '') {
+        return 'Title, object name, and capture date are required.';
+    }
+
+    $tagsInput = trim((string) ($input['tags'] ?? ''));
+    $tags = array_values(array_filter(array_map('trim', explode(',', $tagsInput)), static fn(string $tag): bool => $tag !== ''));
+
+    $wikipediaUrl = normalize_wikipedia_url_for_storage((string) ($input['wikipedia_url'] ?? ''));
+    if (trim((string) ($input['wikipedia_url'] ?? '')) !== '' && $wikipediaUrl === '') {
+        return 'Wikipedia URL must be a valid wikipedia.org/wiki/... article link.';
+    }
+
+    $images[$targetIndex]['title'] = $title;
+    $images[$targetIndex]['object_name'] = $objectName;
+    $images[$targetIndex]['object_type'] = trim((string) ($input['object_type'] ?? ''));
+    $images[$targetIndex]['captured_at'] = $capturedAt;
+    $images[$targetIndex]['description'] = trim((string) ($input['description'] ?? ''));
+    $images[$targetIndex]['scope_type'] = trim((string) ($input['scope_type'] ?? ''));
+    $images[$targetIndex]['telescope'] = trim((string) ($input['telescope'] ?? ''));
+    $images[$targetIndex]['mount'] = trim((string) ($input['mount'] ?? ''));
+    $images[$targetIndex]['camera'] = trim((string) ($input['camera'] ?? ''));
+    $images[$targetIndex]['filter_wheel'] = trim((string) ($input['filter_wheel'] ?? ''));
+    $images[$targetIndex]['filters'] = trim((string) ($input['filters'] ?? ''));
+    $images[$targetIndex]['filter_set'] = trim((string) ($input['filter_set'] ?? ''));
+    $images[$targetIndex]['equipment'] = compose_equipment_summary($images[$targetIndex]);
+    $images[$targetIndex]['exposure'] = trim((string) ($input['exposure'] ?? ''));
+    $images[$targetIndex]['processing'] = trim((string) ($input['processing'] ?? ''));
+    $images[$targetIndex]['tags'] = $tags;
+    $images[$targetIndex]['wikipedia_url'] = $wikipediaUrl;
+    $images[$targetIndex]['wikipediaUrl'] = $wikipediaUrl;
+    $images[$targetIndex]['meta_title'] = trim((string) ($input['meta_title'] ?? ''));
+    $images[$targetIndex]['meta_description'] = trim((string) ($input['meta_description'] ?? ''));
+    $images[$targetIndex]['meta_keywords'] = trim((string) ($input['meta_keywords'] ?? ''));
+
+    if (!write_json(DATA_PATH . '/images.json', $images)) {
+        return 'Image metadata could not be saved because storage is not writable.';
+    }
+
+    return null;
 }
 
 function log_event(string $message): void

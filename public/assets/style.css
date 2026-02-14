@@ -437,3 +437,56 @@ button.danger {
 .preset-category-block h4 {
   margin-bottom: 0.45rem;
 }
+
+.admin-shell-header {
+  margin-bottom: 0.8rem;
+}
+
+.admin-help-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 0.6rem;
+  margin-top: 0.8rem;
+}
+
+.admin-help-card {
+  border: 1px solid rgba(128, 157, 214, 0.2);
+  border-radius: 10px;
+  padding: 0.7rem;
+  background: rgba(32, 52, 89, 0.28);
+}
+
+.admin-help-card h3 {
+  margin: 0 0 0.35rem;
+  font-size: 0.96rem;
+}
+
+.admin-row-actions {
+  display: flex;
+  gap: 0.45rem;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+}
+
+.button-link {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  text-decoration: none;
+  padding: 0.62rem 0.7rem;
+  border-radius: 10px;
+  border: 1px solid rgba(131, 165, 224, 0.35);
+  color: var(--text);
+  background: linear-gradient(110deg, #3a67be, #5686ed);
+  font-weight: 600;
+}
+
+.button-link.secondary {
+  background: rgba(63, 92, 151, 0.45);
+  border: 1px solid rgba(132, 168, 236, 0.45);
+}
+
+.inline-form button[disabled] {
+  opacity: 0.65;
+  cursor: not-allowed;
+}

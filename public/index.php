@@ -9,7 +9,12 @@ $config = load_config();
 $adminBase = $config['admin_route'];
 
 if ($path === '/') {
-    render('home', ['title' => $config['site_name'], 'images' => image_records()]);
+    $images = image_records();
+    render('home', [
+        'title' => $config['site_name'],
+        'images' => $images,
+        'featured' => featured_image($images),
+    ]);
     exit;
 }
 
@@ -38,7 +43,15 @@ if ($path === '/image.php') {
 
     $detailPath = '/image.php?id=' . rawurlencode((string) $image['id']);
     $detailUrl = absolute_url($detailPath);
-    $ogDescription = trim((string) ($image['description'] ?? ''));
+    $ogTitle = trim((string) ($image['meta_title'] ?? ''));
+    if ($ogTitle === '') {
+        $ogTitle = $image['title'] . ' · ' . $config['site_name'];
+    }
+
+    $ogDescription = trim((string) ($image['meta_description'] ?? ''));
+    if ($ogDescription === '') {
+        $ogDescription = trim((string) ($image['description'] ?? ''));
+    }
     if ($ogDescription === '') {
         $ogDescription = 'Astrophotography capture: ' . (string) ($image['title'] ?? 'Untitled image');
     }
@@ -49,8 +62,9 @@ if ($path === '/image.php') {
         'wikipedia_data' => $wikipediaData,
         'wikipedia_error' => $wikipediaError,
         'canonical_url' => $detailUrl,
-        'meta_title' => $image['title'] . ' · ' . $config['site_name'],
+        'meta_title' => $ogTitle,
         'meta_description' => $ogDescription,
+        'meta_keywords' => trim((string) ($image['meta_keywords'] ?? '')),
         'meta_image' => absolute_url('/media.php?type=thumb&file=' . rawurlencode((string) $image['thumb'])),
         'meta_image_type' => 'image/jpeg',
         'meta_image_width' => 800,
@@ -165,6 +179,21 @@ if (isset($adminSections[$path])) {
                 } else {
                     $error = 'Image could not be deleted (record not found).';
                 }
+            } elseif ($formAction === 'set_spotlight') {
+                $imageId = (string) ($_POST['image_id'] ?? '');
+                if (set_spotlight_image($imageId)) {
+                    $success = 'Homepage spotlight updated.';
+                } else {
+                    $error = 'Could not update spotlight image.';
+                }
+            } elseif ($formAction === 'update_image_metadata') {
+                $imageId = (string) ($_POST['image_id'] ?? '');
+                $metadataError = update_image_metadata($imageId, $_POST);
+                if ($metadataError === null) {
+                    $success = 'Image metadata updated.';
+                } else {
+                    $error = $metadataError;
+                }
             } elseif ($formAction === 'add_setup_preset') {
                 $presetCategory = (string) ($_POST['preset_category'] ?? '');
                 $presetValue = (string) ($_POST['preset_value'] ?? '');
@@ -238,6 +267,10 @@ if (isset($adminSections[$path])) {
                             'wikiThumbnail' => '',
                             'wikiFetchedAt' => '',
                             'wikiStatus' => 'not_requested',
+                            'meta_title' => '',
+                            'meta_description' => '',
+                            'meta_keywords' => '',
+                            'is_spotlight' => false,
                         ];
 
                         if (!write_json(DATA_PATH . '/images.json', $images)) {

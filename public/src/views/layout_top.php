@@ -6,6 +6,7 @@ $ogImage = isset($meta_image) ? (string) $meta_image : '';
 $ogImageType = isset($meta_image_type) ? trim((string) $meta_image_type) : '';
 $ogImageWidth = isset($meta_image_width) ? (int) $meta_image_width : 0;
 $ogImageHeight = isset($meta_image_height) ? (int) $meta_image_height : 0;
+$metaKeywords = isset($meta_keywords) ? trim((string) $meta_keywords) : '';
 ?>
 <!doctype html>
 <html lang="en">
@@ -18,6 +19,9 @@ $ogImageHeight = isset($meta_image_height) ? (int) $meta_image_height : 0;
   <meta property="og:title" content="<?= htmlspecialchars($ogTitle) ?>">
   <meta property="og:description" content="<?= htmlspecialchars($ogDescription) ?>">
   <meta property="og:url" content="<?= htmlspecialchars($canonicalUrl) ?>">
+  <?php if ($metaKeywords !== ''): ?>
+    <meta name="keywords" content="<?= htmlspecialchars($metaKeywords) ?>">
+  <?php endif; ?>
   <?php if ($ogImage !== ''): ?>
     <meta property="og:image" content="<?= htmlspecialchars($ogImage) ?>">
     <?php if ($ogImageType !== ''): ?>

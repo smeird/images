@@ -1,4 +1,4 @@
-<?php $featured = $images[0] ?? null; ?>
+<?php $featured = $featured ?? ($images[0] ?? null); ?>
 <section class="hero">
   <div class="hero-copy">
     <h1>Night sky captures with full capture transparency</h1>
