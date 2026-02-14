@@ -17,7 +17,7 @@ Implemented now:
 - homepage now prioritizes an immersive, denser image wall (wider canvas + larger thumbnail coverage) with subtle scroll-linked spectral parallax accents (H-alpha/OIII-inspired gradients) that respect reduced-motion settings.
 - filters now default to a low-prominence chip summary under the hero, while full controls live behind a Refine toggle (object type/tag/date-range/text search + sort) and still sync via shareable query-parameter state.
 - secure admin route with session auth, CSRF protection, basic login rate limiting, task-based admin portal pages (upload/setup presets/media/security), in-session password change controls, and authenticated image deletion
-- redesigned admin control center UX with guided task cards, clearer navigation labels, and inline help so uploads/presets/library/security actions are easier to discover.
+- redesigned admin control center UX with a dedicated sidebar task navigator, guided help cards, and clearer labels so uploads/presets/library/security actions are easier to discover.
 - admin media library now supports spotlight selection plus navigation into a dedicated edit page for full metadata + SEO updates (with preset pills available while editing).
 - image upload pipeline with MIME/size validation, thumbnail generation, and admin-side storage-capacity visibility
 - admin setup-preset management for one-click upload/edit pills across observatory gear + metadata (scope type/object type/telescope/mount/camera/filter wheel/filters/filter set/processing software/tags)
@@ -164,15 +164,15 @@ flowchart TD
 ```mermaid
 flowchart TD
   Admin_opens_hidden_route --> Already_authenticated
-  Already_authenticated -->|yes| Admin_control_center_and_guided_help_cards
+  Already_authenticated -->|yes| Admin_control_center_sidebar_and_guided_help_cards
   Already_authenticated -->|no| Login_form_with_CSRF_and_optional_remember_me
   Login_form_with_CSRF_and_optional_remember_me --> Credential_check_and_rate_limit
-  Credential_check_and_rate_limit --> Admin_control_center_and_guided_help_cards
-  Admin_control_center_and_guided_help_cards --> Upload_page
-  Admin_control_center_and_guided_help_cards --> Setup_presets_page
-  Admin_control_center_and_guided_help_cards --> Media_library_page
-  Admin_control_center_and_guided_help_cards --> Dedicated_edit_page
-  Admin_control_center_and_guided_help_cards --> Security_page
+  Credential_check_and_rate_limit --> Admin_control_center_sidebar_and_guided_help_cards
+  Admin_control_center_sidebar_and_guided_help_cards --> Upload_page
+  Admin_control_center_sidebar_and_guided_help_cards --> Setup_presets_page
+  Admin_control_center_sidebar_and_guided_help_cards --> Media_library_page
+  Admin_control_center_sidebar_and_guided_help_cards --> Dedicated_edit_page
+  Admin_control_center_sidebar_and_guided_help_cards --> Security_page
   Upload_page --> Review_storage_and_upload_limits
   Upload_page --> Use_setup_preset_pills_and_enter_capture_details
   Use_setup_preset_pills_and_enter_capture_details --> Multi_select_append_pills_for_tags_and_processing_software

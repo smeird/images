@@ -32,38 +32,46 @@ function field_value(string $field, $editingImage): string
     return '';
 }
 ?>
-<section class="panel admin-shell">
-  <div class="admin-shell-header">
-    <h1>Admin control center</h1>
-    <p class="muted">A guided workspace for uploads, setup presets, homepage spotlight control, and metadata editing.</p>
-  </div>
-  <nav class="admin-nav" aria-label="Admin tasks">
-    <a href="<?= htmlspecialchars($adminBase) ?>/upload" class="<?= $adminSection === 'upload' ? 'is-active' : '' ?>">1) Upload</a>
-    <a href="<?= htmlspecialchars($adminBase) ?>/setup-presets" class="<?= $adminSection === 'setup_presets' ? 'is-active' : '' ?>">2) Presets</a>
-    <a href="<?= htmlspecialchars($adminBase) ?>/manage-images" class="<?= $adminSection === 'manage_images' ? 'is-active' : '' ?>">3) Media library</a>
-    <a href="<?= htmlspecialchars($adminBase) ?>/edit-image<?= $currentEditId !== '' ? '?id=' . urlencode($currentEditId) : '' ?>" class="<?= $adminSection === 'edit_image' ? 'is-active' : '' ?>">4) Edit page</a>
-    <a href="<?= htmlspecialchars($adminBase) ?>/security" class="<?= $adminSection === 'security' ? 'is-active' : '' ?>">5) Security</a>
-  </nav>
+<div class="admin-layout">
+  <aside class="panel admin-sidebar">
+    <div class="admin-shell-header">
+      <h1>Admin control center</h1>
+      <p class="muted">A guided workspace for uploads, setup presets, homepage spotlight control, and metadata editing.</p>
+    </div>
+    <nav class="admin-nav" aria-label="Admin tasks">
+      <a href="<?= htmlspecialchars($adminBase) ?>/upload" class="<?= $adminSection === 'upload' ? 'is-active' : '' ?>">1) Upload</a>
+      <a href="<?= htmlspecialchars($adminBase) ?>/setup-presets" class="<?= $adminSection === 'setup_presets' ? 'is-active' : '' ?>">2) Presets</a>
+      <a href="<?= htmlspecialchars($adminBase) ?>/manage-images" class="<?= $adminSection === 'manage_images' ? 'is-active' : '' ?>">3) Media library</a>
+      <a href="<?= htmlspecialchars($adminBase) ?>/edit-image<?= $currentEditId !== '' ? '?id=' . urlencode($currentEditId) : '' ?>" class="<?= $adminSection === 'edit_image' ? 'is-active' : '' ?>">4) Edit page</a>
+      <a href="<?= htmlspecialchars($adminBase) ?>/security" class="<?= $adminSection === 'security' ? 'is-active' : '' ?>">5) Security</a>
+    </nav>
 
-  <div class="admin-help-grid">
-    <article class="admin-help-card">
-      <h3>Fast upload workflow</h3>
-      <p class="muted">Use preset pills under each equipment field so repeat gear entries are one click away.</p>
-    </article>
-    <article class="admin-help-card">
-      <h3>Spotlight curation</h3>
-      <p class="muted">On <strong>Media library</strong>, set one capture as the homepage spotlight card.</p>
-    </article>
-    <article class="admin-help-card">
-      <h3>SEO + metadata edits</h3>
-      <p class="muted">Use the <strong>Edit page</strong> task to update all fields and meta tags for any previous upload.</p>
-    </article>
-  </div>
+    <div class="admin-help-grid">
+      <article class="admin-help-card">
+        <h3>Fast upload workflow</h3>
+        <p class="muted">Use preset pills under each equipment field so repeat gear entries are one click away.</p>
+      </article>
+      <article class="admin-help-card">
+        <h3>Spotlight curation</h3>
+        <p class="muted">On <strong>Media library</strong>, set one capture as the homepage spotlight card.</p>
+      </article>
+      <article class="admin-help-card">
+        <h3>SEO + metadata edits</h3>
+        <p class="muted">Use the <strong>Edit page</strong> task to update all fields and meta tags for any previous upload.</p>
+      </article>
+    </div>
 
-  <?php if (!empty($error)): ?><p class="error"><?= htmlspecialchars($error) ?></p><?php endif; ?>
-  <?php if (!empty($limit_error)): ?><p class="error"><?= htmlspecialchars($limit_error) ?></p><?php endif; ?>
-  <?php if (!empty($success)): ?><p class="success"><?= htmlspecialchars($success) ?></p><?php endif; ?>
-</section>
+    <section class="panel admin-signout-panel">
+      <p><a href="<?= htmlspecialchars($config['admin_route']) ?>/logout">Sign out</a></p>
+    </section>
+  </aside>
+
+  <div class="admin-main">
+    <section class="panel admin-status-panel">
+      <?php if (!empty($error)): ?><p class="error"><?= htmlspecialchars($error) ?></p><?php endif; ?>
+      <?php if (!empty($limit_error)): ?><p class="error"><?= htmlspecialchars($limit_error) ?></p><?php endif; ?>
+      <?php if (!empty($success)): ?><p class="success"><?= htmlspecialchars($success) ?></p><?php endif; ?>
+    </section>
 
 <?php if ($adminSection === 'upload'): ?>
   <section class="panel">
@@ -343,9 +351,8 @@ function field_value(string $field, $editingImage): string
   </section>
 <?php endif; ?>
 
-<section class="panel">
-  <p><a href="<?= htmlspecialchars($config['admin_route']) ?>/logout">Sign out</a></p>
-</section>
+  </div>
+</div>
 
 <script>
   (function () {

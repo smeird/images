@@ -143,7 +143,7 @@ This task plan is designed for a Linux + Apache + PHP environment and optimized 
 ## 11) Operations and maintainability
 
 - [x] Add admin tools:
-  - [x] Task-based admin portal pages (Upload image / Setup presets / Manage images / Dedicated edit page / Security)
+  - [x] Task-based admin portal pages (Upload image / Setup presets / Manage images / Dedicated edit page / Security) with persistent sidebar navigation for faster admin-only task switching.
   - [x] Edit metadata after upload on a dedicated page (including SEO meta tag fields and preset pills)
   - [x] Delete/unpublish image
   - [x] Mark featured images (homepage spotlight selector)
