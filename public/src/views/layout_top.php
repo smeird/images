@@ -52,4 +52,9 @@ $metaKeywords = isset($meta_keywords) ? trim((string) $meta_keywords) : '';
     <a href="<?= htmlspecialchars($config['admin_route']) ?>/login">Admin</a>
   </nav>
 </header>
+<nav class="mobile-utility-row" aria-label="Quick navigation">
+  <a href="/">Gallery</a>
+  <a href="/about">About</a>
+  <a href="/#gallery">Search</a>
+</nav>
 <main>

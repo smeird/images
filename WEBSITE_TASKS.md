@@ -5,7 +5,7 @@ This task plan is designed for a Linux + Apache + PHP environment and optimized 
 ## 1) Product vision and UX direction
 
 - [x] Define brand and visual direction (dark sky palette, starfield accents, modern typography).
-- [ ] Choose homepage storytelling approach (hero image + mission statement + featured captures).
+- [x] Choose homepage storytelling approach (hero image + mission statement + rotating featured/spotlight capture with nightly highlight facts).
 - [ ] Create moodboard (NASA/APOD-inspired visual references, typography, spacing, card styles).
 - [ ] Decide wow-factor interactions (subtle parallax stars, animated constellation lines, smooth image reveal transitions).
 
@@ -98,17 +98,17 @@ This task plan is designed for a Linux + Apache + PHP environment and optimized 
 - [ ] Create structured equipment sections (camera, optics, mount, guiding, filters).
 - [x] Add optional reusable “equipment presets” in admin to avoid repetitive typing. (implemented as reusable setup-preset pills for scope type/object type/telescope/mount/camera/filter wheel/filters/filter set)
 - [ ] Display equipment metadata cleanly on detail pages with badges/icons.
-- [ ] Add searchable/filterable fields (e.g., show all photos taken with one telescope).
+- [x] Add searchable/filterable fields (homepage toolbar supports object type, tag, capture date range, text search, and shareable sort/filter query params).
 
 ## 7) “Wow factor” enhancements
 
 - [x] Cinematic dark theme with starfield background and subtle motion (respect reduced-motion accessibility setting).
 - [x] Lightbox/fullscreen viewer with smooth zoom transitions. (implemented fullscreen mode on image detail page; control pill positioned at top-right of media)
 - [ ] Before/after slider (stacked vs processed image), optional for advanced showcase.
-- [ ] “Image of the month” spotlight section on homepage.
+- [x] Spotlight section on homepage with rotating selection rules (latest, featured override, daily deterministic pick).
 - [ ] Constellation-style timeline view by capture date.
 - [x] Ambient micro-interactions (hover glows, metadata fade-ins, elegant loading skeletons).
-- [x] Use JS image `load` events to transition skeleton placeholders into final gallery/detail assets with graceful non-JS fallback.
+- [x] Mobile ergonomics polish for 360–430px widths (sticky utility row, larger 44px touch targets, tighter typography/spacing, overflow-safe title + metadata chip handling).
 
 ## 8) Performance and image delivery
 
@@ -157,9 +157,9 @@ This task plan is designed for a Linux + Apache + PHP environment and optimized 
 - [x] Launch with core styling and mobile responsiveness.
 
 ### Phase 2 — Polish (1 week)
-- [ ] Add image detail page enhancements and filtering.
+- [x] Add image detail page enhancements and filtering. (homepage filtering + sorting delivered)
 - [x] Improve visual design and transitions.
-- [ ] Add homepage featured section.
+- [x] Add homepage featured section (implemented as rotating hero spotlight + Tonight's Highlight caption block).
 
 ### Phase 3 — Advanced (later)
 - [ ] Add before/after comparisons.

@@ -123,13 +123,39 @@ function image_records(): array
 
 function featured_image(array $records): ?array
 {
+    if (empty($records)) {
+        return null;
+    }
+
+    $latest = $records[0];
+    $featured = null;
+
     foreach ($records as $record) {
         if (!empty($record['is_spotlight'])) {
-            return $record;
+            $featured = $record;
+            break;
         }
     }
 
-    return $records[0] ?? null;
+    $dateHash = hash('sha256', gmdate('Y-m-d'));
+    $hashSeed = (int) hexdec(substr($dateHash, 0, 8));
+    $dailyPick = $records[$hashSeed % count($records)];
+
+    $rules = ['latest', 'featured', 'daily'];
+    $rule = $rules[$hashSeed % count($rules)];
+
+    if ($rule === 'featured' && $featured !== null) {
+        $featured['_spotlight_rule'] = 'featured';
+        return $featured;
+    }
+
+    if ($rule === 'daily') {
+        $dailyPick['_spotlight_rule'] = 'daily';
+        return $dailyPick;
+    }
+
+    $latest['_spotlight_rule'] = 'latest';
+    return $latest;
 }
 
 function setup_preset_categories(): array
