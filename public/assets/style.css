@@ -760,6 +760,34 @@ button {
 .error { color: #ff9aa8; }
 .success { color: #8ef0b6; }
 
+
+.license-banner {
+  margin: 0.8rem auto 0;
+  width: min(1200px, calc(100% - 2rem));
+  border: 1px solid rgba(130, 160, 219, 0.35);
+  background: rgba(13, 24, 49, 0.72);
+  border-radius: 12px;
+  padding: 0.65rem 0.9rem;
+  color: #d6e6ff;
+  text-align: center;
+}
+
+.license-banner p {
+  margin: 0;
+  font-size: 0.92rem;
+}
+
+.hero-license-note {
+  margin-top: 0.65rem;
+  color: #c9dafb;
+  font-size: 0.92rem;
+}
+
+.license-footnote {
+  margin-top: 0.35rem;
+  font-size: 0.9rem;
+}
+
 footer {
   text-align: center;
   padding: 1.8rem 1rem;

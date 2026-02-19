@@ -27,6 +27,7 @@ Implemented now:
 - setup-preset validation errors are now category-aware (not hard-coded to scope type), so invalid/empty entries report the selected preset type.
 - Wikipedia URL normalization uses PHP 7.4-compatible string checks (no PHP 8-only helpers) to avoid runtime fatals on older deployments.
 - social preview tags on detail pages now point to the generated 800x500 JPEG thumbnail (instead of full original) to improve WhatsApp/Facebook card rendering reliability.
+- global Creative Commons messaging is now surfaced in top-of-page notice, homepage hero copy, detail attribution text, About page content, and footer copy so image licensing is unambiguous site-wide.
 
 Planned next:
 - continue production hardening (filter/search + client-side sorting now available on homepage with shareable query-parameter URLs).
@@ -143,8 +144,10 @@ You can override route and limits via env vars:
 ```mermaid
 flowchart TD
   Visitor_lands_on_homepage --> See_cinematic_hero_rotating_spotlight_and_subtle_spectral_parallax
+  Visitor_lands_on_homepage --> See_sitewide_Creative_Commons_notice_banner_and_footer
   See_cinematic_hero_rotating_spotlight_and_subtle_spectral_parallax --> Read_Tonights_Highlight_facts_and_open_details_CTA
   Read_Tonights_Highlight_facts_and_open_details_CTA --> Review_active_filter_chip_summary
+  See_sitewide_Creative_Commons_notice_banner_and_footer --> Browse_thumbnail_gallery
   Review_active_filter_chip_summary -->|optional| Open_Refine_panel_for_full_filter_controls
   Open_Refine_panel_for_full_filter_controls --> Browse_thumbnail_gallery
   Review_active_filter_chip_summary --> Browse_thumbnail_gallery
