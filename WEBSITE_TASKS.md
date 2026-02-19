@@ -136,6 +136,7 @@ This task plan is designed for a Linux + Apache + PHP environment and optimized 
 - [ ] Add semantic page titles, meta descriptions, Open Graph tags.
   - [x] Implement image detail canonical URL + Open Graph/Twitter image/title metadata for rich social link previews.
   - [x] Serve social preview cards from the generated 800x500 JPEG thumbnail and include Open Graph image type/dimension tags for better WhatsApp/Facebook compatibility.
+- [x] Surface clear image-licensing disclosure (Creative Commons) across key public touchpoints (header notice, hero context, detail page, About page, footer).
 - [ ] Include alt text strategy for each image.
 - [ ] Auto-generate XML sitemap.
 - [ ] Add schema.org metadata for images/creative works.

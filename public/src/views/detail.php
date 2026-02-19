@@ -66,6 +66,8 @@ if (!empty($wikipedia_data) && is_array($wikipedia_data)) {
           <p class="muted" data-copy-share-status>Paste this URL in Facebook, WhatsApp, or iMessage to show this image preview.</p>
         </div>
 
+        <p class="attribution-note">Image license: This gallery image is published under a Creative Commons license.</p>
+
         <?php if (!empty($image['tags'])): ?>
           <div class="tag-list">
             <?php foreach ($image['tags'] as $tag): ?>

@@ -52,6 +52,12 @@ $metaKeywords = isset($meta_keywords) ? trim((string) $meta_keywords) : '';
     <a href="<?= htmlspecialchars($config['admin_route']) ?>/login">Admin</a>
   </nav>
 </header>
+<section class="license-banner" aria-label="Image licensing notice">
+  <p>
+    All showcased images are published under a
+    <strong>Creative Commons license</strong>.
+  </p>
+</section>
 <nav class="mobile-utility-row" aria-label="Quick navigation">
   <a href="/">Gallery</a>
   <a href="/about">About</a>

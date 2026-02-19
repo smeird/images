@@ -48,10 +48,12 @@ sort($tagOptions, SORT_NATURAL | SORT_FLAG_CASE);
   <div class="hero-copy">
     <h1>A cinematic wall of the night sky</h1>
     <p>Start with the images first. H-alpha and OIII accents drift with scroll while filters stay quietly in the background until you need them.</p>
+    <p class="hero-license-note">Every published image is clearly marked as Creative Commons licensed.</p>
     <div class="statline">
       <span class="pill"><?= count($images) ?> published captures</span>
       <span class="pill">Large-format gallery wall</span>
       <span class="pill">Capture context on every detail page</span>
+      <span class="pill">All images under Creative Commons</span>
     </div>
   </div>
   <aside class="hero-feature">
