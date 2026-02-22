@@ -92,6 +92,13 @@ This task plan is designed for a Linux + Apache + PHP environment and optimized 
   - Generate thumbnails
   - Save metadata
   - Show admin preview and success/failure status
+- [ ] Add upload-time attribution text overlay (burned into downloadable rendered output) with admin-configurable:
+  - Overlay text content (default: `Smeird Astro`)
+  - Overlay location/anchor (default: bottom-left)
+  - Font selection (default: handwritten-style)
+  - Small inset/padding from image edges (default: slight bottom-left indentation)
+  - Sensible readability styling (e.g., subtle shadow/contrast treatment) while keeping watermark unobtrusive
+  - Pipeline behavior that preserves original upload and publishes a processed derivative with permanent overlay
 
 ## 6) Core feature #3: Equipment and capture details
 
