@@ -28,6 +28,7 @@ Implemented now:
 - Wikipedia URL normalization uses PHP 7.4-compatible string checks (no PHP 8-only helpers) to avoid runtime fatals on older deployments.
 - social preview tags on detail pages now point to the generated 800x500 JPEG thumbnail (instead of full original) to improve WhatsApp/Facebook card rendering reliability.
 - global Creative Commons messaging is now surfaced in top-of-page notice, homepage hero copy, detail attribution text, About page content, and footer copy so image licensing is unambiguous site-wide.
+- About page now includes a comprehensive astrophotography guide (setup, planning, acquisition, guiding-accuracy ranges, processing pipeline, and curated external references).
 
 Planned next:
 - continue production hardening (filter/search + client-side sorting now available on homepage with shareable query-parameter URLs).
