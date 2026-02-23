@@ -155,7 +155,7 @@ sort($tagOptions, SORT_NATURAL | SORT_FLAG_CASE);
     <button id="filter-reset" type="button" class="secondary">Clear filters</button>
   </div>
 </section>
-<section class="grid">
+<section class="grid" id="gallery">
   <?php if (empty($images)): ?>
     <p>No images yet. Admins can upload from the secure route.</p>
   <?php else: ?>
@@ -164,7 +164,11 @@ sort($tagOptions, SORT_NATURAL | SORT_FLAG_CASE);
         <a href="/image.php?id=<?= urlencode($image['id']) ?>">
           <div class="skeleton-media-wrap">
             <div class="skeleton-shimmer skeleton-media-block" data-skeleton-placeholder aria-hidden="true"></div>
-            <img class="fade-asset" loading="lazy" src="/media.php?type=thumb&file=<?= urlencode($image['thumb']) ?>" alt="<?= htmlspecialchars($image['title']) ?>" data-skeleton-image>
+            <?php
+              $thumbLarge = (string) ($image['thumb'] ?? '');
+              $thumbSmall = (string) ($image['thumb_small'] ?? $thumbLarge);
+            ?>
+            <img class="fade-asset" loading="lazy" src="/media.php?type=thumb&file=<?= urlencode($thumbLarge) ?>" srcset="/media.php?type=thumb&file=<?= urlencode($thumbSmall) ?> 400w, /media.php?type=thumb&file=<?= urlencode($thumbLarge) ?> 800w" sizes="(max-width: 680px) 92vw, (max-width: 1080px) 48vw, 24vw" alt="<?= htmlspecialchars($image['title']) ?>" data-skeleton-image>
           </div>
           <div class="skeleton-meta-wrap">
             <div class="skeleton-meta-lines" data-skeleton-placeholder aria-hidden="true">
