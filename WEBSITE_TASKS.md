@@ -11,11 +11,11 @@ This task plan is designed for a Linux + Apache + PHP environment and optimized 
 
 ## 2) Information architecture and content model
 
-- [ ] Define public pages:
+- [x] Define public pages:
   - Home / Gallery (thumbnail grid)
   - Image detail page (full image + metadata + equipment used)
   - About (your story, location, skies, processing philosophy)
-  - Contact / social links
+  - [x] Contact / social links
 - [ ] Define image metadata schema:
   - Title
   - Description/story behind capture
@@ -26,19 +26,19 @@ This task plan is designed for a Linux + Apache + PHP environment and optimized 
   - Processing software/workflow
   - Tags (galaxy, nebula, moon, planet, widefield)
   - [x] Wikipedia link + cache fields (`wikipediaUrl`, `wikiTitle`, `wikiExtract`, `wikiThumbnail`, `wikiFetchedAt`, `wikiStatus`)
-- [ ] Decide whether to store metadata in flat files (JSON) or database (SQLite/MySQL); for quick start, use SQLite or JSON.
+- [x] Decide whether to store metadata in flat files (JSON) or database (SQLite/MySQL); for quick start, use SQLite or JSON.
 
 ## 3) Technical architecture (PHP + Apache)
 
-- [ ] Pick stack style:
+- [x] Pick stack style:
   - Lightweight PHP app (no framework) for speed, or
   - Laravel/Slim for maintainability if future growth expected.
-- [ ] Set up folder structure:
+- [x] Set up folder structure:
   - `/public` for web root
   - `/storage/images/original`
   - `/storage/images/thumbs`
   - `/storage/uploads/tmp`
-- [ ] Add secure config strategy:
+- [x] Add secure config strategy:
   - Environment variables for admin credentials and secret keys
   - Keep uploads and sensitive files outside public web root where possible
 - [x] Persist PHP session files under writable `storage/sessions` to keep admin auth + CSRF state stable across host environments.
@@ -70,7 +70,7 @@ This task plan is designed for a Linux + Apache + PHP environment and optimized 
 - [x] Add optional remember-me admin login with revocable, rotated device tokens.
 - [x] Redirect already-authenticated admins away from the login screen to the admin portal to keep active sessions feeling persistent.
 - [x] Add authenticated admin password rotation form (current password verification + minimum length checks).
-- [ ] Restrict admin route by:
+- [x] Restrict admin route by:
   - Obscure route path (not security by itself)
   - Real authentication and CSRF protection
   - Rate limiting / lockout after repeated failed logins
@@ -92,7 +92,7 @@ This task plan is designed for a Linux + Apache + PHP environment and optimized 
   - Generate thumbnails
   - Save metadata
   - Show admin preview and success/failure status
-- [ ] Add upload-time attribution text overlay (burned into downloadable rendered output) with admin-configurable:
+- [x] Add upload-time attribution text overlay (burned into downloadable rendered output) with admin-configurable:
   - Overlay text content (default: `Smeird Astro`)
   - Overlay location/anchor (default: bottom-left)
   - Font selection (default: handwritten-style)
@@ -102,9 +102,9 @@ This task plan is designed for a Linux + Apache + PHP environment and optimized 
 
 ## 6) Core feature #3: Equipment and capture details
 
-- [ ] Create structured equipment sections (camera, optics, mount, guiding, filters).
+- [x] Create structured equipment sections (camera, optics, mount, guiding, filters).
 - [x] Add optional reusable “equipment presets” in admin to avoid repetitive typing. (implemented as reusable setup-preset pills for scope type/object type/telescope/mount/camera/filter wheel/filters/filter set/processing software/tags, with append-style pill clicks for multi-value fields like tags and processing)
-- [ ] Display equipment metadata cleanly on detail pages with badges/icons.
+- [x] Display equipment metadata cleanly on detail pages with badges/icons.
 - [x] Add searchable/filterable fields (homepage toolbar supports object type, tag, capture date range, text search, and shareable sort/filter query params).
 
 ## 7) “Wow factor” enhancements
@@ -122,10 +122,10 @@ This task plan is designed for a Linux + Apache + PHP environment and optimized 
 
 ## 8) Performance and image delivery
 
-- [ ] Use responsive image `srcset` and lazy loading.
+- [x] Use responsive image `srcset` and lazy loading.
 - [ ] Enable Apache compression and long-lived cache headers for generated thumbnails.
 - [ ] Add CDN option later (CloudFront) if traffic grows.
-- [ ] Create background job/CLI script to regenerate thumbnails for older uploads.
+- [x] Create background job/CLI script to regenerate thumbnails for older uploads.
 - [x] Add lazy refresh on detail reads for stale Wikipedia cache entries (>7 days) while serving cached data immediately.
 - [x] Parse and store infobox-derived key facts (e.g., size/shape/distance fields) from Wikipedia links for detail-page context.
 - [x] Invalidate and refresh cached Wikipedia summary/facts when an admin changes the Wikipedia URL on an image.
@@ -133,20 +133,20 @@ This task plan is designed for a Linux + Apache + PHP environment and optimized 
 ## 9) Security hardening
 
 - [ ] Enforce HTTPS (AWS cert + redirect HTTP→HTTPS).
-- [ ] Set secure headers (CSP, HSTS, X-Content-Type-Options, Referrer-Policy).
-- [ ] Lock down upload execution (never execute uploaded files).
-- [ ] Validate/sanitize all metadata inputs to prevent XSS.
+- [x] Set secure headers (CSP, HSTS, X-Content-Type-Options, Referrer-Policy).
+- [x] Lock down upload execution (never execute uploaded files).
+- [x] Validate/sanitize all metadata inputs to prevent XSS.
 - [ ] Add periodic backup plan for images + metadata.
 
 ## 10) SEO and discoverability
 
-- [ ] Add semantic page titles, meta descriptions, Open Graph tags.
+- [x] Add semantic page titles, meta descriptions, Open Graph tags.
   - [x] Implement image detail canonical URL + Open Graph/Twitter image/title metadata for rich social link previews.
   - [x] Serve social preview cards from the generated 800x500 JPEG thumbnail and include Open Graph image type/dimension tags for better WhatsApp/Facebook compatibility.
 - [x] Surface clear image-licensing disclosure (Creative Commons) across key public touchpoints (header notice, hero context, detail page, About page, footer).
 - [ ] Include alt text strategy for each image.
-- [ ] Auto-generate XML sitemap.
-- [ ] Add schema.org metadata for images/creative works.
+- [x] Auto-generate XML sitemap.
+- [x] Add schema.org metadata for images/creative works.
 
 ## 11) Operations and maintainability
 
@@ -156,7 +156,7 @@ This task plan is designed for a Linux + Apache + PHP environment and optimized 
   - [x] Edit metadata after upload on a dedicated page (including SEO meta tag fields and preset pills)
   - [x] Delete/unpublish image
   - [x] Mark featured images (homepage spotlight selector)
-- [ ] Add logging and error monitoring.
+- [x] Add logging and error monitoring.
 - [ ] Create deployment checklist for Apache/PHP config updates.
 - [ ] Document recovery steps (restore from backup).
 
