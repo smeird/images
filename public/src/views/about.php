@@ -161,4 +161,129 @@
     <a href="https://clearoutside.com/" target="_blank" rel="noopener noreferrer">Clear Outside</a> ·
     <a href="https://www.meteoblue.com/en/weather/outdoorsports/seeing" target="_blank" rel="noopener noreferrer">Meteoblue Seeing</a>
   </p>
+
+  <h2>Astrophotography learning and tool directory</h2>
+  <p>
+    The resource list below is organized by purpose so you can quickly jump to practical beginner guides, active communities, planning tools, capture/processing software,
+    and inspiration platforms. Every link opens in a new tab.
+  </p>
+
+  <div class="about-resource-grid">
+    <section class="about-resource-card">
+      <h3>General guides and tutorials</h3>
+      <ul>
+        <li>
+          <a href="https://www.galactic-hunter.com/post/starting-astrophotography-a-complete-guide" target="_blank" rel="noopener noreferrer">Beginner Astrophotography: A Complete Guide</a>
+          <span>Comprehensive beginner-to-intermediate guide covering gear, planning, light pollution, tracking and processing.</span>
+        </li>
+        <li>
+          <a href="https://astrobackyard.com/resources" target="_blank" rel="noopener noreferrer">Astrophotography Resources (AstroBackyard)</a>
+          <span>Curated list of software tools, apps and general resources to support imaging workflows.</span>
+        </li>
+        <li>
+          <a href="https://www.reddit.com/r/AskAstrophotography/comments/e609qd/astrophotography_guide_for_beginners" target="_blank" rel="noopener noreferrer">Astrophotography Guide for Beginners (Reddit)</a>
+          <span>Community-driven advice oriented around deep sky imaging fundamentals.</span>
+        </li>
+      </ul>
+    </section>
+
+    <section class="about-resource-card">
+      <h3>Forums and community sites</h3>
+      <ul>
+        <li>
+          <a href="https://www.cloudynights.com/" target="_blank" rel="noopener noreferrer">Cloudy Nights</a>
+          <span>One of the most comprehensive online communities for techniques, equipment decisions, processing, and troubleshooting.</span>
+        </li>
+        <li>
+          <a href="https://stargazerslounge.com/" target="_blank" rel="noopener noreferrer">Stargazers Lounge</a>
+          <span>Active UK-centric community for practical help, shared experiences and inspiration.</span>
+        </li>
+      </ul>
+    </section>
+
+    <section class="about-resource-card">
+      <h3>Planning and sky simulation tools</h3>
+      <ul>
+        <li>
+          <a href="https://stellarium.org/" target="_blank" rel="noopener noreferrer">Stellarium</a>
+          <span>Free open-source planetarium software for visualizing the sky, planning sessions, and identifying targets.</span>
+        </li>
+        <li>
+          <a href="https://telescopius.com/" target="_blank" rel="noopener noreferrer">Telescopius</a>
+          <span>Online planner with target lists, visibility charts, and search features tailored for astrophotography.</span>
+        </li>
+        <li>
+          <a href="https://astronomy.tools/" target="_blank" rel="noopener noreferrer">Astronomy-Tools.com</a>
+          <span>Calculators for field of view planning and telescope/camera match-ups.</span>
+        </li>
+      </ul>
+    </section>
+
+    <section class="about-resource-card">
+      <h3>Software for capture, processing and analysis</h3>
+      <ul>
+        <li>
+          <a href="https://edu.kde.org/kstars/" target="_blank" rel="noopener noreferrer">KStars</a>
+          <span>Free planetarium and capture suite with autofocus, guiding, and sequence management via Ekos.</span>
+        </li>
+        <li>
+          <a href="https://www.siril.org/" target="_blank" rel="noopener noreferrer">Siril</a>
+          <span>Cross-platform astrophotography processing suite for calibration, alignment, stacking and enhancement.</span>
+        </li>
+        <li>
+          <a href="http://www.astronomie.be/registax" target="_blank" rel="noopener noreferrer">RegiStax</a>
+          <span>Freeware stacking and processing software widely used for planetary imaging.</span>
+        </li>
+      </ul>
+    </section>
+
+    <section class="about-resource-card">
+      <h3>Planning and auxiliary tools</h3>
+      <ul>
+        <li>
+          <a href="https://www.cloudynights.com/forums/topic/872107-deep-sky-planning-software/" target="_blank" rel="noopener noreferrer">DeepSkyPlanner</a>
+          <span>Community-referenced software for creating multi-target observation lists and session plans.</span>
+        </li>
+        <li>
+          <a href="https://www.lightpollutionmap.info/" target="_blank" rel="noopener noreferrer">Light Pollution Map</a>
+          <span>Global satellite-based dark-sky maps for selecting imaging locations.</span>
+        </li>
+        <li>
+          <a href="http://astrometry.net/" target="_blank" rel="noopener noreferrer">Astrometry.net</a>
+          <span>Free plate-solving service to identify celestial coordinates in your images.</span>
+        </li>
+      </ul>
+    </section>
+
+    <section class="about-resource-card">
+      <h3>Image hosting and inspiration</h3>
+      <ul>
+        <li>
+          <a href="https://www.astrobin.com/" target="_blank" rel="noopener noreferrer">AstroBin</a>
+          <span>Dedicated astrophotography image platform with tagging, exposure metadata, and community feedback.</span>
+        </li>
+      </ul>
+      <h3>Journal and broader astronomy coverage</h3>
+      <ul>
+        <li>
+          <a href="https://skyandtelescope.org/" target="_blank" rel="noopener noreferrer">Sky &amp; Telescope</a>
+          <span>Long-standing astronomy magazine with observing guides, gear reviews and imaging features.</span>
+        </li>
+      </ul>
+      <h3>Apps and mobile tools</h3>
+      <ul>
+        <li>
+          <a href="https://picastroapp.com/post/best-astrophotography-apps-for-use-in-astrophotography" target="_blank" rel="noopener noreferrer">Astrophotography Apps Guide (Picastro)</a>
+          <span>Curated list of mobile tools useful for field planning, imaging, and reference.</span>
+        </li>
+      </ul>
+      <h3>Supplementary resource index</h3>
+      <ul>
+        <li>
+          <a href="https://3sistersastronomy.com/resources/astro-sites-2/" target="_blank" rel="noopener noreferrer">Astro Sites</a>
+          <span>Comprehensive astronomy and astrophotography link directory assembled by enthusiasts.</span>
+        </li>
+      </ul>
+    </section>
+  </div>
 </section>

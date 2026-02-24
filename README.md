@@ -34,6 +34,7 @@ Implemented now:
 - social preview tags on detail pages now point to the generated 800x500 JPEG thumbnail (instead of full original) to improve WhatsApp/Facebook card rendering reliability.
 - global Creative Commons messaging is now surfaced in top-of-page notice, homepage hero copy, detail attribution text, About page content, and footer copy so image licensing is unambiguous site-wide.
 - About page expanded into a long-form astrophotography learning resource with narrative instruction, inline workflow/imaging-train diagrams, and embedded reference imagery to better teach practical capture technique.
+- About page now includes a categorized external resource directory (guides, forums, planning tools, processing software, apps, and inspiration links) with card-based styling for faster learning-path navigation.
 
 Planned next:
 - continue production hardening (filter/search + client-side sorting now available on homepage with shareable query-parameter URLs).

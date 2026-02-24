@@ -1375,6 +1375,64 @@ button.danger {
   color: #d5e6ff;
 }
 
+
+.about-resource-grid {
+  display: grid;
+  gap: 1rem;
+  margin-top: 1rem;
+}
+
+.about-resource-card {
+  border: 1px solid rgba(140, 173, 232, 0.3);
+  border-radius: 14px;
+  background: linear-gradient(160deg, rgba(11, 22, 44, 0.82), rgba(16, 34, 62, 0.72));
+  padding: 1rem 1.05rem;
+}
+
+.about-resource-card h3 {
+  margin-top: 0;
+  margin-bottom: 0.7rem;
+  font-size: 1.03rem;
+}
+
+.about-resource-card ul {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: grid;
+  gap: 0.72rem;
+}
+
+.about-resource-card ul + h3 {
+  margin-top: 1.1rem;
+}
+
+.about-resource-card li {
+  border-left: 3px solid rgba(166, 200, 255, 0.45);
+  padding-left: 0.7rem;
+}
+
+.about-resource-card a {
+  color: #e0eeff;
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.about-resource-card a:hover,
+.about-resource-card a:focus-visible {
+  text-decoration: underline;
+  text-decoration-thickness: 2px;
+  text-underline-offset: 2px;
+}
+
+.about-resource-card span {
+  display: block;
+  margin-top: 0.2rem;
+  color: #bed2f2;
+  font-size: 0.93rem;
+  line-height: 1.55;
+}
+
 @media (max-width: 760px) {
   .about-photo-grid {
     grid-template-columns: 1fr;
