@@ -46,34 +46,49 @@ sort($tagOptions, SORT_NATURAL | SORT_FLAG_CASE);
   <div class="hero-spectral hero-spectral--ha" aria-hidden="true"></div>
   <div class="hero-spectral hero-spectral--oiii" aria-hidden="true"></div>
   <div class="landing-shell__lead">
-    <p class="landing-kicker">Deep-sky journal</p>
-    <h1>Reimagined landing experience for exploring the night, frame by frame.</h1>
-    <p class="landing-intro">Browse a living atlas of captures with instant filtering, richer spotlight context, and a gallery-first flow built for rapid discovery.</p>
+    <p class="landing-kicker">Night sky archive</p>
+    <h1>A cinematic landing page for discovering deep-sky stories in seconds.</h1>
+    <p class="landing-intro">Scan the newest sessions, jump to curated observations, and open each capture dossier with one click. The homepage now prioritizes quick browsing while keeping the educational pathway close at hand.</p>
     <div class="landing-stats" role="list" aria-label="Gallery snapshot">
-      <span class="pill" role="listitem"><?= count($images) ?> published captures</span>
-      <span class="pill" role="listitem"><?= count($objectTypeOptions) ?> object categories indexed</span>
-      <span class="pill" role="listitem">Creative Commons licensed</span>
+      <span class="pill" role="listitem"><?= count($images) ?> captures online</span>
+      <span class="pill" role="listitem"><?= count($objectTypeOptions) ?> object types mapped</span>
+      <span class="pill" role="listitem"><?= count($tagOptions) ?> searchable tags</span>
     </div>
     <div class="landing-actions">
-      <a class="button-link" href="#gallery">Start browsing</a>
-      <a class="button-link secondary" href="/about.php">Explore the field guide</a>
+      <a class="button-link" href="#gallery">Enter gallery wall</a>
+      <a class="button-link secondary" href="#filter-refine-toggle">Refine by target</a>
+      <a class="button-link secondary" href="/about.php">Read the field guide</a>
+    </div>
+    <div class="landing-quick-grid" aria-label="Landing quick links">
+      <a href="#gallery">
+        <strong>Browse latest</strong>
+        <span>Jump straight into the current image wall.</span>
+      </a>
+      <a href="/about.php">
+        <strong>Learn capture workflow</strong>
+        <span>Open long-form guidance, diagrams, and tools.</span>
+      </a>
+      <a href="/contact.php">
+        <strong>Request collaboration</strong>
+        <span>Use contact pathways for projects and licensing.</span>
+      </a>
     </div>
   </div>
   <aside class="landing-shell__spotlight">
-    <h2>Tonight's Spotlight</h2>
+    <h2>Observation Spotlight</h2>
     <?php if ($featured): ?>
       <?php
         $spotlightRule = $featured['_spotlight_rule'] ?? 'latest';
         $spotlightLabel = $spotlightRule === 'featured'
-          ? 'Featured curator pick'
-          : ($spotlightRule === 'daily' ? 'Daily deterministic pick' : 'Latest published capture');
+          ? 'Curator-selected feature'
+          : ($spotlightRule === 'daily' ? 'Daily deterministic selection' : 'Newest published session');
 
         $highlightFacts = [];
         if (!empty($featured['object_name'])) {
             $highlightFacts[] = 'Target: ' . (string) $featured['object_name'];
         }
         if (!empty($featured['captured_at'])) {
-            $highlightFacts[] = 'Captured: ' . (string) $featured['captured_at'];
+            $highlightFacts[] = 'Session date: ' . (string) $featured['captured_at'];
         }
         if (!empty($featured['telescope'])) {
             $highlightFacts[] = 'Optics: ' . (string) $featured['telescope'];
