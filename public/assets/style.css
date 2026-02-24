@@ -1307,3 +1307,76 @@ button.danger {
     transform: none;
   }
 }
+
+.about-guide {
+  max-width: 980px;
+  margin-inline: auto;
+  line-height: 1.7;
+}
+
+.about-guide h2,
+.about-guide h3 {
+  margin-top: 1.7rem;
+}
+
+.about-diagram {
+  margin: 1.2rem 0 1.4rem;
+  padding: 0.9rem;
+  border: 1px solid rgba(142, 176, 235, 0.35);
+  border-radius: 14px;
+  background: rgba(8, 16, 34, 0.72);
+}
+
+.about-diagram svg {
+  width: 100%;
+  height: auto;
+  display: block;
+}
+
+.about-diagram figcaption {
+  margin-top: 0.7rem;
+  color: var(--muted);
+  font-size: 0.92rem;
+}
+
+.about-photo-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1rem;
+  margin-top: 0.8rem;
+}
+
+.about-photo-grid figure {
+  margin: 0;
+  border: 1px solid rgba(140, 173, 232, 0.3);
+  border-radius: 14px;
+  background: rgba(10, 20, 39, 0.7);
+  overflow: hidden;
+}
+
+.about-photo-grid img {
+  width: 100%;
+  aspect-ratio: 16 / 10;
+  object-fit: cover;
+  display: block;
+}
+
+.about-photo-grid figcaption {
+  padding: 0.8rem 0.9rem 0.95rem;
+  color: #d8e7ff;
+  font-size: 0.94rem;
+}
+
+.about-reference-links {
+  color: var(--muted);
+}
+
+.about-reference-links a {
+  color: #d5e6ff;
+}
+
+@media (max-width: 760px) {
+  .about-photo-grid {
+    grid-template-columns: 1fr;
+  }
+}
