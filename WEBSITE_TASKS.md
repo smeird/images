@@ -17,6 +17,7 @@ This task plan is designed for a Linux + Apache + PHP environment and optimized 
   - About (your story, location, skies, processing philosophy)
   - [x] Contact / social links
   - [x] Expand About page into a practical how-to guide with narrative explanations, diagrams, and visual references for astro-imaging workflows.
+  - [x] Add curated About-page external resource directory grouped by learning goal (guides, forums, planning, software, and inspiration).
 - [ ] Define image metadata schema:
   - Title
   - Description/story behind capture
