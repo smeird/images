@@ -132,9 +132,9 @@ main {
 
 .hero {
   display: grid;
-  grid-template-columns: 1.3fr 1fr;
-  gap: 1rem;
-  margin-bottom: 1.5rem;
+  grid-template-columns: 1.25fr 0.95fr;
+  gap: 0.7rem;
+  margin-bottom: 0.8rem;
 }
 
 .hero-copy,
@@ -144,8 +144,8 @@ main {
     var(--panel);
   background-size: 180% 180%;
   border: 1px solid var(--border);
-  border-radius: 18px;
-  padding: 1.4rem;
+  border-radius: 16px;
+  padding: 1rem 1.05rem;
   box-shadow: var(--shadow);
   position: relative;
   overflow: hidden;
@@ -172,20 +172,20 @@ main {
   z-index: 1;
 }
 
-.hero h1 { margin-top: 0; font-size: clamp(1.8rem, 4vw, 2.6rem); }
-.hero p { color: var(--muted); max-width: 65ch; }
+.hero h1 { margin-top: 0; font-size: clamp(1.45rem, 3.1vw, 2.05rem); line-height: 1.16; }
+.hero p { color: var(--muted); max-width: 58ch; margin: 0.35rem 0 0; }
 
 .statline {
   display: flex;
   flex-wrap: wrap;
-  gap: 0.6rem;
-  margin-top: 1rem;
+  gap: 0.5rem;
+  margin-top: 0.55rem;
 }
 
 .pill {
-  padding: 0.35rem 0.8rem;
+  padding: 0.28rem 0.62rem;
   border-radius: 999px;
-  font-size: 0.85rem;
+  font-size: 0.78rem;
   color: #dce9ff;
   background: rgba(65, 96, 158, 0.26);
   border: 1px solid rgba(127, 159, 220, 0.38);
@@ -194,40 +194,40 @@ main {
 .hero-feature img {
   width: 100%;
   border-radius: 12px;
-  max-height: 210px;
+  max-height: 165px;
   object-fit: cover;
   border: 1px solid rgba(137, 170, 230, 0.25);
 }
 
-.hero-feature h2 { margin: 0 0 0.7rem; font-size: 1.05rem; color: #cae0ff; }
-.hero-feature p { margin-bottom: 0; color: var(--muted); }
+.hero-feature h2 { margin: 0 0 0.45rem; font-size: 0.95rem; color: #cae0ff; }
+.hero-feature p { margin: 0.35rem 0 0; color: var(--muted); font-size: 0.88rem; }
 
 .highlight-caption {
-  margin-top: 0.9rem;
-  padding: 0.75rem 0.8rem;
+  margin-top: 0.55rem;
+  padding: 0.58rem 0.65rem;
   border-radius: 12px;
   border: 1px solid rgba(136, 170, 230, 0.3);
   background: rgba(5, 12, 25, 0.72);
 }
 
 .highlight-kicker {
-  margin: 0 0 0.45rem;
+  margin: 0 0 0.3rem;
   color: #d8e7ff;
-  font-size: 0.86rem;
+  font-size: 0.76rem;
   letter-spacing: 0.03em;
   text-transform: uppercase;
 }
 
 .highlight-caption ul {
-  margin: 0 0 0.6rem;
+  margin: 0 0 0.4rem;
   padding-left: 1rem;
   display: grid;
-  gap: 0.25rem;
+  gap: 0.16rem;
 }
 
 .highlight-caption li {
   color: #e6f0ff;
-  font-size: 0.9rem;
+  font-size: 0.8rem;
 }
 
 .highlight-cta {
@@ -236,9 +236,9 @@ main {
 
 
 .hero--immersive {
-  grid-template-columns: minmax(0, 1.15fr) minmax(280px, 0.85fr);
-  gap: 0.8rem;
-  margin-bottom: 0.9rem;
+  grid-template-columns: minmax(0, 1.1fr) minmax(250px, 0.9fr);
+  gap: 0.55rem;
+  margin-bottom: 0.55rem;
   --spectral-ha-shift: 0px;
   --spectral-oiii-shift: 0px;
 }
@@ -272,16 +272,16 @@ main {
 }
 
 .hero--immersive .hero-copy h1 {
-  margin-bottom: 0.45rem;
+  margin-bottom: 0.25rem;
 }
 
 .hero--immersive .hero-copy p {
   max-width: 48ch;
-  font-size: 0.96rem;
+  font-size: 0.88rem;
 }
 
 .hero--immersive .statline {
-  margin-top: 0.7rem;
+  margin-top: 0.45rem;
 }
 
 .hero--immersive .pill {
@@ -778,9 +778,9 @@ button {
 }
 
 .hero-license-note {
-  margin-top: 0.65rem;
+  margin-top: 0.42rem;
   color: #c9dafb;
-  font-size: 0.92rem;
+  font-size: 0.8rem;
 }
 
 .license-footnote {
