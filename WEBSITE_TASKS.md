@@ -118,7 +118,7 @@ This task plan is designed for a Linux + Apache + PHP environment and optimized 
 - [ ] Constellation-style timeline view by capture date.
 - [x] Ambient micro-interactions (hover/focus metadata fade-ins, elegant loading skeletons, and pointer-based card tilt with reduced-motion fallback).
 - [x] Keep gallery hover/focus metadata overlays anchored to the image area after client-side filter/sort re-renders.
-- [x] Reimagined landing page as an image-first experience (wider gallery utilization, compact filter footprint, and reduced gallery text emphasis for stronger visual impact).
+- [x] Reimagined landing page from scratch as a deep-sky journal experience (new narrative lead, CTA row, category-count snapshot pills, and rebuilt spotlight dossier card).
 - [x] Added subtle spectral parallax accents (H-alpha reds + OIII cyans) on the landing hero and shifted homepage filtering to chip-summary-first with full controls behind a Refine toggle.
 - [x] Mobile ergonomics polish for 360–430px widths (sticky utility row, larger 44px touch targets, tighter typography/spacing, overflow-safe title + metadata chip handling).
 - [x] Define clearly distinct detail-view experiences by breakpoint: widescreen desktop layout that uses horizontal space with overflow-safe metadata/Wikipedia divider behavior, and long-thin stacked mobile layout for narrow screens.
