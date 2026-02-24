@@ -17,7 +17,7 @@ Implemented now:
 - metadata display (capture, object type, structured equipment setup incl. scope type/telescope/mount/camera/filter chain, exposure, processing, tags)
 - homepage now prioritizes an immersive, denser image wall (wider canvas + larger thumbnail coverage) with subtle scroll-linked spectral parallax accents (H-alpha/OIII-inspired gradients) that respect reduced-motion settings.
 - filters now default to a low-prominence chip summary under the hero, while full controls live behind a Refine toggle (object type/tag/date-range/text search + sort) and still sync via shareable query-parameter state.
-- landing page was redesigned from scratch into a “deep-sky journal” layout with a new lead narrative, CTA row, category-count snapshot pills, and a rebuilt spotlight dossier card for faster discovery.
+- landing page now ships a new cinematic “night sky archive” look-and-feel with stronger lead messaging, multi-CTA quick actions, compact discovery tiles, category/tag snapshot pills, and an upgraded spotlight dossier card for faster drill-in.
 - secure admin route with session auth, CSRF protection, basic login rate limiting, task-based admin portal pages (upload/setup presets/media/security), in-session password change controls, and authenticated image deletion
 - redesigned admin control center UX with a dedicated side navigation rail, top-of-workspace guided help cards, and wider content panels so uploads/presets/library/security actions are easier to discover and use on desktop screens.
 - admin media library now supports spotlight selection plus navigation into a dedicated edit page for full metadata + SEO updates (with preset pills available while editing).
@@ -165,7 +165,9 @@ You can override route and limits via env vars:
 flowchart TD
   Visitor_lands_on_homepage --> See_reimagined_deep_sky_journal_lead_and_subtle_spectral_parallax
   Visitor_lands_on_homepage --> See_sitewide_Creative_Commons_notice_banner_and_footer
-  See_reimagined_deep_sky_journal_lead_and_subtle_spectral_parallax --> Read_Tonights_Highlight_facts_and_open_details_CTA
+  See_reimagined_deep_sky_journal_lead_and_subtle_spectral_parallax --> Use_quick_actions_to_jump_to_gallery_refine_or_field_guide
+  See_reimagined_deep_sky_journal_lead_and_subtle_spectral_parallax --> Scan_three_landing_quick_link_tiles
+  Use_quick_actions_to_jump_to_gallery_refine_or_field_guide --> Read_Tonights_Highlight_facts_and_open_details_CTA
   Read_Tonights_Highlight_facts_and_open_details_CTA --> Review_active_filter_chip_summary
   See_sitewide_Creative_Commons_notice_banner_and_footer --> Browse_thumbnail_gallery
   Review_active_filter_chip_summary -->|optional| Open_Refine_panel_for_full_filter_controls
