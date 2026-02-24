@@ -167,8 +167,17 @@ sort($tagOptions, SORT_NATURAL | SORT_FLAG_CASE);
             <?php
               $thumbLarge = (string) ($image['thumb'] ?? '');
               $thumbSmall = (string) ($image['thumb_small'] ?? $thumbLarge);
+              $overlayExposure = trim((string) ($image['exposure'] ?? ''));
+              $overlayEquipment = trim((string) ($image['equipment'] ?? ''));
+              if ($overlayEquipment === '') {
+                  $overlayEquipment = trim((string) (($image['telescope'] ?? '') . ' · ' . ($image['camera'] ?? '')), ' ·');
+              }
             ?>
             <img class="fade-asset" loading="lazy" src="/media.php?type=thumb&file=<?= urlencode($thumbLarge) ?>" srcset="/media.php?type=thumb&file=<?= urlencode($thumbSmall) ?> 400w, /media.php?type=thumb&file=<?= urlencode($thumbLarge) ?> 800w" sizes="(max-width: 680px) 92vw, (max-width: 1080px) 48vw, 24vw" alt="<?= htmlspecialchars($image['title']) ?>" data-skeleton-image>
+            <div class="card-overlay" aria-hidden="true">
+              <?php if ($overlayExposure !== ''): ?><span>Exposure: <?= htmlspecialchars($overlayExposure) ?></span><?php endif; ?>
+              <?php if ($overlayEquipment !== ''): ?><span>Gear: <?= htmlspecialchars($overlayEquipment) ?></span><?php endif; ?>
+            </div>
           </div>
           <div class="skeleton-meta-wrap">
             <div class="skeleton-meta-lines" data-skeleton-placeholder aria-hidden="true">
@@ -177,17 +186,6 @@ sort($tagOptions, SORT_NATURAL | SORT_FLAG_CASE);
             </div>
             <h3><?= htmlspecialchars($image['title']) ?></h3>
             <p><?= htmlspecialchars($image['object_name']) ?> · <?= htmlspecialchars($image['captured_at']) ?></p>
-            <?php
-              $overlayExposure = trim((string) ($image['exposure'] ?? ''));
-              $overlayEquipment = trim((string) ($image['equipment'] ?? ''));
-              if ($overlayEquipment === '') {
-                  $overlayEquipment = trim((string) (($image['telescope'] ?? '') . ' · ' . ($image['camera'] ?? '')), ' ·');
-              }
-            ?>
-            <div class="card-overlay" aria-hidden="true">
-              <?php if ($overlayExposure !== ''): ?><span>Exposure: <?= htmlspecialchars($overlayExposure) ?></span><?php endif; ?>
-              <?php if ($overlayEquipment !== ''): ?><span>Gear: <?= htmlspecialchars($overlayEquipment) ?></span><?php endif; ?>
-            </div>
           </div>
         </a>
       </article>
@@ -317,7 +315,8 @@ sort($tagOptions, SORT_NATURAL | SORT_FLAG_CASE);
 
   const buildOverlayMarkup = (image) => {
     const exposure = String(image.exposure || '').trim();
-    const equipment = String(image.equipment || '').trim();
+    const equipment = String(image.equipment || '').trim()
+      || [image.telescope || '', image.camera || ''].filter(Boolean).join(' · ');
     const lines = [];
     if (exposure) lines.push('<span>Exposure: ' + escapeHtml(exposure) + '</span>');
     if (equipment) lines.push('<span>Gear: ' + escapeHtml(equipment) + '</span>');
@@ -397,10 +396,12 @@ sort($tagOptions, SORT_NATURAL | SORT_FLAG_CASE);
 
       return '<article class="card">'
         + '<a href="' + detailUrl + '">'
+        + '<div class="skeleton-media-wrap">'
         + '<img loading="lazy" src="' + thumbUrl + '" alt="' + escapeHtml(title) + '">'
+        + buildOverlayMarkup(image)
+        + '</div>'
         + '<h3>' + escapeHtml(title) + '</h3>'
         + '<p>' + escapeHtml(subtitle) + '</p>'
-        + buildOverlayMarkup(image)
         + '</a>'
         + '</article>';
     });
