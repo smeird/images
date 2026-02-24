@@ -95,7 +95,7 @@ This task plan is designed for a Linux + Apache + PHP environment and optimized 
 - [x] Add upload-time attribution text overlay (burned into downloadable rendered output) with admin-configurable:
   - Overlay text content (default: `Smeird Astro`)
   - Overlay location/anchor (default: bottom-left)
-  - Font selection (default: handwritten-style)
+  - Font selection (default: script-like TrueType rendering, configurable via env var)
   - Small inset/padding from image edges (default: slight bottom-left indentation)
   - Sensible readability styling (e.g., subtle shadow/contrast treatment) while keeping watermark unobtrusive
   - Pipeline behavior that preserves original upload and publishes a processed derivative with permanent overlay

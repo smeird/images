@@ -22,6 +22,7 @@ Implemented now:
 - admin media library now supports spotlight selection plus navigation into a dedicated edit page for full metadata + SEO updates (with preset pills available while editing).
 - image upload pipeline with MIME/size validation, thumbnail generation, and admin-side storage-capacity visibility
 - upload pipeline now preserves a raw backup copy in `storage/uploads/tmp`, stamps a configurable attribution watermark on the published original derivative, and generates both 800w and 400w JPEG thumbnails for responsive gallery `srcset`
+- watermark rendering now prefers a script-like TrueType font (configurable) for attribution text, while safely falling back to GD bitmap text when TTF support/font files are unavailable
 - added public Contact page and auto-generated `/sitemap.xml` route for discoverability
 - baseline hardening headers are now emitted for every response (CSP, HSTS on HTTPS, X-Frame-Options, X-Content-Type-Options, and Referrer-Policy)
 - admin setup-preset management for one-click upload/edit pills across observatory gear + metadata (scope type/object type/telescope/mount/camera/filter wheel/filters/filter set/processing software/tags)
@@ -112,6 +113,7 @@ You can override route and limits via env vars:
 - `UPLOAD_WATERMARK_TEXT` (default `Smeird Astro`)
 - `UPLOAD_WATERMARK_ANCHOR` (default `bottom-left`, supports `bottom-right`)
 - `UPLOAD_WATERMARK_PADDING` (default `16` px inset)
+- `UPLOAD_WATERMARK_FONT_PATH` (default `/usr/share/fonts/truetype/dejavu/DejaVuSansMono-Oblique.ttf`; set to any readable `.ttf`/`.otf` path to change the script-style watermark font)
 - `upload_max_filesize` and `post_max_size` (PHP ini/virtual-host values; should be >= `MAX_UPLOAD_BYTES`)
 
 ## Security notes (admin/backdoor)
@@ -124,6 +126,7 @@ You can override route and limits via env vars:
 - Basic per-IP login throttling is enforced.
 - Uploads accept only JPEG/PNG/WebP and enforce max-size limit; effective limit is the minimum of `MAX_UPLOAD_BYTES`, `upload_max_filesize`, and `post_max_size`.
 - Uploaded display originals receive a subtle attribution watermark during publish processing; a raw pre-watermark copy is retained under `storage/uploads/tmp`.
+- Watermark text uses GD TrueType rendering when available (for script-like font styling) and gracefully falls back to bitmap text if a configured font path is missing/unreadable.
 - Wikipedia URLs are restricted to `wikipedia.org/wiki/...` article links and fetched server-side for preview + public detail enrichment.
 - Wikipedia panel includes attribution/license note, optional infobox-derived key facts (size/shape/distance-style fields), and graceful fallback when external fetch is unavailable.
 - Uploaded files are stored outside the public web root and served through `media.php`.
