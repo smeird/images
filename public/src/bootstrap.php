@@ -41,6 +41,7 @@ function load_config(): array
         'watermark_text' => trim((string) (getenv('UPLOAD_WATERMARK_TEXT') ?: 'Smeird Astro')),
         'watermark_anchor' => trim((string) (getenv('UPLOAD_WATERMARK_ANCHOR') ?: 'bottom-left')),
         'watermark_padding' => max(2, (int) (getenv('UPLOAD_WATERMARK_PADDING') ?: 16)),
+        'watermark_font_path' => trim((string) (getenv('UPLOAD_WATERMARK_FONT_PATH') ?: '/usr/share/fonts/truetype/dejavu/DejaVuSansMono-Oblique.ttf')),
     ];
 }
 
@@ -1058,21 +1059,45 @@ function apply_watermark_to_image(string $target): void
     }
 
     $padding = max(2, (int) ($config['watermark_padding'] ?? 16));
-    $font = 5;
-    $textWidth = imagefontwidth($font) * strlen($text);
-    $textHeight = imagefontheight($font);
-
     $anchor = strtolower((string) ($config['watermark_anchor'] ?? 'bottom-left'));
-    $x = $padding;
-    $y = max($padding, $height - $textHeight - $padding);
-    if ($anchor === 'bottom-right') {
-        $x = max($padding, $width - $textWidth - $padding);
+    $fontPath = trim((string) ($config['watermark_font_path'] ?? ''));
+
+    $usedTtf = false;
+    if (function_exists('imagettfbbox') && function_exists('imagettftext') && is_file($fontPath) && is_readable($fontPath)) {
+        $fontSize = max(14, (int) round(min($width, $height) * 0.022));
+        $bbox = imagettfbbox($fontSize, 0, $fontPath, $text);
+        if (is_array($bbox)) {
+            $textWidth = (int) abs($bbox[4] - $bbox[0]);
+            $textHeight = (int) abs($bbox[1] - $bbox[7]);
+            $x = $padding;
+            if ($anchor === 'bottom-right') {
+                $x = max($padding, $width - $textWidth - $padding);
+            }
+
+            $baselineY = max($textHeight + $padding, $height - $padding);
+            $shadow = imagecolorallocatealpha($image, 0, 0, 0, 72);
+            $textColor = imagecolorallocatealpha($image, 255, 255, 255, 34);
+            imagettftext($image, $fontSize, 0, $x + 2, $baselineY + 2, $shadow, $fontPath, $text);
+            imagettftext($image, $fontSize, 0, $x, $baselineY, $textColor, $fontPath, $text);
+            $usedTtf = true;
+        }
     }
 
-    $shadow = imagecolorallocatealpha($image, 0, 0, 0, 60);
-    $textColor = imagecolorallocatealpha($image, 255, 255, 255, 35);
-    imagestring($image, $font, $x + 1, $y + 1, $text, $shadow);
-    imagestring($image, $font, $x, $y, $text, $textColor);
+    if (!$usedTtf) {
+        $font = 5;
+        $textWidth = imagefontwidth($font) * strlen($text);
+        $textHeight = imagefontheight($font);
+        $x = $padding;
+        $y = max($padding, $height - $textHeight - $padding);
+        if ($anchor === 'bottom-right') {
+            $x = max($padding, $width - $textWidth - $padding);
+        }
+
+        $shadow = imagecolorallocatealpha($image, 0, 0, 0, 60);
+        $textColor = imagecolorallocatealpha($image, 255, 255, 255, 35);
+        imagestring($image, $font, $x + 1, $y + 1, $text, $shadow);
+        imagestring($image, $font, $x, $y, $text, $textColor);
+    }
 
     if ($type === IMAGETYPE_JPEG) {
         imagejpeg($image, $target, 92);
