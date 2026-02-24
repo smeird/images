@@ -156,6 +156,7 @@ You can override route and limits via env vars:
 - `storage/data/setup_presets.json` — reusable setup preset pills (scope type, object type, telescope, mount, camera, filter wheel, filters, filter set, processing software, tags) for admin upload/edit workflows.
 - `storage/data/scope_types.json` — legacy scope-type preset store still read for backward compatibility.
 - `WEBSITE_TASKS.md` — implementation tracker.
+- `LANDING_PAGE_INSPIRATION.md` — landing-page benchmark patterns and implementation-ready layout options.
 - `CODEX_PARALLEL_TASKS.md` — parallel work planning.
 
 ## User-facing flow

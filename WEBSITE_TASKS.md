@@ -6,7 +6,7 @@ This task plan is designed for a Linux + Apache + PHP environment and optimized 
 
 - [x] Define brand and visual direction (dark sky palette, starfield accents, modern typography).
 - [x] Choose homepage storytelling approach (hero image + mission statement + rotating featured/spotlight capture with nightly highlight facts).
-- [ ] Create moodboard (NASA/APOD-inspired visual references, typography, spacing, card styles).
+- [x] Create moodboard (NASA/APOD-inspired visual references, typography, spacing, card styles). (captured as layout benchmark options in `LANDING_PAGE_INSPIRATION.md`)
 - [x] Decide wow-factor interactions (subtle parallax stars, animated constellation lines, smooth image reveal transitions).
 
 ## 2) Information architecture and content model
