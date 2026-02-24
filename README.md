@@ -17,7 +17,7 @@ Implemented now:
 - metadata display (capture, object type, structured equipment setup incl. scope type/telescope/mount/camera/filter chain, exposure, processing, tags)
 - homepage now prioritizes an immersive, denser image wall (wider canvas + larger thumbnail coverage) with subtle scroll-linked spectral parallax accents (H-alpha/OIII-inspired gradients) that respect reduced-motion settings.
 - filters now default to a low-prominence chip summary under the hero, while full controls live behind a Refine toggle (object type/tag/date-range/text search + sort) and still sync via shareable query-parameter state.
-- landing page hero and spotlight card were compacted (shorter copy, tighter spacing, reduced spotlight media height) so the gallery image wall appears in the initial viewport on common laptop screens.
+- landing page was redesigned from scratch into a “deep-sky journal” layout with a new lead narrative, CTA row, category-count snapshot pills, and a rebuilt spotlight dossier card for faster discovery.
 - secure admin route with session auth, CSRF protection, basic login rate limiting, task-based admin portal pages (upload/setup presets/media/security), in-session password change controls, and authenticated image deletion
 - redesigned admin control center UX with a dedicated side navigation rail, top-of-workspace guided help cards, and wider content panels so uploads/presets/library/security actions are easier to discover and use on desktop screens.
 - admin media library now supports spotlight selection plus navigation into a dedicated edit page for full metadata + SEO updates (with preset pills available while editing).
@@ -144,7 +144,7 @@ You can override route and limits via env vars:
 - `public/src/bootstrap.php` — shared helpers, auth, upload + thumbnail logic, publish watermarking, and security-header helper.
 - `public/src/views/` — HTML view templates.
 - `public/src/views/contact.php` — public contact/social links page.
-- `public/src/views/home.php` embeds homepage image JSON payload for client-side filtering/sorting and now renders an image-first landing layout with spectral parallax accents plus chip-summary-first filtering with a Refine toggle for advanced controls.
+- `public/src/views/home.php` embeds homepage image JSON payload for client-side filtering/sorting and now renders a from-scratch “deep-sky journal” landing shell (new lead narrative, CTA row, object-category snapshot pills, rebuilt spotlight dossier card) plus chip-summary-first filtering with a Refine toggle for advanced controls.
 - `public/src/services/wikipedia.php` — Wikipedia URL validation + metadata normalization helper service.
 - `public/assets/style.css` — cinematic dark UI styling and interaction polish.
 - `storage/data/images.json` — image metadata records (including Wikipedia cache fields, spotlight flag, and editable SEO meta tags).
@@ -162,9 +162,9 @@ You can override route and limits via env vars:
 
 ```mermaid
 flowchart TD
-  Visitor_lands_on_homepage --> See_cinematic_hero_rotating_spotlight_and_subtle_spectral_parallax
+  Visitor_lands_on_homepage --> See_reimagined_deep_sky_journal_lead_and_subtle_spectral_parallax
   Visitor_lands_on_homepage --> See_sitewide_Creative_Commons_notice_banner_and_footer
-  See_cinematic_hero_rotating_spotlight_and_subtle_spectral_parallax --> Read_Tonights_Highlight_facts_and_open_details_CTA
+  See_reimagined_deep_sky_journal_lead_and_subtle_spectral_parallax --> Read_Tonights_Highlight_facts_and_open_details_CTA
   Read_Tonights_Highlight_facts_and_open_details_CTA --> Review_active_filter_chip_summary
   See_sitewide_Creative_Commons_notice_banner_and_footer --> Browse_thumbnail_gallery
   Review_active_filter_chip_summary -->|optional| Open_Refine_panel_for_full_filter_controls

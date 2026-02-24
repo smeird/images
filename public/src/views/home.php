@@ -42,20 +42,25 @@ $tagOptions = array_keys($tags);
 sort($objectTypeOptions, SORT_NATURAL | SORT_FLAG_CASE);
 sort($tagOptions, SORT_NATURAL | SORT_FLAG_CASE);
 ?>
-<section class="hero hero--immersive" id="immersive-hero">
+<section class="landing-shell hero--immersive" id="immersive-hero">
   <div class="hero-spectral hero-spectral--ha" aria-hidden="true"></div>
   <div class="hero-spectral hero-spectral--oiii" aria-hidden="true"></div>
-  <div class="hero-copy">
-    <h1>A cinematic wall of the night sky</h1>
-    <p>Images come first: a tighter hero keeps the gallery visible immediately, while spectral accents and quick filters stay close at hand.</p>
-    <div class="statline">
-      <span class="pill"><?= count($images) ?> published captures</span>
-      <span class="pill">Creative Commons licensed</span>
+  <div class="landing-shell__lead">
+    <p class="landing-kicker">Deep-sky journal</p>
+    <h1>Reimagined landing experience for exploring the night, frame by frame.</h1>
+    <p class="landing-intro">Browse a living atlas of captures with instant filtering, richer spotlight context, and a gallery-first flow built for rapid discovery.</p>
+    <div class="landing-stats" role="list" aria-label="Gallery snapshot">
+      <span class="pill" role="listitem"><?= count($images) ?> published captures</span>
+      <span class="pill" role="listitem"><?= count($objectTypeOptions) ?> object categories indexed</span>
+      <span class="pill" role="listitem">Creative Commons licensed</span>
     </div>
-    <p class="hero-license-note">Every published image includes clear license and capture context on its detail page.</p>
+    <div class="landing-actions">
+      <a class="button-link" href="#gallery">Start browsing</a>
+      <a class="button-link secondary" href="/about.php">Explore the field guide</a>
+    </div>
   </div>
-  <aside class="hero-feature">
-    <h2>Spotlight capture</h2>
+  <aside class="landing-shell__spotlight">
+    <h2>Tonight's Spotlight</h2>
     <?php if ($featured): ?>
       <?php
         $spotlightRule = $featured['_spotlight_rule'] ?? 'latest';
@@ -71,20 +76,21 @@ sort($tagOptions, SORT_NATURAL | SORT_FLAG_CASE);
             $highlightFacts[] = 'Captured: ' . (string) $featured['captured_at'];
         }
         if (!empty($featured['telescope'])) {
-            $highlightFacts[] = 'Telescope: ' . (string) $featured['telescope'];
+            $highlightFacts[] = 'Optics: ' . (string) $featured['telescope'];
         }
         if (!empty($featured['camera'])) {
             $highlightFacts[] = 'Camera: ' . (string) $featured['camera'];
         }
 
-        $highlightFacts = array_slice($highlightFacts, 0, 2);
+        $highlightFacts = array_slice($highlightFacts, 0, 3);
       ?>
-      <a href="/image.php?id=<?= urlencode($featured['id']) ?>">
+      <a class="landing-spotlight-media" href="/image.php?id=<?= urlencode($featured['id']) ?>">
         <img loading="lazy" src="/media.php?type=thumb&file=<?= urlencode($featured['thumb']) ?>" alt="<?= htmlspecialchars($featured['title']) ?>">
       </a>
-      <p><strong><?= htmlspecialchars($featured['title']) ?></strong><br><?= htmlspecialchars($featured['object_name']) ?> · <?= htmlspecialchars($featured['captured_at']) ?></p>
+      <p class="landing-spotlight-title"><strong><?= htmlspecialchars($featured['title']) ?></strong></p>
+      <p class="landing-spotlight-meta"><?= htmlspecialchars($featured['object_name']) ?> · <?= htmlspecialchars($featured['captured_at']) ?></p>
       <div class="highlight-caption" aria-label="Tonight's Highlight">
-        <p class="highlight-kicker">Tonight's Highlight · <?= htmlspecialchars($spotlightLabel) ?></p>
+        <p class="highlight-kicker"><?= htmlspecialchars($spotlightLabel) ?></p>
         <?php if (!empty($highlightFacts)): ?>
           <ul>
             <?php foreach ($highlightFacts as $fact): ?>
@@ -92,7 +98,7 @@ sort($tagOptions, SORT_NATURAL | SORT_FLAG_CASE);
             <?php endforeach; ?>
           </ul>
         <?php endif; ?>
-        <a class="button-link secondary highlight-cta" href="/image.php?id=<?= urlencode($featured['id']) ?>">View full capture details</a>
+        <a class="button-link secondary highlight-cta" href="/image.php?id=<?= urlencode($featured['id']) ?>">Open capture dossier</a>
       </div>
     <?php else: ?>
       <p>No spotlight yet. Upload your first image from the secure admin route to light up the gallery.</p>
