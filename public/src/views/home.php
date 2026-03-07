@@ -42,51 +42,70 @@ $tagOptions = array_keys($tags);
 sort($objectTypeOptions, SORT_NATURAL | SORT_FLAG_CASE);
 sort($tagOptions, SORT_NATURAL | SORT_FLAG_CASE);
 ?>
-<section class="hero hero--immersive" id="immersive-hero">
+<section class="landing-shell hero--immersive" id="immersive-hero">
   <div class="hero-spectral hero-spectral--ha" aria-hidden="true"></div>
   <div class="hero-spectral hero-spectral--oiii" aria-hidden="true"></div>
-  <div class="hero-copy">
-    <h1>A cinematic wall of the night sky</h1>
-    <p>Start with the images first. H-alpha and OIII accents drift with scroll while filters stay quietly in the background until you need them.</p>
-    <p class="hero-license-note">Every published image is clearly marked as Creative Commons licensed.</p>
-    <div class="statline">
-      <span class="pill"><?= count($images) ?> published captures</span>
-      <span class="pill">Large-format gallery wall</span>
-      <span class="pill">Capture context on every detail page</span>
-      <span class="pill">All images under Creative Commons</span>
+  <div class="landing-shell__lead">
+    <p class="landing-kicker">Night sky archive</p>
+    <h1>A cinematic landing page for discovering deep-sky stories in seconds.</h1>
+    <p class="landing-intro">Scan the newest sessions, jump to curated observations, and open each capture dossier with one click. The homepage now prioritizes quick browsing while keeping the educational pathway close at hand.</p>
+    <div class="landing-stats" role="list" aria-label="Gallery snapshot">
+      <span class="pill" role="listitem"><?= count($images) ?> captures online</span>
+      <span class="pill" role="listitem"><?= count($objectTypeOptions) ?> object types mapped</span>
+      <span class="pill" role="listitem"><?= count($tagOptions) ?> searchable tags</span>
+    </div>
+    <div class="landing-actions">
+      <a class="button-link" href="#gallery">Enter gallery wall</a>
+      <a class="button-link secondary" href="#filter-refine-toggle">Refine by target</a>
+      <a class="button-link secondary" href="/about.php">Read the field guide</a>
+    </div>
+    <div class="landing-quick-grid" aria-label="Landing quick links">
+      <a href="#gallery">
+        <strong>Browse latest</strong>
+        <span>Jump straight into the current image wall.</span>
+      </a>
+      <a href="/about.php">
+        <strong>Learn capture workflow</strong>
+        <span>Open long-form guidance, diagrams, and tools.</span>
+      </a>
+      <a href="/contact.php">
+        <strong>Request collaboration</strong>
+        <span>Use contact pathways for projects and licensing.</span>
+      </a>
     </div>
   </div>
-  <aside class="hero-feature">
-    <h2>Spotlight capture</h2>
+  <aside class="landing-shell__spotlight">
+    <h2>Observation Spotlight</h2>
     <?php if ($featured): ?>
       <?php
         $spotlightRule = $featured['_spotlight_rule'] ?? 'latest';
         $spotlightLabel = $spotlightRule === 'featured'
-          ? 'Featured curator pick'
-          : ($spotlightRule === 'daily' ? 'Daily deterministic pick' : 'Latest published capture');
+          ? 'Curator-selected feature'
+          : ($spotlightRule === 'daily' ? 'Daily deterministic selection' : 'Newest published session');
 
         $highlightFacts = [];
         if (!empty($featured['object_name'])) {
             $highlightFacts[] = 'Target: ' . (string) $featured['object_name'];
         }
         if (!empty($featured['captured_at'])) {
-            $highlightFacts[] = 'Captured: ' . (string) $featured['captured_at'];
+            $highlightFacts[] = 'Session date: ' . (string) $featured['captured_at'];
         }
         if (!empty($featured['telescope'])) {
-            $highlightFacts[] = 'Telescope: ' . (string) $featured['telescope'];
+            $highlightFacts[] = 'Optics: ' . (string) $featured['telescope'];
         }
         if (!empty($featured['camera'])) {
             $highlightFacts[] = 'Camera: ' . (string) $featured['camera'];
         }
 
-        $highlightFacts = array_slice($highlightFacts, 0, 2);
+        $highlightFacts = array_slice($highlightFacts, 0, 3);
       ?>
-      <a href="/image.php?id=<?= urlencode($featured['id']) ?>">
+      <a class="landing-spotlight-media" href="/image.php?id=<?= urlencode($featured['id']) ?>">
         <img loading="lazy" src="/media.php?type=thumb&file=<?= urlencode($featured['thumb']) ?>" alt="<?= htmlspecialchars($featured['title']) ?>">
       </a>
-      <p><strong><?= htmlspecialchars($featured['title']) ?></strong><br><?= htmlspecialchars($featured['object_name']) ?> · <?= htmlspecialchars($featured['captured_at']) ?></p>
+      <p class="landing-spotlight-title"><strong><?= htmlspecialchars($featured['title']) ?></strong></p>
+      <p class="landing-spotlight-meta"><?= htmlspecialchars($featured['object_name']) ?> · <?= htmlspecialchars($featured['captured_at']) ?></p>
       <div class="highlight-caption" aria-label="Tonight's Highlight">
-        <p class="highlight-kicker">Tonight's Highlight · <?= htmlspecialchars($spotlightLabel) ?></p>
+        <p class="highlight-kicker"><?= htmlspecialchars($spotlightLabel) ?></p>
         <?php if (!empty($highlightFacts)): ?>
           <ul>
             <?php foreach ($highlightFacts as $fact): ?>
@@ -94,7 +113,7 @@ sort($tagOptions, SORT_NATURAL | SORT_FLAG_CASE);
             <?php endforeach; ?>
           </ul>
         <?php endif; ?>
-        <a class="button-link secondary highlight-cta" href="/image.php?id=<?= urlencode($featured['id']) ?>">View full capture details</a>
+        <a class="button-link secondary highlight-cta" href="/image.php?id=<?= urlencode($featured['id']) ?>">Open capture dossier</a>
       </div>
     <?php else: ?>
       <p>No spotlight yet. Upload your first image from the secure admin route to light up the gallery.</p>
@@ -155,7 +174,7 @@ sort($tagOptions, SORT_NATURAL | SORT_FLAG_CASE);
     <button id="filter-reset" type="button" class="secondary">Clear filters</button>
   </div>
 </section>
-<section class="grid">
+<section class="grid" id="gallery">
   <?php if (empty($images)): ?>
     <p>No images yet. Admins can upload from the secure route.</p>
   <?php else: ?>
@@ -164,7 +183,20 @@ sort($tagOptions, SORT_NATURAL | SORT_FLAG_CASE);
         <a href="/image.php?id=<?= urlencode($image['id']) ?>">
           <div class="skeleton-media-wrap">
             <div class="skeleton-shimmer skeleton-media-block" data-skeleton-placeholder aria-hidden="true"></div>
-            <img class="fade-asset" loading="lazy" src="/media.php?type=thumb&file=<?= urlencode($image['thumb']) ?>" alt="<?= htmlspecialchars($image['title']) ?>" data-skeleton-image>
+            <?php
+              $thumbLarge = (string) ($image['thumb'] ?? '');
+              $thumbSmall = (string) ($image['thumb_small'] ?? $thumbLarge);
+              $overlayExposure = trim((string) ($image['exposure'] ?? ''));
+              $overlayEquipment = trim((string) ($image['equipment'] ?? ''));
+              if ($overlayEquipment === '') {
+                  $overlayEquipment = trim((string) (($image['telescope'] ?? '') . ' · ' . ($image['camera'] ?? '')), ' ·');
+              }
+            ?>
+            <img class="fade-asset" loading="lazy" src="/media.php?type=thumb&file=<?= urlencode($thumbLarge) ?>" srcset="/media.php?type=thumb&file=<?= urlencode($thumbSmall) ?> 400w, /media.php?type=thumb&file=<?= urlencode($thumbLarge) ?> 800w" sizes="(max-width: 680px) 92vw, (max-width: 1080px) 48vw, 24vw" alt="<?= htmlspecialchars($image['title']) ?>" data-skeleton-image>
+            <div class="card-overlay" aria-hidden="true">
+              <?php if ($overlayExposure !== ''): ?><span>Exposure: <?= htmlspecialchars($overlayExposure) ?></span><?php endif; ?>
+              <?php if ($overlayEquipment !== ''): ?><span>Gear: <?= htmlspecialchars($overlayEquipment) ?></span><?php endif; ?>
+            </div>
           </div>
           <div class="skeleton-meta-wrap">
             <div class="skeleton-meta-lines" data-skeleton-placeholder aria-hidden="true">
@@ -173,17 +205,6 @@ sort($tagOptions, SORT_NATURAL | SORT_FLAG_CASE);
             </div>
             <h3><?= htmlspecialchars($image['title']) ?></h3>
             <p><?= htmlspecialchars($image['object_name']) ?> · <?= htmlspecialchars($image['captured_at']) ?></p>
-            <?php
-              $overlayExposure = trim((string) ($image['exposure'] ?? ''));
-              $overlayEquipment = trim((string) ($image['equipment'] ?? ''));
-              if ($overlayEquipment === '') {
-                  $overlayEquipment = trim((string) (($image['telescope'] ?? '') . ' · ' . ($image['camera'] ?? '')), ' ·');
-              }
-            ?>
-            <div class="card-overlay" aria-hidden="true">
-              <?php if ($overlayExposure !== ''): ?><span>Exposure: <?= htmlspecialchars($overlayExposure) ?></span><?php endif; ?>
-              <?php if ($overlayEquipment !== ''): ?><span>Gear: <?= htmlspecialchars($overlayEquipment) ?></span><?php endif; ?>
-            </div>
           </div>
         </a>
       </article>
@@ -313,7 +334,8 @@ sort($tagOptions, SORT_NATURAL | SORT_FLAG_CASE);
 
   const buildOverlayMarkup = (image) => {
     const exposure = String(image.exposure || '').trim();
-    const equipment = String(image.equipment || '').trim();
+    const equipment = String(image.equipment || '').trim()
+      || [image.telescope || '', image.camera || ''].filter(Boolean).join(' · ');
     const lines = [];
     if (exposure) lines.push('<span>Exposure: ' + escapeHtml(exposure) + '</span>');
     if (equipment) lines.push('<span>Gear: ' + escapeHtml(equipment) + '</span>');
@@ -393,10 +415,12 @@ sort($tagOptions, SORT_NATURAL | SORT_FLAG_CASE);
 
       return '<article class="card">'
         + '<a href="' + detailUrl + '">'
+        + '<div class="skeleton-media-wrap">'
         + '<img loading="lazy" src="' + thumbUrl + '" alt="' + escapeHtml(title) + '">'
+        + buildOverlayMarkup(image)
+        + '</div>'
         + '<h3>' + escapeHtml(title) + '</h3>'
         + '<p>' + escapeHtml(subtitle) + '</p>'
-        + buildOverlayMarkup(image)
         + '</a>'
         + '</article>';
     });

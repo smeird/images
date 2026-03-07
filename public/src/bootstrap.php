@@ -8,6 +8,7 @@ define('STORAGE_PATH', PROJECT_PATH . '/storage');
 define('DATA_PATH', STORAGE_PATH . '/data');
 define('ORIGINALS_PATH', STORAGE_PATH . '/images/original');
 define('THUMBS_PATH', STORAGE_PATH . '/images/thumbs');
+define('UPLOADS_TMP_PATH', STORAGE_PATH . '/uploads/tmp');
 define('WIKI_CACHE_TTL_SECONDS', 7 * 24 * 60 * 60);
 
 $sessionPath = STORAGE_PATH . '/sessions';
@@ -17,6 +18,10 @@ if (!is_dir($sessionPath)) {
 
 if (is_dir($sessionPath) && is_writable($sessionPath)) {
     session_save_path($sessionPath);
+}
+
+if (!is_dir(UPLOADS_TMP_PATH)) {
+    mkdir(UPLOADS_TMP_PATH, 0775, true);
 }
 
 session_start();
@@ -33,7 +38,23 @@ function load_config(): array
         'admin_route' => getenv('ADMIN_ROUTE') ?: '/hidden-admin',
         'max_upload_bytes' => (int) (getenv('MAX_UPLOAD_BYTES') ?: 150 * 1024 * 1024),
         'allowed_mime' => ['image/jpeg', 'image/png', 'image/webp'],
+        'watermark_text' => trim((string) (getenv('UPLOAD_WATERMARK_TEXT') ?: 'Smeird Astro')),
+        'watermark_anchor' => trim((string) (getenv('UPLOAD_WATERMARK_ANCHOR') ?: 'bottom-left')),
+        'watermark_padding' => max(2, (int) (getenv('UPLOAD_WATERMARK_PADDING') ?: 16)),
+        'watermark_font_path' => trim((string) (getenv('UPLOAD_WATERMARK_FONT_PATH') ?: '/usr/share/fonts/truetype/dejavu/DejaVuSansMono-Oblique.ttf')),
     ];
+}
+
+function apply_security_headers(): void
+{
+    header('X-Content-Type-Options: nosniff');
+    header('Referrer-Policy: strict-origin-when-cross-origin');
+    header('X-Frame-Options: SAMEORIGIN');
+    header("Content-Security-Policy: default-src 'self'; img-src 'self' https: data:; style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-inline'; connect-src 'self'; frame-ancestors 'none'; base-uri 'self'; form-action 'self'");
+
+    if (request_is_https()) {
+        header('Strict-Transport-Security: max-age=31536000; includeSubDomains');
+    }
 }
 
 function php_ini_bytes(string $value): int
@@ -96,6 +117,26 @@ function read_json(string $path): array
 
     $decoded = json_decode((string) file_get_contents($path), true);
     return is_array($decoded) ? $decoded : [];
+}
+
+function sanitize_text_input(string $value): string
+{
+    $trimmed = trim($value);
+    if ($trimmed === '') {
+        return '';
+    }
+
+    return trim(strip_tags($trimmed));
+}
+
+function sanitize_textarea_input(string $value): string
+{
+    $trimmed = trim($value);
+    if ($trimmed === '') {
+        return '';
+    }
+
+    return trim(strip_tags($trimmed));
 }
 
 function write_json(string $path, array $data): bool
@@ -324,6 +365,7 @@ function normalize_image_record(array $record): array
     $record['meta_keywords'] = trim((string) ($record['meta_keywords'] ?? ''));
     $record['is_spotlight'] = !empty($record['is_spotlight']);
     $record['equipment'] = trim((string) ($record['equipment'] ?? ''));
+    $record['thumb_small'] = trim((string) ($record['thumb_small'] ?? ($record['thumb'] ?? '')));
 
     if ($record['equipment'] === '') {
         $record['equipment'] = compose_equipment_summary($record);
@@ -379,15 +421,15 @@ function update_image_metadata(string $id, array $input): ?string
         return 'Image not found.';
     }
 
-    $title = trim((string) ($input['title'] ?? ''));
-    $objectName = trim((string) ($input['object_name'] ?? ''));
-    $capturedAt = trim((string) ($input['captured_at'] ?? ''));
+    $title = sanitize_text_input((string) ($input['title'] ?? ''));
+    $objectName = sanitize_text_input((string) ($input['object_name'] ?? ''));
+    $capturedAt = sanitize_text_input((string) ($input['captured_at'] ?? ''));
     if ($title === '' || $objectName === '' || $capturedAt === '') {
         return 'Title, object name, and capture date are required.';
     }
 
     $tagsInput = trim((string) ($input['tags'] ?? ''));
-    $tags = array_values(array_filter(array_map('trim', explode(',', $tagsInput)), static fn(string $tag): bool => $tag !== ''));
+    $tags = array_values(array_filter(array_map('sanitize_text_input', explode(',', $tagsInput)), static fn(string $tag): bool => $tag !== ''));
 
     $wikipediaUrl = normalize_wikipedia_url_for_storage((string) ($input['wikipedia_url'] ?? ''));
     if (trim((string) ($input['wikipedia_url'] ?? '')) !== '' && $wikipediaUrl === '') {
@@ -399,19 +441,19 @@ function update_image_metadata(string $id, array $input): ?string
 
     $images[$targetIndex]['title'] = $title;
     $images[$targetIndex]['object_name'] = $objectName;
-    $images[$targetIndex]['object_type'] = trim((string) ($input['object_type'] ?? ''));
+    $images[$targetIndex]['object_type'] = sanitize_text_input((string) ($input['object_type'] ?? ''));
     $images[$targetIndex]['captured_at'] = $capturedAt;
-    $images[$targetIndex]['description'] = trim((string) ($input['description'] ?? ''));
-    $images[$targetIndex]['scope_type'] = trim((string) ($input['scope_type'] ?? ''));
-    $images[$targetIndex]['telescope'] = trim((string) ($input['telescope'] ?? ''));
-    $images[$targetIndex]['mount'] = trim((string) ($input['mount'] ?? ''));
-    $images[$targetIndex]['camera'] = trim((string) ($input['camera'] ?? ''));
-    $images[$targetIndex]['filter_wheel'] = trim((string) ($input['filter_wheel'] ?? ''));
-    $images[$targetIndex]['filters'] = trim((string) ($input['filters'] ?? ''));
-    $images[$targetIndex]['filter_set'] = trim((string) ($input['filter_set'] ?? ''));
+    $images[$targetIndex]['description'] = sanitize_textarea_input((string) ($input['description'] ?? ''));
+    $images[$targetIndex]['scope_type'] = sanitize_text_input((string) ($input['scope_type'] ?? ''));
+    $images[$targetIndex]['telescope'] = sanitize_text_input((string) ($input['telescope'] ?? ''));
+    $images[$targetIndex]['mount'] = sanitize_text_input((string) ($input['mount'] ?? ''));
+    $images[$targetIndex]['camera'] = sanitize_text_input((string) ($input['camera'] ?? ''));
+    $images[$targetIndex]['filter_wheel'] = sanitize_text_input((string) ($input['filter_wheel'] ?? ''));
+    $images[$targetIndex]['filters'] = sanitize_text_input((string) ($input['filters'] ?? ''));
+    $images[$targetIndex]['filter_set'] = sanitize_text_input((string) ($input['filter_set'] ?? ''));
     $images[$targetIndex]['equipment'] = compose_equipment_summary($images[$targetIndex]);
-    $images[$targetIndex]['exposure'] = trim((string) ($input['exposure'] ?? ''));
-    $images[$targetIndex]['processing'] = trim((string) ($input['processing'] ?? ''));
+    $images[$targetIndex]['exposure'] = sanitize_text_input((string) ($input['exposure'] ?? ''));
+    $images[$targetIndex]['processing'] = sanitize_text_input((string) ($input['processing'] ?? ''));
     $images[$targetIndex]['tags'] = $tags;
     $images[$targetIndex]['wikipedia_url'] = $wikipediaUrl;
     $images[$targetIndex]['wikipediaUrl'] = $wikipediaUrl;
@@ -435,9 +477,9 @@ function update_image_metadata(string $id, array $input): ?string
         }
     }
 
-    $images[$targetIndex]['meta_title'] = trim((string) ($input['meta_title'] ?? ''));
-    $images[$targetIndex]['meta_description'] = trim((string) ($input['meta_description'] ?? ''));
-    $images[$targetIndex]['meta_keywords'] = trim((string) ($input['meta_keywords'] ?? ''));
+    $images[$targetIndex]['meta_title'] = sanitize_text_input((string) ($input['meta_title'] ?? ''));
+    $images[$targetIndex]['meta_description'] = sanitize_textarea_input((string) ($input['meta_description'] ?? ''));
+    $images[$targetIndex]['meta_keywords'] = sanitize_text_input((string) ($input['meta_keywords'] ?? ''));
 
     if (!write_json(DATA_PATH . '/images.json', $images)) {
         return 'Image metadata could not be saved because storage is not writable.';
@@ -969,21 +1011,103 @@ function save_uploaded_image(array $file): array
 
     $id = bin2hex(random_bytes(8));
     $originalFilename = $id . '.' . $extension;
+    $rawFilename = $id . '-raw.' . $extension;
     $thumbFilename = $id . '.jpg';
+    $thumbSmallFilename = $id . '-sm.jpg';
 
     $destination = ORIGINALS_PATH . '/' . $originalFilename;
     if (!move_uploaded_file($file['tmp_name'], $destination)) {
         throw new RuntimeException('Failed to store upload.');
     }
 
+    @copy($destination, UPLOADS_TMP_PATH . '/' . $rawFilename);
+    apply_watermark_to_image($destination);
     generate_thumbnail($destination, THUMBS_PATH . '/' . $thumbFilename, 800, 500);
+    generate_thumbnail($destination, THUMBS_PATH . '/' . $thumbSmallFilename, 400, 250);
 
     return [
         'id' => $id,
         'original' => $originalFilename,
+        'original_raw' => $rawFilename,
         'thumb' => $thumbFilename,
+        'thumb_small' => $thumbSmallFilename,
         'mime' => $mime,
     ];
+}
+
+function apply_watermark_to_image(string $target): void
+{
+    $config = load_config();
+    $text = trim((string) ($config['watermark_text'] ?? ''));
+    if ($text === '') {
+        return;
+    }
+
+    [$width, $height, $type] = getimagesize($target);
+    switch ($type) {
+        case IMAGETYPE_JPEG:
+            $image = imagecreatefromjpeg($target);
+            break;
+        case IMAGETYPE_PNG:
+            $image = imagecreatefrompng($target);
+            break;
+        case IMAGETYPE_WEBP:
+            $image = imagecreatefromwebp($target);
+            break;
+        default:
+            return;
+    }
+
+    $padding = max(2, (int) ($config['watermark_padding'] ?? 16));
+    $anchor = strtolower((string) ($config['watermark_anchor'] ?? 'bottom-left'));
+    $fontPath = trim((string) ($config['watermark_font_path'] ?? ''));
+
+    $usedTtf = false;
+    if (function_exists('imagettfbbox') && function_exists('imagettftext') && is_file($fontPath) && is_readable($fontPath)) {
+        $fontSize = max(14, (int) round(min($width, $height) * 0.022));
+        $bbox = imagettfbbox($fontSize, 0, $fontPath, $text);
+        if (is_array($bbox)) {
+            $textWidth = (int) abs($bbox[4] - $bbox[0]);
+            $textHeight = (int) abs($bbox[1] - $bbox[7]);
+            $x = $padding;
+            if ($anchor === 'bottom-right') {
+                $x = max($padding, $width - $textWidth - $padding);
+            }
+
+            $baselineY = max($textHeight + $padding, $height - $padding);
+            $shadow = imagecolorallocatealpha($image, 0, 0, 0, 72);
+            $textColor = imagecolorallocatealpha($image, 255, 255, 255, 34);
+            imagettftext($image, $fontSize, 0, $x + 2, $baselineY + 2, $shadow, $fontPath, $text);
+            imagettftext($image, $fontSize, 0, $x, $baselineY, $textColor, $fontPath, $text);
+            $usedTtf = true;
+        }
+    }
+
+    if (!$usedTtf) {
+        $font = 5;
+        $textWidth = imagefontwidth($font) * strlen($text);
+        $textHeight = imagefontheight($font);
+        $x = $padding;
+        $y = max($padding, $height - $textHeight - $padding);
+        if ($anchor === 'bottom-right') {
+            $x = max($padding, $width - $textWidth - $padding);
+        }
+
+        $shadow = imagecolorallocatealpha($image, 0, 0, 0, 60);
+        $textColor = imagecolorallocatealpha($image, 255, 255, 255, 35);
+        imagestring($image, $font, $x + 1, $y + 1, $text, $shadow);
+        imagestring($image, $font, $x, $y, $text, $textColor);
+    }
+
+    if ($type === IMAGETYPE_JPEG) {
+        imagejpeg($image, $target, 92);
+    } elseif ($type === IMAGETYPE_PNG) {
+        imagepng($image, $target, 6);
+    } else {
+        imagewebp($image, $target, 92);
+    }
+
+    imagedestroy($image);
 }
 
 function generate_thumbnail(string $source, string $target, int $maxWidth, int $maxHeight): void

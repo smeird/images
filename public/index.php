@@ -3,6 +3,7 @@
 declare(strict_types=1);
 
 require __DIR__ . '/src/bootstrap.php';
+apply_security_headers();
 
 $path = parse_url($_SERVER['REQUEST_URI'] ?? '/', PHP_URL_PATH) ?: '/';
 $config = load_config();
@@ -20,6 +21,26 @@ if ($path === '/') {
 
 if ($path === '/about') {
     render('about', ['title' => 'About']);
+    exit;
+}
+
+if ($path === '/contact') {
+    render('contact', ['title' => 'Contact']);
+    exit;
+}
+
+if ($path === '/sitemap.xml') {
+    header('Content-Type: application/xml; charset=utf-8');
+    $images = image_records();
+    echo "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n";
+    echo "<urlset xmlns=\"http://www.sitemaps.org/schemas/sitemap/0.9\">\n";
+    foreach (['/', '/about', '/contact'] as $staticPath) {
+        echo '  <url><loc>' . htmlspecialchars(absolute_url($staticPath), ENT_XML1) . "</loc></url>\n";
+    }
+    foreach ($images as $record) {
+        echo '  <url><loc>' . htmlspecialchars(absolute_url('/image.php?id=' . rawurlencode((string) ($record['id'] ?? ''))), ENT_XML1) . "</loc></url>\n";
+    }
+    echo "</urlset>\n";
     exit;
 }
 
@@ -245,19 +266,21 @@ if (isset($adminSections[$path])) {
                         $images[] = [
                             'id' => $media['id'],
                             'original' => $media['original'],
+                            'original_raw' => $media['original_raw'],
                             'thumb' => $media['thumb'],
-                            'title' => trim((string) ($_POST['title'] ?? '')),
-                            'object_name' => trim((string) ($_POST['object_name'] ?? '')),
-                            'object_type' => trim((string) ($_POST['object_type'] ?? '')),
-                            'captured_at' => trim((string) ($_POST['captured_at'] ?? '')),
-                            'description' => trim((string) ($_POST['description'] ?? '')),
-                            'scope_type' => trim((string) ($_POST['scope_type'] ?? '')),
-                            'telescope' => trim((string) ($_POST['telescope'] ?? '')),
-                            'mount' => trim((string) ($_POST['mount'] ?? '')),
-                            'camera' => trim((string) ($_POST['camera'] ?? '')),
-                            'filter_wheel' => trim((string) ($_POST['filter_wheel'] ?? '')),
-                            'filters' => trim((string) ($_POST['filters'] ?? '')),
-                            'filter_set' => trim((string) ($_POST['filter_set'] ?? '')),
+                            'thumb_small' => $media['thumb_small'],
+                            'title' => sanitize_text_input((string) ($_POST['title'] ?? '')),
+                            'object_name' => sanitize_text_input((string) ($_POST['object_name'] ?? '')),
+                            'object_type' => sanitize_text_input((string) ($_POST['object_type'] ?? '')),
+                            'captured_at' => sanitize_text_input((string) ($_POST['captured_at'] ?? '')),
+                            'description' => sanitize_textarea_input((string) ($_POST['description'] ?? '')),
+                            'scope_type' => sanitize_text_input((string) ($_POST['scope_type'] ?? '')),
+                            'telescope' => sanitize_text_input((string) ($_POST['telescope'] ?? '')),
+                            'mount' => sanitize_text_input((string) ($_POST['mount'] ?? '')),
+                            'camera' => sanitize_text_input((string) ($_POST['camera'] ?? '')),
+                            'filter_wheel' => sanitize_text_input((string) ($_POST['filter_wheel'] ?? '')),
+                            'filters' => sanitize_text_input((string) ($_POST['filters'] ?? '')),
+                            'filter_set' => sanitize_text_input((string) ($_POST['filter_set'] ?? '')),
                             'equipment' => compose_equipment_summary([
                                 'telescope' => (string) ($_POST['telescope'] ?? ''),
                                 'mount' => (string) ($_POST['mount'] ?? ''),
@@ -266,10 +289,10 @@ if (isset($adminSections[$path])) {
                                 'filters' => (string) ($_POST['filters'] ?? ''),
                                 'filter_set' => (string) ($_POST['filter_set'] ?? ''),
                             ]),
-                            'exposure' => trim((string) ($_POST['exposure'] ?? '')),
-                            'processing' => trim((string) ($_POST['processing'] ?? '')),
+                            'exposure' => sanitize_text_input((string) ($_POST['exposure'] ?? '')),
+                            'processing' => sanitize_text_input((string) ($_POST['processing'] ?? '')),
                             'wikipedia_url' => normalize_wikipedia_url_for_storage($wikipediaUrlInput),
-                            'tags' => array_values(array_filter(array_map('trim', explode(',', (string) ($_POST['tags'] ?? ''))))),
+                            'tags' => array_values(array_filter(array_map('sanitize_text_input', explode(',', (string) ($_POST['tags'] ?? ''))))),
                             'wikipediaUrl' => normalize_wikipedia_url_for_storage($wikipediaUrlInput),
                             'wikiTitle' => '',
                             'wikiExtract' => '',

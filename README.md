@@ -10,16 +10,22 @@ Implemented now:
 - public gallery and image detail pages
 - cinematic dark-sky visual treatment with starfield texture, rotating spotlight hero card rules (latest/featured/daily deterministic date hash), and glassmorphism-style panels
 - ambient micro-interactions (hover lift/glow, keyboard-accessible card metadata overlays, mouse-position tilt/parallax on gallery cards, and subtle hero twinkle/gradient drift that respects reduced-motion settings)
+- gallery metadata overlays now render directly on top of thumbnails in both initial PHP output and client-side filtered re-renders, restoring hover/focus readability after filter interactions.
 - detail viewer now has explicit split responsive experiences: widescreen desktop layout (expanded media canvas + widened side metadata/Wikipedia column for denser scanning, with reduced heading/body/chip typography and overflow-safe wiki divider sizing) and a stacked long-form mobile layout tuned for narrow screens.
 - image detail fullscreen pill is anchored at the top-right of the image for quicker access before scrolling metadata
 - Repository intentionally does not include bundled `.jpg` sample images; upload your own media through the admin flow.
 - metadata display (capture, object type, structured equipment setup incl. scope type/telescope/mount/camera/filter chain, exposure, processing, tags)
 - homepage now prioritizes an immersive, denser image wall (wider canvas + larger thumbnail coverage) with subtle scroll-linked spectral parallax accents (H-alpha/OIII-inspired gradients) that respect reduced-motion settings.
 - filters now default to a low-prominence chip summary under the hero, while full controls live behind a Refine toggle (object type/tag/date-range/text search + sort) and still sync via shareable query-parameter state.
+- landing page now ships a new cinematic “night sky archive” look-and-feel with stronger lead messaging, multi-CTA quick actions, compact discovery tiles, category/tag snapshot pills, and an upgraded spotlight dossier card for faster drill-in.
 - secure admin route with session auth, CSRF protection, basic login rate limiting, task-based admin portal pages (upload/setup presets/media/security), in-session password change controls, and authenticated image deletion
 - redesigned admin control center UX with a dedicated side navigation rail, top-of-workspace guided help cards, and wider content panels so uploads/presets/library/security actions are easier to discover and use on desktop screens.
 - admin media library now supports spotlight selection plus navigation into a dedicated edit page for full metadata + SEO updates (with preset pills available while editing).
 - image upload pipeline with MIME/size validation, thumbnail generation, and admin-side storage-capacity visibility
+- upload pipeline now preserves a raw backup copy in `storage/uploads/tmp`, stamps a configurable attribution watermark on the published original derivative, and generates both 800w and 400w JPEG thumbnails for responsive gallery `srcset`
+- watermark rendering now prefers a script-like TrueType font (configurable) for attribution text, while safely falling back to GD bitmap text when TTF support/font files are unavailable
+- added public Contact page and auto-generated `/sitemap.xml` route for discoverability
+- baseline hardening headers are now emitted for every response (CSP, HSTS on HTTPS, X-Frame-Options, X-Content-Type-Options, and Referrer-Policy)
 - admin setup-preset management for one-click upload/edit pills across observatory gear + metadata (scope type/object type/telescope/mount/camera/filter wheel/filters/filter set/processing software/tags)
 - admin setup-preset changes now persist correctly to `setup_presets.json` for all categories, eliminating PHP notices during preset saves.
 - graceful oversize-upload handling that reports when server (`post_max_size` / `upload_max_filesize`) or app (`MAX_UPLOAD_BYTES`) limits reject a request before PHP can parse form fields
@@ -28,7 +34,8 @@ Implemented now:
 - Wikipedia URL normalization uses PHP 7.4-compatible string checks (no PHP 8-only helpers) to avoid runtime fatals on older deployments.
 - social preview tags on detail pages now point to the generated 800x500 JPEG thumbnail (instead of full original) to improve WhatsApp/Facebook card rendering reliability.
 - global Creative Commons messaging is now surfaced in top-of-page notice, homepage hero copy, detail attribution text, About page content, and footer copy so image licensing is unambiguous site-wide.
-- About page now includes a comprehensive astrophotography field-to-processing guide (setup, planning, acquisition, guiding accuracy bands, processing stages, and external learning references) using the project's sample equipment stack as concrete examples.
+- About page expanded into a long-form astrophotography learning resource with narrative instruction, inline workflow/imaging-train diagrams, and embedded reference imagery to better teach practical capture technique.
+- About page now includes a categorized external resource directory (guides, forums, planning tools, processing software, apps, and inspiration links) with card-based styling for faster learning-path navigation.
 
 Planned next:
 - continue production hardening (filter/search + client-side sorting now available on homepage with shareable query-parameter URLs).
@@ -39,6 +46,7 @@ Planned next:
 - PHP 7.4+ with GD enabled
 - Apache (`mod_rewrite`) or PHP built-in dev server
 - Writable `storage/` directory (the app now persists PHP sessions in `storage/sessions` to keep CSRF/session state stable across environments)
+- Writable `storage/uploads/tmp` directory (stores preserved pre-watermark originals for admin/operator recovery)
 
 ## Local development
 
@@ -104,6 +112,10 @@ You can override route and limits via env vars:
 - `ADMIN_ROUTE` (default `/hidden-admin`)
 - `SITE_NAME` (default `Night Sky Atlas`)
 - `MAX_UPLOAD_BYTES` (default `157286400`, i.e., 150MB)
+- `UPLOAD_WATERMARK_TEXT` (default `Smeird Astro`)
+- `UPLOAD_WATERMARK_ANCHOR` (default `bottom-left`, supports `bottom-right`)
+- `UPLOAD_WATERMARK_PADDING` (default `16` px inset)
+- `UPLOAD_WATERMARK_FONT_PATH` (default `/usr/share/fonts/truetype/dejavu/DejaVuSansMono-Oblique.ttf`; set to any readable `.ttf`/`.otf` path to change the script-style watermark font)
 - `upload_max_filesize` and `post_max_size` (PHP ini/virtual-host values; should be >= `MAX_UPLOAD_BYTES`)
 
 ## Security notes (admin/backdoor)
@@ -115,43 +127,53 @@ You can override route and limits via env vars:
 - CSRF token required on login, upload, delete, and password-change forms, backed by file-based PHP sessions in `storage/sessions` to avoid token mismatches when default system session paths are unavailable.
 - Basic per-IP login throttling is enforced.
 - Uploads accept only JPEG/PNG/WebP and enforce max-size limit; effective limit is the minimum of `MAX_UPLOAD_BYTES`, `upload_max_filesize`, and `post_max_size`.
+- Uploaded display originals receive a subtle attribution watermark during publish processing; a raw pre-watermark copy is retained under `storage/uploads/tmp`.
+- Watermark text uses GD TrueType rendering when available (for script-like font styling) and gracefully falls back to bitmap text if a configured font path is missing/unreadable.
 - Wikipedia URLs are restricted to `wikipedia.org/wiki/...` article links and fetched server-side for preview + public detail enrichment.
 - Wikipedia panel includes attribution/license note, optional infobox-derived key facts (size/shape/distance-style fields), and graceful fallback when external fetch is unavailable.
 - Uploaded files are stored outside the public web root and served through `media.php`.
 - Wikipedia metadata fetches only allow trusted Wikipedia hosts (`en.wikipedia.org` plus optional language subdomains) and return structured error codes for UI-safe fallbacks.
 - Social preview URLs are generated from request host/scheme headers, so production deployments should keep trusted proxy/host header handling correctly configured.
 - Open Graph image metadata now includes type + dimensions so social crawlers can parse previews more consistently.
+- The app emits defense-in-depth HTTP headers on all routes (CSP, X-Frame-Options, X-Content-Type-Options, Referrer-Policy, and HSTS on HTTPS).
 - Admin metadata editor validates required fields and Wikipedia URLs before persisting updates; if the Wikipedia URL changes, cached wiki summary/facts are reset and refreshed so references stay in sync.
 
 ## Folder/file map
 
 - `public/index.php` — front controller/router for public + admin routes.
-- `public/src/bootstrap.php` — shared helpers, auth, upload + thumbnail logic.
+- `public/src/bootstrap.php` — shared helpers, auth, upload + thumbnail logic, publish watermarking, and security-header helper.
 - `public/src/views/` — HTML view templates.
-- `public/src/views/home.php` embeds homepage image JSON payload for client-side filtering/sorting and now renders an image-first landing layout with spectral parallax accents plus chip-summary-first filtering with a Refine toggle for advanced controls.
+- `public/src/views/contact.php` — public contact/social links page.
+- `public/src/views/home.php` embeds homepage image JSON payload for client-side filtering/sorting and now renders a from-scratch “deep-sky journal” landing shell (new lead narrative, CTA row, object-category snapshot pills, rebuilt spotlight dossier card) plus chip-summary-first filtering with a Refine toggle for advanced controls.
 - `public/src/services/wikipedia.php` — Wikipedia URL validation + metadata normalization helper service.
 - `public/assets/style.css` — cinematic dark UI styling and interaction polish.
 - `storage/data/images.json` — image metadata records (including Wikipedia cache fields, spotlight flag, and editable SEO meta tags).
 - `storage/sessions/` — file-backed PHP session storage used for admin auth + CSRF continuity.
+- `storage/uploads/tmp/` — preserved raw originals before publish watermarking.
 - `storage/logs/app.log` — background/lazy refresh failure logs for non-fatal runtime issues.
+- `scripts/regenerate_thumbnails.php` — maintenance script for rebuilding 800w + 400w JPEG thumbs and syncing metadata fields.
 - `storage/data/users.json` — admin credential hashes.
 - `storage/data/setup_presets.json` — reusable setup preset pills (scope type, object type, telescope, mount, camera, filter wheel, filters, filter set, processing software, tags) for admin upload/edit workflows.
 - `storage/data/scope_types.json` — legacy scope-type preset store still read for backward compatibility.
 - `WEBSITE_TASKS.md` — implementation tracker.
+- `LANDING_PAGE_INSPIRATION.md` — landing-page benchmark patterns and implementation-ready layout options.
 - `CODEX_PARALLEL_TASKS.md` — parallel work planning.
 
 ## User-facing flow
 
 ```mermaid
 flowchart TD
-  Visitor_lands_on_homepage --> See_cinematic_hero_rotating_spotlight_and_subtle_spectral_parallax
+  Visitor_lands_on_homepage --> See_reimagined_deep_sky_journal_lead_and_subtle_spectral_parallax
   Visitor_lands_on_homepage --> See_sitewide_Creative_Commons_notice_banner_and_footer
-  See_cinematic_hero_rotating_spotlight_and_subtle_spectral_parallax --> Read_Tonights_Highlight_facts_and_open_details_CTA
+  See_reimagined_deep_sky_journal_lead_and_subtle_spectral_parallax --> Use_quick_actions_to_jump_to_gallery_refine_or_field_guide
+  See_reimagined_deep_sky_journal_lead_and_subtle_spectral_parallax --> Scan_three_landing_quick_link_tiles
+  Use_quick_actions_to_jump_to_gallery_refine_or_field_guide --> Read_Tonights_Highlight_facts_and_open_details_CTA
   Read_Tonights_Highlight_facts_and_open_details_CTA --> Review_active_filter_chip_summary
   See_sitewide_Creative_Commons_notice_banner_and_footer --> Browse_thumbnail_gallery
   Review_active_filter_chip_summary -->|optional| Open_Refine_panel_for_full_filter_controls
   Open_Refine_panel_for_full_filter_controls --> Browse_thumbnail_gallery
   Review_active_filter_chip_summary --> Browse_thumbnail_gallery
+  Visitor_lands_on_homepage --> Open_contact_social_page
   Browse_thumbnail_gallery --> Open_image_detail
   Open_image_detail --> Review_metadata_object_equipment_exposure_and_tags
   Review_metadata_object_equipment_exposure_and_tags --> Copy_image_specific_share_link
@@ -184,7 +206,9 @@ flowchart TD
   Upload_image_and_metadata --> Body_exceeds_effective_upload_limit
   Body_exceeds_effective_upload_limit -->|yes| Show_actionable_size_limit_error
   Body_exceeds_effective_upload_limit -->|no| MIME_and_size_validation
-  MIME_and_size_validation --> Store_original_generate_thumbnail_and_write_metadata_JSON
+  MIME_and_size_validation --> Preserve_raw_original_in_storage_uploads_tmp
+  Preserve_raw_original_in_storage_uploads_tmp --> Apply_publish_watermark_and_generate_responsive_thumbnails
+  Apply_publish_watermark_and_generate_responsive_thumbnails --> Store_original_generate_thumbnail_and_write_metadata_JSON
   Store_original_generate_thumbnail_and_write_metadata_JSON --> Image_appears_in_public_gallery
   Setup_presets_page --> Add_or_delete_reusable_preset_pills_in_setup_presets_json
   Media_library_page --> Set_or_change_homepage_spotlight_capture_for_homepage_rotation
@@ -209,9 +233,11 @@ graph LR
   Template_Views --> Canonical_and_Open_Graph_meta_tags
   PHP_Front_Controller --> Auth_CSRF_and_Rate_Limit
   PHP_Front_Controller --> JSON_metadata_users_wiki_cache_spotlight_and_SEO_fields
+  PHP_Front_Controller --> Auto_generated_sitemap_XML
+  PHP_Front_Controller --> Security_headers_CSP_HSTS_XFO_nosniff
   PHP_Front_Controller --> Wikipedia_APIs_summary_and_parse_infobox
   PHP_Front_Controller --> storage_logs_app_log
-  PHP_Front_Controller --> Originals_and_Thumbs_in_storage
+  PHP_Front_Controller --> Originals_Responsive_Thumbs_and_Raw_Backups_in_storage
   PHP_Front_Controller --> Wikipedia_REST_summary_fetch
 ```
 

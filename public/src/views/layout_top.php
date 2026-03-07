@@ -42,6 +42,22 @@ $metaKeywords = isset($meta_keywords) ? trim((string) $meta_keywords) : '';
   <?php endif; ?>
   <link rel="canonical" href="<?= htmlspecialchars($canonicalUrl) ?>">
   <link rel="stylesheet" href="/assets/style.css">
+  <?php if (isset($image) && is_array($image)): ?>
+    <?php
+      $schema = [
+          '@context' => 'https://schema.org',
+          '@type' => 'ImageObject',
+          'name' => (string) ($image['title'] ?? ''),
+          'description' => (string) ($image['description'] ?? ''),
+          'contentUrl' => absolute_url('/media.php?type=original&file=' . rawurlencode((string) ($image['original'] ?? ''))),
+          'thumbnailUrl' => absolute_url('/media.php?type=thumb&file=' . rawurlencode((string) ($image['thumb'] ?? ''))),
+          'dateCreated' => (string) ($image['captured_at'] ?? ''),
+          'keywords' => implode(', ', (array) ($image['tags'] ?? [])),
+          'license' => 'https://creativecommons.org/licenses/',
+      ];
+    ?>
+    <script type="application/ld+json"><?= json_encode($schema, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE) ?></script>
+  <?php endif; ?>
 </head>
 <body>
 <header class="site-header">
@@ -49,6 +65,7 @@ $metaKeywords = isset($meta_keywords) ? trim((string) $meta_keywords) : '';
   <nav>
     <a href="/">Gallery</a>
     <a href="/about">About</a>
+    <a href="/contact">Contact</a>
     <a href="<?= htmlspecialchars($config['admin_route']) ?>/login">Admin</a>
   </nav>
 </header>
@@ -61,6 +78,7 @@ $metaKeywords = isset($meta_keywords) ? trim((string) $meta_keywords) : '';
 <nav class="mobile-utility-row" aria-label="Quick navigation">
   <a href="/">Gallery</a>
   <a href="/about">About</a>
+  <a href="/contact">Contact</a>
   <a href="/#gallery">Search</a>
 </nav>
 <main>

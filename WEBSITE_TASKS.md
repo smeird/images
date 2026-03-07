@@ -6,16 +6,18 @@ This task plan is designed for a Linux + Apache + PHP environment and optimized 
 
 - [x] Define brand and visual direction (dark sky palette, starfield accents, modern typography).
 - [x] Choose homepage storytelling approach (hero image + mission statement + rotating featured/spotlight capture with nightly highlight facts).
-- [ ] Create moodboard (NASA/APOD-inspired visual references, typography, spacing, card styles).
+- [x] Create moodboard (NASA/APOD-inspired visual references, typography, spacing, card styles). (captured as layout benchmark options in `LANDING_PAGE_INSPIRATION.md`)
 - [x] Decide wow-factor interactions (subtle parallax stars, animated constellation lines, smooth image reveal transitions).
 
 ## 2) Information architecture and content model
 
-- [ ] Define public pages:
+- [x] Define public pages:
   - Home / Gallery (thumbnail grid)
   - Image detail page (full image + metadata + equipment used)
   - About (your story, location, skies, processing philosophy)
-  - Contact / social links
+  - [x] Contact / social links
+  - [x] Expand About page into a practical how-to guide with narrative explanations, diagrams, and visual references for astro-imaging workflows.
+  - [x] Add curated About-page external resource directory grouped by learning goal (guides, forums, planning, software, and inspiration).
 - [ ] Define image metadata schema:
   - Title
   - Description/story behind capture
@@ -26,19 +28,19 @@ This task plan is designed for a Linux + Apache + PHP environment and optimized 
   - Processing software/workflow
   - Tags (galaxy, nebula, moon, planet, widefield)
   - [x] Wikipedia link + cache fields (`wikipediaUrl`, `wikiTitle`, `wikiExtract`, `wikiThumbnail`, `wikiFetchedAt`, `wikiStatus`)
-- [ ] Decide whether to store metadata in flat files (JSON) or database (SQLite/MySQL); for quick start, use SQLite or JSON.
+- [x] Decide whether to store metadata in flat files (JSON) or database (SQLite/MySQL); for quick start, use SQLite or JSON.
 
 ## 3) Technical architecture (PHP + Apache)
 
-- [ ] Pick stack style:
+- [x] Pick stack style:
   - Lightweight PHP app (no framework) for speed, or
   - Laravel/Slim for maintainability if future growth expected.
-- [ ] Set up folder structure:
+- [x] Set up folder structure:
   - `/public` for web root
   - `/storage/images/original`
   - `/storage/images/thumbs`
   - `/storage/uploads/tmp`
-- [ ] Add secure config strategy:
+- [x] Add secure config strategy:
   - Environment variables for admin credentials and secret keys
   - Keep uploads and sensitive files outside public web root where possible
 - [x] Persist PHP session files under writable `storage/sessions` to keep admin auth + CSRF state stable across host environments.
@@ -70,7 +72,7 @@ This task plan is designed for a Linux + Apache + PHP environment and optimized 
 - [x] Add optional remember-me admin login with revocable, rotated device tokens.
 - [x] Redirect already-authenticated admins away from the login screen to the admin portal to keep active sessions feeling persistent.
 - [x] Add authenticated admin password rotation form (current password verification + minimum length checks).
-- [ ] Restrict admin route by:
+- [x] Restrict admin route by:
   - Obscure route path (not security by itself)
   - Real authentication and CSRF protection
   - Rate limiting / lockout after repeated failed logins
@@ -92,12 +94,19 @@ This task plan is designed for a Linux + Apache + PHP environment and optimized 
   - Generate thumbnails
   - Save metadata
   - Show admin preview and success/failure status
+- [x] Add upload-time attribution text overlay (burned into downloadable rendered output) with admin-configurable:
+  - Overlay text content (default: `Smeird Astro`)
+  - Overlay location/anchor (default: bottom-left)
+  - Font selection (default: script-like TrueType rendering, configurable via env var)
+  - Small inset/padding from image edges (default: slight bottom-left indentation)
+  - Sensible readability styling (e.g., subtle shadow/contrast treatment) while keeping watermark unobtrusive
+  - Pipeline behavior that preserves original upload and publishes a processed derivative with permanent overlay
 
 ## 6) Core feature #3: Equipment and capture details
 
-- [ ] Create structured equipment sections (camera, optics, mount, guiding, filters).
+- [x] Create structured equipment sections (camera, optics, mount, guiding, filters).
 - [x] Add optional reusable “equipment presets” in admin to avoid repetitive typing. (implemented as reusable setup-preset pills for scope type/object type/telescope/mount/camera/filter wheel/filters/filter set/processing software/tags, with append-style pill clicks for multi-value fields like tags and processing)
-- [ ] Display equipment metadata cleanly on detail pages with badges/icons.
+- [x] Display equipment metadata cleanly on detail pages with badges/icons.
 - [x] Add searchable/filterable fields (homepage toolbar supports object type, tag, capture date range, text search, and shareable sort/filter query params).
 
 ## 7) “Wow factor” enhancements
@@ -108,17 +117,19 @@ This task plan is designed for a Linux + Apache + PHP environment and optimized 
 - [x] Spotlight section on homepage with rotating selection rules (latest, featured override, daily deterministic pick).
 - [ ] Constellation-style timeline view by capture date.
 - [x] Ambient micro-interactions (hover/focus metadata fade-ins, elegant loading skeletons, and pointer-based card tilt with reduced-motion fallback).
-- [x] Reimagined landing page as an image-first experience (wider gallery utilization, compact filter footprint, and reduced gallery text emphasis for stronger visual impact).
+- [x] Keep gallery hover/focus metadata overlays anchored to the image area after client-side filter/sort re-renders.
+- [x] Reimagined landing page from scratch as a deep-sky journal experience (new narrative lead, CTA row, category-count snapshot pills, and rebuilt spotlight dossier card).
 - [x] Added subtle spectral parallax accents (H-alpha reds + OIII cyans) on the landing hero and shifted homepage filtering to chip-summary-first with full controls behind a Refine toggle.
+- [x] Refreshed landing page look-and-feel with new night-sky archive hero copy, expanded CTA set, quick-link discovery tiles, and a denser spotlight presentation while preserving existing filter/query workflows.
 - [x] Mobile ergonomics polish for 360–430px widths (sticky utility row, larger 44px touch targets, tighter typography/spacing, overflow-safe title + metadata chip handling).
 - [x] Define clearly distinct detail-view experiences by breakpoint: widescreen desktop layout that uses horizontal space with overflow-safe metadata/Wikipedia divider behavior, and long-thin stacked mobile layout for narrow screens.
 
 ## 8) Performance and image delivery
 
-- [ ] Use responsive image `srcset` and lazy loading.
+- [x] Use responsive image `srcset` and lazy loading.
 - [ ] Enable Apache compression and long-lived cache headers for generated thumbnails.
 - [ ] Add CDN option later (CloudFront) if traffic grows.
-- [ ] Create background job/CLI script to regenerate thumbnails for older uploads.
+- [x] Create background job/CLI script to regenerate thumbnails for older uploads.
 - [x] Add lazy refresh on detail reads for stale Wikipedia cache entries (>7 days) while serving cached data immediately.
 - [x] Parse and store infobox-derived key facts (e.g., size/shape/distance fields) from Wikipedia links for detail-page context.
 - [x] Invalidate and refresh cached Wikipedia summary/facts when an admin changes the Wikipedia URL on an image.
@@ -126,20 +137,20 @@ This task plan is designed for a Linux + Apache + PHP environment and optimized 
 ## 9) Security hardening
 
 - [ ] Enforce HTTPS (AWS cert + redirect HTTP→HTTPS).
-- [ ] Set secure headers (CSP, HSTS, X-Content-Type-Options, Referrer-Policy).
-- [ ] Lock down upload execution (never execute uploaded files).
-- [ ] Validate/sanitize all metadata inputs to prevent XSS.
+- [x] Set secure headers (CSP, HSTS, X-Content-Type-Options, Referrer-Policy).
+- [x] Lock down upload execution (never execute uploaded files).
+- [x] Validate/sanitize all metadata inputs to prevent XSS.
 - [ ] Add periodic backup plan for images + metadata.
 
 ## 10) SEO and discoverability
 
-- [ ] Add semantic page titles, meta descriptions, Open Graph tags.
+- [x] Add semantic page titles, meta descriptions, Open Graph tags.
   - [x] Implement image detail canonical URL + Open Graph/Twitter image/title metadata for rich social link previews.
   - [x] Serve social preview cards from the generated 800x500 JPEG thumbnail and include Open Graph image type/dimension tags for better WhatsApp/Facebook compatibility.
 - [x] Surface clear image-licensing disclosure (Creative Commons) across key public touchpoints (header notice, hero context, detail page, About page, footer).
 - [ ] Include alt text strategy for each image.
-- [ ] Auto-generate XML sitemap.
-- [ ] Add schema.org metadata for images/creative works.
+- [x] Auto-generate XML sitemap.
+- [x] Add schema.org metadata for images/creative works.
 
 ## 11) Operations and maintainability
 
@@ -149,7 +160,7 @@ This task plan is designed for a Linux + Apache + PHP environment and optimized 
   - [x] Edit metadata after upload on a dedicated page (including SEO meta tag fields and preset pills)
   - [x] Delete/unpublish image
   - [x] Mark featured images (homepage spotlight selector)
-- [ ] Add logging and error monitoring.
+- [x] Add logging and error monitoring.
 - [ ] Create deployment checklist for Apache/PHP config updates.
 - [ ] Document recovery steps (restore from backup).
 
