@@ -9,6 +9,17 @@ $path = parse_url($_SERVER['REQUEST_URI'] ?? '/', PHP_URL_PATH) ?: '/';
 $config = load_config();
 $adminBase = $config['admin_route'];
 
+$legacyPublicRoutes = [
+    '/index.php' => '/',
+    '/about.php' => '/about',
+    '/contact.php' => '/contact',
+];
+
+if (isset($legacyPublicRoutes[$path])) {
+    header('Location: ' . $legacyPublicRoutes[$path], true, 301);
+    exit;
+}
+
 if ($path === '/') {
     $images = image_records();
     render('home', [

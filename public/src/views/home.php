@@ -57,18 +57,18 @@ sort($tagOptions, SORT_NATURAL | SORT_FLAG_CASE);
     <div class="landing-actions">
       <a class="button-link" href="#gallery">Enter gallery wall</a>
       <a class="button-link secondary" href="#filter-refine-toggle">Refine by target</a>
-      <a class="button-link secondary" href="/about.php">Read the field guide</a>
+      <a class="button-link secondary" href="/about">Read the field guide</a>
     </div>
     <div class="landing-quick-grid" aria-label="Landing quick links">
       <a href="#gallery">
         <strong>Browse latest</strong>
         <span>Jump straight into the current image wall.</span>
       </a>
-      <a href="/about.php">
+      <a href="/about">
         <strong>Learn capture workflow</strong>
         <span>Open long-form guidance, diagrams, and tools.</span>
       </a>
-      <a href="/contact.php">
+      <a href="/contact">
         <strong>Request collaboration</strong>
         <span>Use contact pathways for projects and licensing.</span>
       </a>
