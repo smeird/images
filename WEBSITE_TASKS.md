@@ -186,6 +186,7 @@ This task plan is designed for a Linux + Apache + PHP environment and optimized 
 
 - [x] Confirm stack choice: plain PHP + JSON (implemented MVP).
 - [x] Set up project structure and Apache-friendly front controller routing.
+- [x] Added legacy public-route redirects (`/index.php`, `/about.php`, `/contact.php`) to canonical routes to prevent stale-link 404s.
 - [x] Maintain PHP 7.4+ compatibility for upload and thumbnail helpers (avoid PHP 8-only syntax in runtime paths).
 - [x] Remove PHP 8-only `str_starts_with` usage from Wikipedia URL normalization path to prevent fatal errors on PHP 7.4 deployments.
 - [x] Implement admin authentication and secure upload pipeline.

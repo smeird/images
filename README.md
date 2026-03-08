@@ -25,6 +25,7 @@ Implemented now:
 - upload pipeline now preserves a raw backup copy in `storage/uploads/tmp`, stamps a configurable attribution watermark on the published original derivative, and generates both 800w and 400w JPEG thumbnails for responsive gallery `srcset`
 - watermark rendering now prefers a script-like TrueType font (configurable) for attribution text, while safely falling back to GD bitmap text when TTF support/font files are unavailable
 - added public Contact page and auto-generated `/sitemap.xml` route for discoverability
+- legacy `.php` public URLs (`/about.php`, `/contact.php`, `/index.php`) now 301-redirect to canonical pretty routes so existing shared links keep working after route cleanup.
 - baseline hardening headers are now emitted for every response (CSP, HSTS on HTTPS, X-Frame-Options, X-Content-Type-Options, and Referrer-Policy)
 - admin setup-preset management for one-click upload/edit pills across observatory gear + metadata (scope type/object type/telescope/mount/camera/filter wheel/filters/filter set/processing software/tags)
 - admin setup-preset changes now persist correctly to `setup_presets.json` for all categories, eliminating PHP notices during preset saves.
