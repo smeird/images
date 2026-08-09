@@ -25,7 +25,7 @@ Implemented now:
 - image upload pipeline with MIME/size validation, thumbnail generation, and admin-side storage-capacity visibility
 - upload pipeline now preserves a raw backup copy in `storage/uploads/tmp`, stamps a configurable attribution watermark on the published original derivative, and generates both 800w and 400w JPEG thumbnails for responsive gallery `srcset`
 - watermark rendering now prefers a script-like TrueType font (configurable) for attribution text, while safely falling back to GD bitmap text when TTF support/font files are unavailable
-- added a public Contact page and auto-generated `/sitemap.xml` route for discoverability; placeholder email/social destinations are intentionally not published
+- added a public Contact page and auto-generated `/sitemap.xml` route for discoverability; placeholder email/social destinations are intentionally not published, while the footer and Contact page cross-link the live Wheathampstead Observatory and Astrotools projects
 - legacy `.php` public URLs (`/about.php`, `/contact.php`, `/index.php`) now 301-redirect to canonical pretty routes so existing shared links keep working after route cleanup.
 - baseline hardening headers are now emitted for every response (CSP, HSTS on HTTPS, X-Frame-Options, X-Content-Type-Options, and Referrer-Policy)
 - admin setup-preset management for one-click upload/edit pills across observatory gear + metadata (scope type/object type/telescope/mount/camera/filter wheel/filters/filter set/processing software/tags)
@@ -188,7 +188,7 @@ You can override route and limits via env vars:
 - `public/index.php` — front controller/router for public + admin routes; passes existing static files through when running under PHP's built-in server.
 - `public/src/bootstrap.php` — shared helpers, auth, upload + thumbnail logic, publish watermarking, and security-header helper.
 - `public/src/views/` — HTML view templates.
-- `public/src/views/contact.php` — placeholder-free public contact/collaboration landing page, ready for the owner's real channels.
+- `public/src/views/contact.php` — placeholder-free public contact/collaboration landing page with editorial links to Wheathampstead Observatory conditions and Astrotools.
 - `public/src/views/home.php` — image-first spotlight cover, responsive editorial gallery markup, and URL-synced filtering/sorting that reorders existing cards without discarding responsive image attributes.
 - `public/src/services/wikipedia.php` — Wikipedia URL validation + metadata normalization helper service.
 - `public/assets/style.css` — editorial public-site system, responsive gallery mosaic, image-first detail presentation, admin styling, and reduced-motion behavior.
@@ -216,6 +216,7 @@ You can override route and limits via env vars:
 flowchart TD
   Visitor_lands_on_homepage --> See_full_bleed_rotating_spotlight_cover
   Visitor_lands_on_homepage --> See_compact_Creative_Commons_notice_and_portfolio_navigation
+  See_compact_Creative_Commons_notice_and_portfolio_navigation --> Open_Wheathampstead_Observatory_or_Astrotools_from_site_footer
   See_full_bleed_rotating_spotlight_cover --> Open_featured_observation
   See_full_bleed_rotating_spotlight_cover --> Explore_editorial_image_mosaic
   Explore_editorial_image_mosaic --> Review_active_filter_chip_summary

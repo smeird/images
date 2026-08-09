@@ -145,6 +145,7 @@ This task plan is designed for a Linux + Apache + PHP environment and optimized 
 
 ## 10) SEO and discoverability
 
+- [x] Cross-link the image archive, live Wheathampstead Observatory conditions, and Astrotools planning workspace through the shared footer and Contact page.
 - [x] Add semantic page titles, meta descriptions, Open Graph tags.
   - [x] Implement image detail canonical URL + Open Graph/Twitter image/title metadata for rich social link previews.
   - [x] Serve social preview cards from the generated 800x500 JPEG thumbnail and include Open Graph image type/dimension tags for better WhatsApp/Facebook compatibility.

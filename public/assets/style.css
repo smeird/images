@@ -2577,9 +2577,73 @@ main {
   line-height: 1.65;
 }
 
-.contact-intro .button-link {
-  width: auto;
-  margin-top: 1.2rem;
+.contact-network {
+  width: 100%;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.65rem;
+  margin-top: 1.8rem;
+}
+
+.contact-network > a {
+  min-width: 0;
+  min-height: 220px;
+  padding: clamp(1rem, 2.5vw, 1.6rem);
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  border: 1px solid rgba(244, 240, 232, 0.18);
+  color: var(--ink);
+  background: rgba(4, 4, 7, 0.42);
+  text-decoration: none;
+  transition: border-color 180ms ease, background 180ms ease, transform 180ms ease;
+}
+
+.contact-network > a:hover,
+.contact-network > a:focus-visible {
+  border-color: rgba(100, 230, 238, 0.52);
+  background: rgba(100, 230, 238, 0.06);
+  transform: translateY(-3px);
+}
+
+.contact-network > a > span {
+  color: #88888e;
+  font-size: 0.62rem;
+  letter-spacing: 0.11em;
+  text-transform: uppercase;
+}
+
+.contact-network strong {
+  max-width: 13ch;
+  margin-top: 1.5rem;
+  font-size: clamp(1.2rem, 2.3vw, 1.75rem);
+  letter-spacing: -0.03em;
+  line-height: 1.05;
+}
+
+.contact-network p {
+  max-width: 34ch;
+  margin: 0.7rem 0 1.5rem;
+  color: #9f9ea2;
+  font-size: 0.78rem;
+  line-height: 1.55;
+}
+
+.contact-network b,
+.contact-return-link {
+  margin-top: auto;
+  color: #d6d3cc;
+  font-size: 0.65rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.contact-return-link {
+  display: inline-flex;
+  gap: 0.55rem;
+  margin-top: 1.5rem;
+  text-underline-offset: 4px;
 }
 
 footer {
@@ -2624,7 +2688,14 @@ footer {
 
 footer nav {
   display: flex;
+  align-items: center;
   gap: 1.1rem;
+}
+
+.footer-nav-divider {
+  width: 1px;
+  height: 20px;
+  background: rgba(244, 240, 232, 0.18);
 }
 
 footer nav a,
@@ -2915,12 +2986,25 @@ footer nav a,
     grid-template-columns: 1fr;
   }
 
+  .contact-network {
+    grid-template-columns: 1fr;
+  }
+
+  .contact-network > a {
+    min-height: 190px;
+  }
+
   footer {
     grid-template-columns: 1fr;
   }
 
   footer nav {
     flex-wrap: wrap;
+  }
+
+  .footer-nav-divider {
+    width: 100%;
+    height: 1px;
   }
 }
 
