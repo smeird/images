@@ -2,6 +2,15 @@
 
 declare(strict_types=1);
 
+if (PHP_SAPI === 'cli-server') {
+    $requestPath = parse_url((string) ($_SERVER['REQUEST_URI'] ?? '/'), PHP_URL_PATH) ?: '/';
+    $staticFile = realpath(__DIR__ . $requestPath);
+    $publicPrefix = __DIR__ . DIRECTORY_SEPARATOR;
+    if ($requestPath !== '/' && $staticFile !== false && strpos($staticFile, $publicPrefix) === 0 && is_file($staticFile)) {
+        return false;
+    }
+}
+
 require __DIR__ . '/src/bootstrap.php';
 apply_security_headers();
 

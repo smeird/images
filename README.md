@@ -4,27 +4,28 @@ Astronomy image showcase website with a public gallery and a secure admin upload
 
 ## Project status
 
-**Current maturity:** MVP+ visual polish implemented and runnable locally.
+**Current maturity:** MVP+ with an art-directed public experience, secure admin tooling, and a reproducible local workflow.
 
 Implemented now:
 - public gallery and image detail pages
-- cinematic dark-sky visual treatment with starfield texture, rotating spotlight hero card rules (latest/featured/daily deterministic date hash), and glassmorphism-style panels
-- ambient micro-interactions (hover lift/glow, keyboard-accessible card metadata overlays, mouse-position tilt/parallax on gallery cards, and subtle hero twinkle/gradient drift that respects reduced-motion settings)
-- gallery metadata overlays now render directly on top of thumbnails in both initial PHP output and client-side filtered re-renders, restoring hover/focus readability after filter interactions.
-- detail viewer now has explicit split responsive experiences: widescreen desktop layout (expanded media canvas + widened side metadata/Wikipedia column for denser scanning, with reduced heading/body/chip typography and overflow-safe wiki divider sizing) and a stacked long-form mobile layout tuned for narrow screens.
-- image detail fullscreen pill is anchored at the top-right of the image for quicker access before scrolling metadata
+- image-first editorial design with a full-bleed rotating spotlight cover, near-black observatory palette, H-alpha/OIII spectral accents, restrained portfolio masthead, and source-order-preserving mosaic gallery
+- dynamic gallery rhythm that alternates wide, square, panoramic, and paired compositions on desktop while resolving to predictable two-column/tablet and single-column/mobile layouts
+- persistent editorial card captions plus keyboard-accessible exposure/equipment reveals; hover image movement and all ambient effects respect reduced-motion settings
+- client-side filtering now reorders the original server-rendered cards instead of rebuilding them, preserving responsive `srcset`, semantic markup, focus behavior, and image loading hints
+- image-first detail pages with a large cinematic media stage, conditional semantic capture/equipment/processing groups, supporting object notes, and a stacked mobile experience
+- detail pages load the responsive thumbnail first and request the potentially large original only when the fullscreen control is used
 - Repository intentionally does not include bundled `.jpg` sample images; upload your own media through the admin flow.
 - metadata display (capture, object type, structured equipment setup incl. scope type/telescope/mount/camera/filter chain, exposure, processing, tags)
-- homepage now prioritizes an immersive, denser image wall (wider canvas + larger thumbnail coverage) with subtle scroll-linked spectral parallax accents (H-alpha/OIII-inspired gradients) that respect reduced-motion settings.
+- homepage keeps the existing latest/featured/daily spotlight rotation while presenting it as the cover artwork rather than a small dashboard card
 - filters now default to a low-prominence chip summary under the hero, while full controls live behind a Refine toggle (object type/tag/date-range/text search + sort) and still sync via shareable query-parameter state.
-- landing page now ships a new cinematic “night sky archive” look-and-feel with stronger lead messaging, multi-CTA quick actions, compact discovery tiles, category/tag snapshot pills, and an upgraded spotlight dossier card for faster drill-in.
+- public navigation no longer exposes the hidden admin route; studio navigation appears only inside authenticated/admin pages
 - secure admin route with session auth, CSRF protection, basic login rate limiting, task-based admin portal pages (upload/setup presets/media/security), in-session password change controls, and authenticated image deletion
 - redesigned admin control center UX with a dedicated side navigation rail, top-of-workspace guided help cards, and wider content panels so uploads/presets/library/security actions are easier to discover and use on desktop screens.
 - admin media library now supports spotlight selection plus navigation into a dedicated edit page for full metadata + SEO updates (with preset pills available while editing).
 - image upload pipeline with MIME/size validation, thumbnail generation, and admin-side storage-capacity visibility
 - upload pipeline now preserves a raw backup copy in `storage/uploads/tmp`, stamps a configurable attribution watermark on the published original derivative, and generates both 800w and 400w JPEG thumbnails for responsive gallery `srcset`
 - watermark rendering now prefers a script-like TrueType font (configurable) for attribution text, while safely falling back to GD bitmap text when TTF support/font files are unavailable
-- added public Contact page and auto-generated `/sitemap.xml` route for discoverability
+- added a public Contact page and auto-generated `/sitemap.xml` route for discoverability; placeholder email/social destinations are intentionally not published
 - legacy `.php` public URLs (`/about.php`, `/contact.php`, `/index.php`) now 301-redirect to canonical pretty routes so existing shared links keep working after route cleanup.
 - baseline hardening headers are now emitted for every response (CSP, HSTS on HTTPS, X-Frame-Options, X-Content-Type-Options, and Referrer-Policy)
 - admin setup-preset management for one-click upload/edit pills across observatory gear + metadata (scope type/object type/telescope/mount/camera/filter wheel/filters/filter set/processing software/tags)
@@ -33,6 +34,7 @@ Implemented now:
 - graceful storage-write error handling in admin actions (setup presets across all categories and uploads) when `storage/data` is not writable, avoiding PHP warnings exposed to users
 - setup-preset validation errors are now category-aware (not hard-coded to scope type), so invalid/empty entries report the selected preset type.
 - Wikipedia URL normalization uses PHP 7.4-compatible string checks (no PHP 8-only helpers) to avoid runtime fatals on older deployments.
+- Wikipedia HTTP response parsing uses the current PHP header API when available and a PHP 7.4-compatible fallback without emitting PHP 8.5 deprecation notices.
 - social preview tags on detail pages now point to the generated 800x500 JPEG thumbnail (instead of full original) to improve WhatsApp/Facebook card rendering reliability.
 - global Creative Commons messaging is now surfaced in top-of-page notice, homepage hero copy, detail attribution text, About page content, and footer copy so image licensing is unambiguous site-wide.
 - About page expanded into a long-form astrophotography learning resource with narrative instruction, inline workflow/imaging-train diagrams, and embedded reference imagery to better teach practical capture technique.
@@ -75,8 +77,10 @@ make lint        # PHP syntax only
 make data-check  # committed JSON data only
 ```
 
-The development server enables full PHP error reporting. It is for local use
-only and must not be exposed as a production server.
+The development server enables full PHP error reporting and lets PHP serve
+existing static assets directly before routing application URLs through the
+front controller. It is for local use only and must not be exposed as a
+production server.
 
 ## Updating the production server
 
@@ -181,13 +185,13 @@ You can override route and limits via env vars:
 
 ## Folder/file map
 
-- `public/index.php` — front controller/router for public + admin routes.
+- `public/index.php` — front controller/router for public + admin routes; passes existing static files through when running under PHP's built-in server.
 - `public/src/bootstrap.php` — shared helpers, auth, upload + thumbnail logic, publish watermarking, and security-header helper.
 - `public/src/views/` — HTML view templates.
-- `public/src/views/contact.php` — public contact/social links page.
-- `public/src/views/home.php` embeds homepage image JSON payload for client-side filtering/sorting and now renders a from-scratch “deep-sky journal” landing shell (new lead narrative, CTA row, object-category snapshot pills, rebuilt spotlight dossier card) plus chip-summary-first filtering with a Refine toggle for advanced controls.
+- `public/src/views/contact.php` — placeholder-free public contact/collaboration landing page, ready for the owner's real channels.
+- `public/src/views/home.php` — image-first spotlight cover, responsive editorial gallery markup, and URL-synced filtering/sorting that reorders existing cards without discarding responsive image attributes.
 - `public/src/services/wikipedia.php` — Wikipedia URL validation + metadata normalization helper service.
-- `public/assets/style.css` — cinematic dark UI styling and interaction polish.
+- `public/assets/style.css` — editorial public-site system, responsive gallery mosaic, image-first detail presentation, admin styling, and reduced-motion behavior.
 - `storage/data/images.json` — image metadata records (including Wikipedia cache fields, spotlight flag, and editable SEO meta tags).
 - `storage/sessions/` — file-backed PHP session storage used for admin auth + CSRF continuity.
 - `storage/uploads/tmp/` — preserved raw originals before publish watermarking.
@@ -210,20 +214,19 @@ You can override route and limits via env vars:
 
 ```mermaid
 flowchart TD
-  Visitor_lands_on_homepage --> See_reimagined_deep_sky_journal_lead_and_subtle_spectral_parallax
-  Visitor_lands_on_homepage --> See_sitewide_Creative_Commons_notice_banner_and_footer
-  See_reimagined_deep_sky_journal_lead_and_subtle_spectral_parallax --> Use_quick_actions_to_jump_to_gallery_refine_or_field_guide
-  See_reimagined_deep_sky_journal_lead_and_subtle_spectral_parallax --> Scan_three_landing_quick_link_tiles
-  Use_quick_actions_to_jump_to_gallery_refine_or_field_guide --> Read_Tonights_Highlight_facts_and_open_details_CTA
-  Read_Tonights_Highlight_facts_and_open_details_CTA --> Review_active_filter_chip_summary
-  See_sitewide_Creative_Commons_notice_banner_and_footer --> Browse_thumbnail_gallery
-  Review_active_filter_chip_summary -->|optional| Open_Refine_panel_for_full_filter_controls
-  Open_Refine_panel_for_full_filter_controls --> Browse_thumbnail_gallery
-  Review_active_filter_chip_summary --> Browse_thumbnail_gallery
-  Visitor_lands_on_homepage --> Open_contact_social_page
-  Browse_thumbnail_gallery --> Open_image_detail
-  Open_image_detail --> Review_metadata_object_equipment_exposure_and_tags
-  Review_metadata_object_equipment_exposure_and_tags --> Copy_image_specific_share_link
+  Visitor_lands_on_homepage --> See_full_bleed_rotating_spotlight_cover
+  Visitor_lands_on_homepage --> See_compact_Creative_Commons_notice_and_portfolio_navigation
+  See_full_bleed_rotating_spotlight_cover --> Open_featured_observation
+  See_full_bleed_rotating_spotlight_cover --> Explore_editorial_image_mosaic
+  Explore_editorial_image_mosaic --> Review_active_filter_chip_summary
+  Review_active_filter_chip_summary -->|optional| Open_Refine_panel_for_object_tag_date_search_and_sort
+  Open_Refine_panel_for_object_tag_date_search_and_sort --> Reorder_existing_responsive_gallery_cards
+  Reorder_existing_responsive_gallery_cards --> Open_image_detail
+  Explore_editorial_image_mosaic --> Open_image_detail
+  Open_image_detail --> Load_responsive_preview_in_large_media_stage
+  Load_responsive_preview_in_large_media_stage --> Review_conditional_capture_equipment_processing_and_tags
+  Load_responsive_preview_in_large_media_stage -->|fullscreen requested| Load_high_resolution_original
+  Review_conditional_capture_equipment_processing_and_tags --> Copy_image_specific_share_link
   Copy_image_specific_share_link --> Paste_in_Facebook_WhatsApp_or_iMessage
   Paste_in_Facebook_WhatsApp_or_iMessage --> Preview_card_shows_image_and_title
   Preview_card_shows_image_and_title --> Continue_browsing_gallery
@@ -276,7 +279,7 @@ graph LR
   Public_Browser --> PHP_Front_Controller
   Admin_Browser --> PHP_Front_Controller
   PHP_Front_Controller --> Template_Views
-  Template_Views --> Cinematic_CSS_Theme_Layer_subtle_twinkle_gradient_drift_spectral_parallax_split_desktop_mobile_detail_viewer_shell_and_wide_admin_two_column_workspace
+  Template_Views --> Editorial_CSS_Layer_full_bleed_cover_source_order_mosaic_responsive_detail_stage_and_admin_workspace
   Template_Views --> Canonical_and_Open_Graph_meta_tags
   PHP_Front_Controller --> Auth_CSRF_and_Rate_Limit
   PHP_Front_Controller --> JSON_metadata_users_wiki_cache_spotlight_and_SEO_fields
@@ -288,6 +291,7 @@ graph LR
   PHP_Front_Controller --> Wikipedia_REST_summary_fetch
   Local_Developer --> Makefile_Setup_Dev_and_Check_commands
   Makefile_Setup_Dev_and_Check_commands --> PHP_Built_in_Development_Server
+  PHP_Built_in_Development_Server --> Existing_static_assets_directly
   PHP_Built_in_Development_Server --> PHP_Front_Controller
 ```
 

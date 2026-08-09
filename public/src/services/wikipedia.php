@@ -344,8 +344,23 @@ function http_json_get(string $url): array
 
     $body = @file_get_contents($url, false, $context);
     $status = 0;
+    $responseHeaders = [];
 
-    if (isset($http_response_header[0]) && preg_match('#\s(\d{3})\s#', $http_response_header[0], $matches)) {
+    if (function_exists('http_get_last_response_headers')) {
+        $lastResponseHeaders = http_get_last_response_headers();
+        if (is_array($lastResponseHeaders)) {
+            $responseHeaders = $lastResponseHeaders;
+        }
+    } else {
+        // Dynamic access retains PHP 7.4 support without triggering the PHP 8.5
+        // deprecation for the legacy predefined local variable.
+        $legacyHeaderVariable = 'http_response_header';
+        if (isset($$legacyHeaderVariable) && is_array($$legacyHeaderVariable)) {
+            $responseHeaders = $$legacyHeaderVariable;
+        }
+    }
+
+    if (isset($responseHeaders[0]) && preg_match('#\s(\d{3})\s#', $responseHeaders[0], $matches)) {
         $status = (int) $matches[1];
     }
 

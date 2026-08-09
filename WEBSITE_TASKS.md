@@ -116,17 +116,18 @@ This task plan is designed for a Linux + Apache + PHP environment and optimized 
 - [ ] Before/after slider (stacked vs processed image), optional for advanced showcase.
 - [x] Spotlight section on homepage with rotating selection rules (latest, featured override, daily deterministic pick).
 - [ ] Constellation-style timeline view by capture date.
-- [x] Ambient micro-interactions (hover/focus metadata fade-ins, elegant loading skeletons, and pointer-based card tilt with reduced-motion fallback).
-- [x] Keep gallery hover/focus metadata overlays anchored to the image area after client-side filter/sort re-renders.
-- [x] Reimagined landing page from scratch as a deep-sky journal experience (new narrative lead, CTA row, category-count snapshot pills, and rebuilt spotlight dossier card).
+- [x] Ambient micro-interactions (restrained image zoom, hover/focus metadata reveals, spectral parallax, and reduced-motion fallbacks without 3D card tilt).
+- [x] Preserve the original semantic/responsive card nodes during client-side filter/sort reordering so `srcset`, focus behavior, captions, and metadata overlays remain intact.
+- [x] Reimagined landing page as an image-first editorial cover with concise authored copy and the rotating observation presented full bleed.
 - [x] Added subtle spectral parallax accents (H-alpha reds + OIII cyans) on the landing hero and shifted homepage filtering to chip-summary-first with full controls behind a Refine toggle.
-- [x] Refreshed landing page look-and-feel with new night-sky archive hero copy, expanded CTA set, quick-link discovery tiles, and a denser spotlight presentation while preserving existing filter/query workflows.
-- [x] Mobile ergonomics polish for 360–430px widths (sticky utility row, larger 44px touch targets, tighter typography/spacing, overflow-safe title + metadata chip handling).
-- [x] Define clearly distinct detail-view experiences by breakpoint: widescreen desktop layout that uses horizontal space with overflow-safe metadata/Wikipedia divider behavior, and long-thin stacked mobile layout for narrow screens.
+- [x] Replace the uniform thumbnail grid with a source-order-preserving editorial mosaic of wide, paired, square, and panoramic compositions.
+- [x] Mobile ergonomics polish for 360–430px widths (compact two-row masthead, single-column photo sequence, large touch targets, and overflow-safe controls).
+- [x] Define distinct image-first detail experiences by breakpoint: a widescreen media stage plus conditional fact groups, and a long-form stacked mobile layout.
 
 ## 8) Performance and image delivery
 
 - [x] Use responsive image `srcset` and lazy loading.
+- [x] Load detail thumbnails first and defer the potentially large original until fullscreen is requested.
 - [ ] Enable Apache compression and long-lived cache headers for generated thumbnails.
 - [ ] Add CDN option later (CloudFront) if traffic grows.
 - [x] Create background job/CLI script to regenerate thumbnails for older uploads.
@@ -155,6 +156,7 @@ This task plan is designed for a Linux + Apache + PHP environment and optimized 
 ## 11) Operations and maintainability
 
 - [x] Add a reproducible native development workflow (`make setup`, `make dev`, and fast PHP/JSON validation commands) with documented environment overrides.
+- [x] Keep Wikipedia HTTP response handling compatible across PHP 7.4–8.5 without development-time deprecation noise.
 - [x] Add admin tools:
   - [x] Task-based admin portal pages (Upload image / Setup presets / Manage images / Dedicated edit page / Security) with persistent sidebar navigation for faster admin-only task switching.
   - [x] Rebalance admin page shell into a desktop-first side-nav + wide-content workspace, with help cards moved above content so forms/lists use more horizontal browser space.

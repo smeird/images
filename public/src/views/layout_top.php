@@ -7,6 +7,10 @@ $ogImageType = isset($meta_image_type) ? trim((string) $meta_image_type) : '';
 $ogImageWidth = isset($meta_image_width) ? (int) $meta_image_width : 0;
 $ogImageHeight = isset($meta_image_height) ? (int) $meta_image_height : 0;
 $metaKeywords = isset($meta_keywords) ? trim((string) $meta_keywords) : '';
+$currentPath = parse_url((string) ($_SERVER['REQUEST_URI'] ?? '/'), PHP_URL_PATH) ?: '/';
+$pageClass = 'page-' . str_replace('_', '-', (string) ($view ?? 'site'));
+$galleryIsCurrent = $currentPath === '/' || $currentPath === '/image.php';
+$adminIsCurrent = strpos($currentPath, (string) $config['admin_route']) === 0;
 ?>
 <!doctype html>
 <html lang="en">
@@ -59,26 +63,31 @@ $metaKeywords = isset($meta_keywords) ? trim((string) $meta_keywords) : '';
     <script type="application/ld+json"><?= json_encode($schema, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE) ?></script>
   <?php endif; ?>
 </head>
-<body>
+<body class="<?= htmlspecialchars($pageClass) ?>">
+<a class="skip-link" href="#main-content">Skip to content</a>
 <header class="site-header">
-  <a class="brand" href="/"><?= htmlspecialchars($config['site_name']) ?></a>
-  <nav>
-    <a href="/">Gallery</a>
-    <a href="/about">About</a>
-    <a href="/contact">Contact</a>
-    <a href="<?= htmlspecialchars($config['admin_route']) ?>/login">Admin</a>
+  <a class="brand" href="/" aria-label="<?= htmlspecialchars($config['site_name']) ?> home">
+    <span class="brand-mark" aria-hidden="true"><span></span></span>
+    <span class="brand-copy">
+      <strong><?= htmlspecialchars($config['site_name']) ?></strong>
+      <small>Deep-sky photography</small>
+    </span>
+  </a>
+  <nav aria-label="Primary navigation">
+    <a href="/"<?= $galleryIsCurrent ? ' aria-current="page"' : '' ?>>Archive</a>
+    <a href="/about"<?= $currentPath === '/about' ? ' aria-current="page"' : '' ?>>Field notes</a>
+    <a href="/contact"<?= $currentPath === '/contact' ? ' aria-current="page"' : '' ?>>Contact</a>
+    <?php if ($adminIsCurrent): ?>
+      <a href="<?= htmlspecialchars($config['admin_route']) ?>/upload" aria-current="page">Studio</a>
+    <?php endif; ?>
   </nav>
 </header>
 <section class="license-banner" aria-label="Image licensing notice">
   <p>
-    All showcased images are published under a
-    <strong>Creative Commons license</strong>.
+    <span class="license-pulse" aria-hidden="true"></span>
+    An independent open image archive
+    <span aria-hidden="true">/</span>
+    <a href="https://creativecommons.org/licenses/" target="_blank" rel="license noopener noreferrer">Creative Commons licensed</a>
   </p>
 </section>
-<nav class="mobile-utility-row" aria-label="Quick navigation">
-  <a href="/">Gallery</a>
-  <a href="/about">About</a>
-  <a href="/contact">Contact</a>
-  <a href="/#gallery">Search</a>
-</nav>
-<main>
+<main id="main-content">

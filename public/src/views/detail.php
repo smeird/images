@@ -17,13 +17,61 @@ if (!empty($wikipedia_data) && is_array($wikipedia_data)) {
         'url' => (string) ($image['wikipediaUrl'] ?? ''),
     ];
 }
+
+$detailObject = trim((string) ($image['object_name'] ?? ''));
+$detailTitle = trim((string) ($image['title'] ?? 'Untitled capture'));
+$detailAlt = $detailObject !== ''
+    ? 'Astrophotograph of ' . $detailObject . ': ' . $detailTitle
+    : $detailTitle;
+$detailThumbLarge = (string) ($image['thumb'] ?? '');
+$detailThumbSmall = (string) ($image['thumb_small'] ?? $detailThumbLarge);
+
+$factGroups = [
+    'Capture' => [
+        'Object' => $detailObject,
+        'Object type' => (string) ($image['object_type'] ?? ''),
+        'Captured' => (string) ($image['captured_at'] ?? ''),
+        'Exposure' => (string) ($image['exposure'] ?? ''),
+    ],
+    'Imaging train' => [
+        'Equipment' => (string) ($image['equipment'] ?? ''),
+        'Telescope' => (string) ($image['telescope'] ?? ''),
+        'Mount' => (string) ($image['mount'] ?? ''),
+        'Camera' => (string) ($image['camera'] ?? ''),
+        'Filter wheel' => (string) ($image['filter_wheel'] ?? ''),
+        'Filters' => (string) ($image['filters'] ?? ''),
+        'Filter set' => (string) ($image['filter_set'] ?? ''),
+        'Scope type' => (string) ($image['scope_type'] ?? ''),
+    ],
+    'Processing' => [
+        'Workflow' => (string) ($image['processing'] ?? ''),
+    ],
+];
 ?>
 
+<a class="detail-back" href="/#gallery-start"><span aria-hidden="true">←</span> Back to archive</a>
+<header class="detail-titlebar">
+  <p class="detail-eyebrow"><?= htmlspecialchars((string) ($image['object_type'] ?? 'Deep-sky observation')) ?></p>
+  <h1><?= htmlspecialchars($detailTitle) ?></h1>
+  <p><?= htmlspecialchars($detailObject) ?><?php if (!empty($image['captured_at'])): ?> <span aria-hidden="true">/</span> <?= htmlspecialchars((string) $image['captured_at']) ?><?php endif; ?></p>
+</header>
 <article class="detail detail-viewer-layout">
   <figure class="detail-media skeleton-card" data-detail-media data-skeleton-card>
     <div class="skeleton-shimmer skeleton-media-block detail-media-skeleton" data-skeleton-placeholder aria-hidden="true"></div>
-    <img class="detail-image fade-asset" src="/media.php?type=original&file=<?= urlencode($image['original']) ?>" alt="<?= htmlspecialchars($image['title']) ?>" data-detail-image data-skeleton-image>
+    <img
+      class="detail-image fade-asset"
+      src="/media.php?type=thumb&amp;file=<?= urlencode($detailThumbLarge) ?>"
+      srcset="/media.php?type=thumb&amp;file=<?= urlencode($detailThumbSmall) ?> 400w, /media.php?type=thumb&amp;file=<?= urlencode($detailThumbLarge) ?> 800w"
+      sizes="(max-width: 760px) 96vw, 92vw"
+      data-full-src="/media.php?type=original&amp;file=<?= urlencode((string) $image['original']) ?>"
+      alt="<?= htmlspecialchars($detailAlt) ?>"
+      decoding="async"
+      fetchpriority="high"
+      data-detail-image
+      data-skeleton-image
+    >
     <button type="button" class="fullscreen-toggle" data-fullscreen-toggle aria-label="View image in fullscreen">View fullscreen</button>
+    <figcaption><span><?= htmlspecialchars($detailTitle) ?></span><span><?= htmlspecialchars($detailObject) ?></span></figcaption>
   </figure>
   <div class="panel detail-panel skeleton-card" data-skeleton-card>
     <div class="skeleton-meta-lines detail-meta-skeleton" data-skeleton-placeholder aria-hidden="true">
@@ -35,27 +83,32 @@ if (!empty($wikipedia_data) && is_array($wikipedia_data)) {
 
     <div class="detail-info-layout">
       <section class="detail-primary-copy">
-        <h1><?= htmlspecialchars($image['title']) ?></h1>
-        <p><?= nl2br(htmlspecialchars($image['description'])) ?></p>
-        <ul class="metadata-list detail-metadata-grid">
-          <li><strong>Object:</strong> <?= htmlspecialchars($image['object_name']) ?></li>
-          <?php if (!empty($image['object_type'])): ?>
-            <li><strong>Object type:</strong> <?= htmlspecialchars((string) $image['object_type']) ?></li>
-          <?php endif; ?>
-          <li><strong>Captured:</strong> <?= htmlspecialchars($image['captured_at']) ?></li>
-          <li><strong>Equipment:</strong> <?= htmlspecialchars($image['equipment']) ?></li>
-          <?php if (!empty($image['telescope'])): ?><li><strong>Telescope:</strong> <?= htmlspecialchars((string) $image['telescope']) ?></li><?php endif; ?>
-          <?php if (!empty($image['mount'])): ?><li><strong>Mount:</strong> <?= htmlspecialchars((string) $image['mount']) ?></li><?php endif; ?>
-          <?php if (!empty($image['camera'])): ?><li><strong>Camera:</strong> <?= htmlspecialchars((string) $image['camera']) ?></li><?php endif; ?>
-          <?php if (!empty($image['filter_wheel'])): ?><li><strong>Filter wheel:</strong> <?= htmlspecialchars((string) $image['filter_wheel']) ?></li><?php endif; ?>
-          <?php if (!empty($image['filters'])): ?><li><strong>Filters:</strong> <?= htmlspecialchars((string) $image['filters']) ?></li><?php endif; ?>
-          <?php if (!empty($image['filter_set'])): ?><li><strong>Filter set:</strong> <?= htmlspecialchars((string) $image['filter_set']) ?></li><?php endif; ?>
-          <?php if (!empty($image['scope_type'])): ?>
-            <li><strong>Scope type:</strong> <?= htmlspecialchars((string) $image['scope_type']) ?></li>
-          <?php endif; ?>
-          <li><strong>Exposure:</strong> <?= htmlspecialchars($image['exposure']) ?></li>
-          <li><strong>Processing:</strong> <?= htmlspecialchars($image['processing']) ?></li>
-        </ul>
+        <?php if (trim((string) ($image['description'] ?? '')) !== ''): ?>
+          <p class="detail-story"><?= nl2br(htmlspecialchars((string) $image['description'])) ?></p>
+        <?php endif; ?>
+
+        <div class="detail-fact-groups">
+          <?php $factGroupIndex = 0; ?>
+          <?php foreach ($factGroups as $groupLabel => $facts): ?>
+            <?php
+              $visibleFacts = array_filter($facts, static function ($value): bool {
+                  return trim((string) $value) !== '';
+              });
+              if (empty($visibleFacts)) {
+                  continue;
+              }
+              $factGroupIndex++;
+            ?>
+            <section class="detail-fact-group">
+              <p class="detail-fact-kicker"><?= str_pad((string) $factGroupIndex, 2, '0', STR_PAD_LEFT) ?> / <?= htmlspecialchars($groupLabel) ?></p>
+              <dl>
+                <?php foreach ($visibleFacts as $label => $value): ?>
+                  <div><dt><?= htmlspecialchars((string) $label) ?></dt><dd><?= htmlspecialchars((string) $value) ?></dd></div>
+                <?php endforeach; ?>
+              </dl>
+            </section>
+          <?php endforeach; ?>
+        </div>
 
         <div class="share-link">
           <label for="image-share-url"><strong>Share preview link</strong></label>
@@ -63,7 +116,7 @@ if (!empty($wikipedia_data) && is_array($wikipedia_data)) {
             <input id="image-share-url" type="text" readonly value="<?= htmlspecialchars(absolute_url('/image.php?id=' . rawurlencode((string) $image['id']))) ?>">
             <button type="button" class="secondary share-link-button" data-copy-share-link>Copy link</button>
           </div>
-          <p class="muted" data-copy-share-status>Paste this URL in Facebook, WhatsApp, or iMessage to show this image preview.</p>
+          <p class="muted" data-copy-share-status role="status" aria-live="polite">Paste this URL in Facebook, WhatsApp, or iMessage to show this image preview.</p>
         </div>
 
         <p class="attribution-note">Image license: This gallery image is published under a Creative Commons license.</p>
@@ -79,9 +132,9 @@ if (!empty($wikipedia_data) && is_array($wikipedia_data)) {
 
       <?php if ($wikiSource !== null): ?>
         <section class="wiki-panel detail-wiki-column">
-          <h2>Wikipedia reference</h2>
+          <p class="detail-fact-kicker">Object notes / Wikipedia</p>
           <?php if ($wikiSource['thumbnail'] !== ''): ?>
-            <img class="wiki-thumb" src="<?= htmlspecialchars($wikiSource['thumbnail']) ?>" alt="Wikipedia thumbnail for <?= htmlspecialchars($wikiSource['title'] !== '' ? $wikiSource['title'] : $image['object_name']) ?>">
+            <img class="wiki-thumb" loading="lazy" decoding="async" src="<?= htmlspecialchars($wikiSource['thumbnail']) ?>" alt="Wikipedia thumbnail for <?= htmlspecialchars($wikiSource['title'] !== '' ? $wikiSource['title'] : $image['object_name']) ?>">
           <?php endif; ?>
           <?php if ($wikiSource['title'] !== ''): ?>
             <h3><?= htmlspecialchars($wikiSource['title']) ?></h3>
@@ -113,7 +166,7 @@ if (!empty($wikipedia_data) && is_array($wikipedia_data)) {
         </section>
       <?php elseif (!empty($wikipedia_error)): ?>
         <section class="wiki-panel detail-wiki-column">
-          <h2>Wikipedia reference</h2>
+          <p class="detail-fact-kicker">Object notes / Wikipedia</p>
           <p class="muted">No external reference yet.</p>
         </section>
       <?php endif; ?>
@@ -170,6 +223,13 @@ if (!empty($wikipedia_data) && is_array($wikipedia_data)) {
           return;
         }
 
+        const fullSource = image.dataset.fullSrc;
+        if (fullSource && image.dataset.highResolution !== 'true') {
+          image.src = fullSource;
+          image.removeAttribute('srcset');
+          image.removeAttribute('sizes');
+          image.dataset.highResolution = 'true';
+        }
         media.requestFullscreen();
       });
 

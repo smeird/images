@@ -31,6 +31,7 @@ foreach ($images as $image) {
         'object_type' => $objectType,
         'captured_at' => (string) ($image['captured_at'] ?? ''),
         'thumb' => (string) ($image['thumb'] ?? ''),
+        'thumb_small' => (string) ($image['thumb_small'] ?? ($image['thumb'] ?? '')),
         'exposure' => (string) ($image['exposure'] ?? ''),
         'equipment' => (string) ($image['equipment'] ?? (($image['telescope'] ?? '') . ' · ' . ($image['camera'] ?? ''))),
         'tags' => $imageTags,
@@ -42,89 +43,69 @@ $tagOptions = array_keys($tags);
 sort($objectTypeOptions, SORT_NATURAL | SORT_FLAG_CASE);
 sort($tagOptions, SORT_NATURAL | SORT_FLAG_CASE);
 ?>
-<section class="landing-shell hero--immersive" id="immersive-hero">
+<section class="landing-shell hero--immersive<?= $featured ? ' has-feature' : ' is-empty' ?>" id="immersive-hero" aria-labelledby="home-title">
   <div class="hero-spectral hero-spectral--ha" aria-hidden="true"></div>
   <div class="hero-spectral hero-spectral--oiii" aria-hidden="true"></div>
+  <?php if ($featured): ?>
+    <?php
+      $featuredThumbLarge = (string) ($featured['thumb'] ?? '');
+      $featuredThumbSmall = (string) ($featured['thumb_small'] ?? $featuredThumbLarge);
+      $featuredObject = trim((string) ($featured['object_name'] ?? ''));
+      $featuredAlt = $featuredObject !== ''
+        ? 'Astrophotograph of ' . $featuredObject . ': ' . (string) ($featured['title'] ?? '')
+        : (string) ($featured['title'] ?? 'Featured astrophotograph');
+    ?>
+    <a class="hero-frame__media" href="/image.php?id=<?= urlencode($featured['id']) ?>" aria-label="View featured capture: <?= htmlspecialchars($featured['title']) ?>">
+      <img
+        src="/media.php?type=thumb&amp;file=<?= urlencode($featuredThumbLarge) ?>"
+        srcset="/media.php?type=thumb&amp;file=<?= urlencode($featuredThumbSmall) ?> 400w, /media.php?type=thumb&amp;file=<?= urlencode($featuredThumbLarge) ?> 800w"
+        sizes="100vw"
+        alt="<?= htmlspecialchars($featuredAlt) ?>"
+        fetchpriority="high"
+        decoding="async"
+      >
+    </a>
+  <?php endif; ?>
   <div class="landing-shell__lead">
-    <p class="landing-kicker">Night sky archive</p>
-    <h1>A cinematic landing page for discovering deep-sky stories in seconds.</h1>
-    <p class="landing-intro">Scan the newest sessions, jump to curated observations, and open each capture dossier with one click. The homepage now prioritizes quick browsing while keeping the educational pathway close at hand.</p>
+    <p class="landing-kicker"><span>Night Sky Atlas</span><span>Independent astrophotography archive</span></p>
+    <h1 id="home-title"><span>Light from</span><em>the deep.</em></h1>
+    <p class="landing-intro">Nebulae, galaxies and lunar landscapes—photographed from Earth, shaped over long nights, and presented at the scale they deserve.</p>
     <div class="landing-stats" role="list" aria-label="Gallery snapshot">
-      <span class="pill" role="listitem"><?= count($images) ?> captures online</span>
-      <span class="pill" role="listitem"><?= count($objectTypeOptions) ?> object types mapped</span>
-      <span class="pill" role="listitem"><?= count($tagOptions) ?> searchable tags</span>
+      <span role="listitem"><strong><?= str_pad((string) count($images), 2, '0', STR_PAD_LEFT) ?></strong> captured frames</span>
+      <span role="listitem"><strong><?= str_pad((string) count($objectTypeOptions), 2, '0', STR_PAD_LEFT) ?></strong> celestial families</span>
     </div>
     <div class="landing-actions">
-      <a class="button-link" href="#gallery">Enter gallery wall</a>
-      <a class="button-link secondary" href="#filter-refine-toggle">Refine by target</a>
-      <a class="button-link secondary" href="/about">Read the field guide</a>
-    </div>
-    <div class="landing-quick-grid" aria-label="Landing quick links">
-      <a href="#gallery">
-        <strong>Browse latest</strong>
-        <span>Jump straight into the current image wall.</span>
-      </a>
-      <a href="/about">
-        <strong>Learn capture workflow</strong>
-        <span>Open long-form guidance, diagrams, and tools.</span>
-      </a>
-      <a href="/contact">
-        <strong>Request collaboration</strong>
-        <span>Use contact pathways for projects and licensing.</span>
-      </a>
+      <a class="button-link" href="#gallery-start">Explore the archive <span aria-hidden="true">↓</span></a>
+      <a class="landing-text-link" href="/about">Read the field notes <span aria-hidden="true">↗</span></a>
     </div>
   </div>
-  <aside class="landing-shell__spotlight">
-    <h2>Observation Spotlight</h2>
-    <?php if ($featured): ?>
-      <?php
-        $spotlightRule = $featured['_spotlight_rule'] ?? 'latest';
-        $spotlightLabel = $spotlightRule === 'featured'
-          ? 'Curator-selected feature'
-          : ($spotlightRule === 'daily' ? 'Daily deterministic selection' : 'Newest published session');
-
-        $highlightFacts = [];
-        if (!empty($featured['object_name'])) {
-            $highlightFacts[] = 'Target: ' . (string) $featured['object_name'];
-        }
-        if (!empty($featured['captured_at'])) {
-            $highlightFacts[] = 'Session date: ' . (string) $featured['captured_at'];
-        }
-        if (!empty($featured['telescope'])) {
-            $highlightFacts[] = 'Optics: ' . (string) $featured['telescope'];
-        }
-        if (!empty($featured['camera'])) {
-            $highlightFacts[] = 'Camera: ' . (string) $featured['camera'];
-        }
-
-        $highlightFacts = array_slice($highlightFacts, 0, 3);
-      ?>
-      <a class="landing-spotlight-media" href="/image.php?id=<?= urlencode($featured['id']) ?>">
-        <img loading="lazy" src="/media.php?type=thumb&file=<?= urlencode($featured['thumb']) ?>" alt="<?= htmlspecialchars($featured['title']) ?>">
-      </a>
-      <p class="landing-spotlight-title"><strong><?= htmlspecialchars($featured['title']) ?></strong></p>
-      <p class="landing-spotlight-meta"><?= htmlspecialchars($featured['object_name']) ?> · <?= htmlspecialchars($featured['captured_at']) ?></p>
-      <div class="highlight-caption" aria-label="Tonight's Highlight">
-        <p class="highlight-kicker"><?= htmlspecialchars($spotlightLabel) ?></p>
-        <?php if (!empty($highlightFacts)): ?>
-          <ul>
-            <?php foreach ($highlightFacts as $fact): ?>
-              <li><?= htmlspecialchars($fact) ?></li>
-            <?php endforeach; ?>
-          </ul>
-        <?php endif; ?>
-        <a class="button-link secondary highlight-cta" href="/image.php?id=<?= urlencode($featured['id']) ?>">Open capture dossier</a>
-      </div>
-    <?php else: ?>
-      <p>No spotlight yet. Upload your first image from the secure admin route to light up the gallery.</p>
-    <?php endif; ?>
-  </aside>
+  <?php if ($featured): ?>
+    <?php
+      $spotlightRule = $featured['_spotlight_rule'] ?? 'latest';
+      $spotlightLabel = $spotlightRule === 'featured'
+        ? 'Curator selected'
+        : ($spotlightRule === 'daily' ? 'Today’s observation' : 'Latest observation');
+    ?>
+    <aside class="landing-shell__spotlight" aria-label="Featured observation">
+      <p class="highlight-kicker"><?= htmlspecialchars($spotlightLabel) ?></p>
+      <h2><?= htmlspecialchars($featured['title']) ?></h2>
+      <p class="landing-spotlight-meta"><?= htmlspecialchars($featured['object_name']) ?><?php if (!empty($featured['captured_at'])): ?> <span aria-hidden="true">/</span> <?= htmlspecialchars($featured['captured_at']) ?><?php endif; ?></p>
+      <a class="landing-spotlight-link" href="/image.php?id=<?= urlencode($featured['id']) ?>">Enter this frame <span aria-hidden="true">↗</span></a>
+    </aside>
+  <?php endif; ?>
+</section>
+<section class="archive-heading" id="gallery-start" aria-labelledby="gallery-heading">
+  <p class="archive-heading__index">Archive / <?= str_pad((string) count($images), 2, '0', STR_PAD_LEFT) ?></p>
+  <div>
+    <h2 id="gallery-heading">Collected light</h2>
+    <p>Long exposures, dark skies, and distant structures arranged as a living visual journal.</p>
+  </div>
 </section>
 <section class="filter-toolbar" aria-label="Gallery filters">
   <div class="filter-toolbar__summary">
-    <p class="filter-toolbar__lead">Active filters</p>
+    <p class="filter-toolbar__lead">Explore by target</p>
     <div id="filter-chip-summary" class="filter-chip-summary" aria-live="polite"></div>
-    <button id="filter-refine-toggle" type="button" class="button-link secondary filter-refine-toggle" aria-expanded="false" aria-controls="filter-refine-panel">Refine</button>
+    <button id="filter-refine-toggle" type="button" class="filter-refine-toggle" aria-expanded="false" aria-controls="filter-refine-panel">Refine collection <span aria-hidden="true">+</span></button>
   </div>
   <div id="filter-refine-panel" class="filter-refine-panel" hidden>
     <div class="filter-toolbar__grid">
@@ -174,15 +155,14 @@ sort($tagOptions, SORT_NATURAL | SORT_FLAG_CASE);
     <button id="filter-reset" type="button" class="secondary">Clear filters</button>
   </div>
 </section>
-<section class="grid" id="gallery">
+<section class="grid gallery-mosaic" id="gallery" aria-labelledby="gallery-heading">
   <?php if (empty($images)): ?>
     <p>No images yet. Admins can upload from the secure route.</p>
   <?php else: ?>
-    <?php foreach ($images as $image): ?>
-      <article class="card skeleton-card" data-skeleton-card>
-        <a href="/image.php?id=<?= urlencode($image['id']) ?>">
+    <?php foreach ($images as $imageIndex => $image): ?>
+      <article class="card" data-image-id="<?= htmlspecialchars((string) $image['id']) ?>">
+        <a href="/image.php?id=<?= urlencode($image['id']) ?>" aria-label="View capture: <?= htmlspecialchars($image['title']) ?>">
           <div class="skeleton-media-wrap">
-            <div class="skeleton-shimmer skeleton-media-block" data-skeleton-placeholder aria-hidden="true"></div>
             <?php
               $thumbLarge = (string) ($image['thumb'] ?? '');
               $thumbSmall = (string) ($image['thumb_small'] ?? $thumbLarge);
@@ -192,19 +172,25 @@ sort($tagOptions, SORT_NATURAL | SORT_FLAG_CASE);
                   $overlayEquipment = trim((string) (($image['telescope'] ?? '') . ' · ' . ($image['camera'] ?? '')), ' ·');
               }
             ?>
-            <img class="fade-asset" loading="lazy" src="/media.php?type=thumb&file=<?= urlencode($thumbLarge) ?>" srcset="/media.php?type=thumb&file=<?= urlencode($thumbSmall) ?> 400w, /media.php?type=thumb&file=<?= urlencode($thumbLarge) ?> 800w" sizes="(max-width: 680px) 92vw, (max-width: 1080px) 48vw, 24vw" alt="<?= htmlspecialchars($image['title']) ?>" data-skeleton-image>
-            <div class="card-overlay" aria-hidden="true">
+            <?php
+              $imageObject = trim((string) ($image['object_name'] ?? ''));
+              $imageAlt = $imageObject !== ''
+                ? 'Astrophotograph of ' . $imageObject . ': ' . (string) ($image['title'] ?? '')
+                : (string) ($image['title'] ?? 'Astrophotograph');
+            ?>
+            <img loading="lazy" decoding="async" src="/media.php?type=thumb&amp;file=<?= urlencode($thumbLarge) ?>" srcset="/media.php?type=thumb&amp;file=<?= urlencode($thumbSmall) ?> 400w, /media.php?type=thumb&amp;file=<?= urlencode($thumbLarge) ?> 800w" sizes="(max-width: 680px) 94vw, (max-width: 900px) 48vw, 58vw" alt="<?= htmlspecialchars($imageAlt) ?>">
+            <div class="card-overlay">
               <?php if ($overlayExposure !== ''): ?><span>Exposure: <?= htmlspecialchars($overlayExposure) ?></span><?php endif; ?>
               <?php if ($overlayEquipment !== ''): ?><span>Gear: <?= htmlspecialchars($overlayEquipment) ?></span><?php endif; ?>
             </div>
-          </div>
-          <div class="skeleton-meta-wrap">
-            <div class="skeleton-meta-lines" data-skeleton-placeholder aria-hidden="true">
-              <span class="skeleton-shimmer skeleton-line skeleton-line-title"></span>
-              <span class="skeleton-shimmer skeleton-line skeleton-line-copy"></span>
+            <div class="card-caption">
+              <span class="card-caption__index" aria-hidden="true"><?= str_pad((string) ($imageIndex + 1), 2, '0', STR_PAD_LEFT) ?></span>
+              <div>
+                <h3><?= htmlspecialchars($image['title']) ?></h3>
+                <p><?= htmlspecialchars($image['object_name']) ?><?php if (!empty($image['captured_at'])): ?> <span aria-hidden="true">/</span> <?= htmlspecialchars($image['captured_at']) ?><?php endif; ?></p>
+              </div>
+              <span class="card-caption__arrow" aria-hidden="true">↗</span>
             </div>
-            <h3><?= htmlspecialchars($image['title']) ?></h3>
-            <p><?= htmlspecialchars($image['object_name']) ?> · <?= htmlspecialchars($image['captured_at']) ?></p>
           </div>
         </a>
       </article>
@@ -215,10 +201,11 @@ sort($tagOptions, SORT_NATURAL | SORT_FLAG_CASE);
 <script>
 (() => {
   const payloadEl = document.getElementById('home-image-data');
-  const gridEl = document.querySelector('.grid');
+  const gridEl = document.getElementById('gallery');
   if (!payloadEl || !gridEl) return;
 
   const allImages = JSON.parse(payloadEl.textContent || '[]');
+  const cardNodes = new Map(Array.from(gridEl.querySelectorAll('[data-image-id]')).map((card) => [card.dataset.imageId, card]));
   const controls = {
     hero: document.getElementById('immersive-hero'),
     chipSummary: document.getElementById('filter-chip-summary'),
@@ -274,7 +261,7 @@ sort($tagOptions, SORT_NATURAL | SORT_FLAG_CASE);
     if (!controls.refinePanel || !controls.refineToggle) return;
     controls.refinePanel.hidden = !isOpen;
     controls.refineToggle.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
-    controls.refineToggle.textContent = isOpen ? 'Hide refine controls' : 'Refine';
+    controls.refineToggle.innerHTML = isOpen ? 'Close filters <span aria-hidden="true">−</span>' : 'Refine collection <span aria-hidden="true">+</span>';
   };
 
   if (controls.refineToggle) {
@@ -332,66 +319,12 @@ sort($tagOptions, SORT_NATURAL | SORT_FLAG_CASE);
     .replace(/"/g, '&quot;')
     .replace(/'/g, '&#39;');
 
-  const buildOverlayMarkup = (image) => {
-    const exposure = String(image.exposure || '').trim();
-    const equipment = String(image.equipment || '').trim()
-      || [image.telescope || '', image.camera || ''].filter(Boolean).join(' · ');
-    const lines = [];
-    if (exposure) lines.push('<span>Exposure: ' + escapeHtml(exposure) + '</span>');
-    if (equipment) lines.push('<span>Gear: ' + escapeHtml(equipment) + '</span>');
-
-    return '<div class="card-overlay" aria-hidden="true">' + lines.join('') + '</div>';
-  };
-
   const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
   let advancedMotionEnabled = !prefersReducedMotion.matches;
-
-  const resetCardMotion = (card) => {
-    card.style.removeProperty('--tilt-x');
-    card.style.removeProperty('--tilt-y');
-    card.style.removeProperty('--pointer-y');
-    card.style.removeProperty('--shadow-scale');
-  };
-
-  const bindCardMotion = (card) => {
-    if (!card || card.dataset.motionBound === 'true') return;
-    card.dataset.motionBound = 'true';
-
-    const handleMove = (event) => {
-      if (!advancedMotionEnabled) return;
-      const rect = card.getBoundingClientRect();
-      const px = Math.max(0, Math.min(1, (event.clientX - rect.left) / rect.width));
-      const py = Math.max(0, Math.min(1, (event.clientY - rect.top) / rect.height));
-      const tiltX = (0.5 - py) * 7;
-      const tiltY = (px - 0.5) * 9;
-      card.style.setProperty('--tilt-x', tiltX.toFixed(2) + 'deg');
-      card.style.setProperty('--tilt-y', tiltY.toFixed(2) + 'deg');
-      card.style.setProperty('--pointer-y', py.toFixed(3));
-      card.style.setProperty('--shadow-scale', (1 + ((1 - py) * 0.08)).toFixed(3));
-    };
-
-    card.addEventListener('pointermove', handleMove);
-    card.addEventListener('pointerleave', () => resetCardMotion(card));
-    card.addEventListener('focusin', () => {
-      card.classList.add('is-focus-visible');
-    });
-    card.addEventListener('focusout', () => {
-      card.classList.remove('is-focus-visible');
-      resetCardMotion(card);
-    });
-  };
-
-  const initCardMotion = () => {
-    gridEl.querySelectorAll('.card').forEach((card) => {
-      bindCardMotion(card);
-      if (!advancedMotionEnabled) resetCardMotion(card);
-    });
-  };
 
   if (typeof prefersReducedMotion.addEventListener === 'function') {
     prefersReducedMotion.addEventListener('change', (event) => {
       advancedMotionEnabled = !event.matches;
-      initCardMotion();
       if (!advancedMotionEnabled && controls.hero) {
         controls.hero.style.setProperty('--spectral-ha-shift', '0px');
         controls.hero.style.setProperty('--spectral-oiii-shift', '0px');
@@ -403,30 +336,21 @@ sort($tagOptions, SORT_NATURAL | SORT_FLAG_CASE);
 
   const renderCards = (records) => {
     if (!records.length) {
-      gridEl.innerHTML = '<p>No images match the current filters.</p>';
+      const emptyState = document.createElement('p');
+      emptyState.className = 'gallery-empty';
+      emptyState.textContent = allImages.length
+        ? 'No images match the current filters.'
+        : 'The archive is awaiting its first published frame.';
+      gridEl.replaceChildren(emptyState);
       return;
     }
 
-    const cards = records.map((image) => {
-      const detailUrl = '/image.php?id=' + encodeURIComponent(image.id || '');
-      const thumbUrl = '/media.php?type=thumb&file=' + encodeURIComponent(image.thumb || '');
-      const title = image.title || 'Untitled';
-      const subtitle = [image.object_name || 'Unknown object', image.captured_at || 'Unknown date'].join(' · ');
-
-      return '<article class="card">'
-        + '<a href="' + detailUrl + '">'
-        + '<div class="skeleton-media-wrap">'
-        + '<img loading="lazy" src="' + thumbUrl + '" alt="' + escapeHtml(title) + '">'
-        + buildOverlayMarkup(image)
-        + '</div>'
-        + '<h3>' + escapeHtml(title) + '</h3>'
-        + '<p>' + escapeHtml(subtitle) + '</p>'
-        + '</a>'
-        + '</article>';
+    const fragment = document.createDocumentFragment();
+    records.forEach((image) => {
+      const card = cardNodes.get(String(image.id || ''));
+      if (card) fragment.appendChild(card);
     });
-
-    gridEl.innerHTML = cards.join('');
-    initCardMotion();
+    gridEl.replaceChildren(fragment);
   };
 
   const syncQueryParams = (state) => {
@@ -436,7 +360,7 @@ sort($tagOptions, SORT_NATURAL | SORT_FLAG_CASE);
       params.set(key, value);
     });
     const query = params.toString();
-    const nextUrl = query ? ('/?' + query) : '/';
+    const nextUrl = (query ? ('/?' + query) : '/') + window.location.hash;
     window.history.replaceState({}, '', nextUrl);
   };
 
@@ -504,7 +428,6 @@ sort($tagOptions, SORT_NATURAL | SORT_FLAG_CASE);
     window.addEventListener('scroll', setHeroParallax, { passive: true });
   }
 
-  initCardMotion();
   setHeroParallax();
   run();
 })();
