@@ -5,3 +5,7 @@
 !/storage/images/original/.gitkeep
 /storage/images/thumbs/*
 !/storage/images/thumbs/.gitkeep
+/storage/sessions/*
+/storage/uploads/tmp/*
+.env
+.DS_Store

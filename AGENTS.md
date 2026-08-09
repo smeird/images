@@ -49,5 +49,10 @@ Before finalizing a change, verify:
   - documentation updates made (including diagrams)
   - validation performed
 
+## Owner delivery preference
+- This is the owner's personal site. When the owner asks for a code update, validate it, commit it, and push it directly to `main` without opening a pull request unless they explicitly request a branch or PR.
+- Never force-push or discard live/runtime data. Use fast-forward-only pulls on the production server and report any local production changes or conflicts instead of overwriting them.
+- At handoff, include the documented production deployment command so the owner can update the live server.
+
 ## Scope
 This file applies to the entire repository rooted at this directory.

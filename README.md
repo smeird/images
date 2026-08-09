@@ -51,12 +51,52 @@ Planned next:
 
 ## Local development
 
+This repository includes a native macOS/Linux development workflow. PHP 7.4+ is
+supported; PHP with the `fileinfo`, `gd`, `json`, `mbstring`, `openssl`, and
+`session` extensions is required.
+
 ```bash
-cd /workspace/images
-php -S 0.0.0.0:8080 -t public public/index.php
+git clone https://github.com/smeird/images.git
+cd images
+make setup
+make dev
 ```
 
-Then open `http://localhost:8080`.
+Then open `http://127.0.0.1:8080`. `make setup` creates a gitignored `.env`
+from `.env.example`, verifies the PHP runtime/extensions, and prepares writable
+runtime directories. Edit `.env` to change the local address, port, site name,
+admin route, upload limit, or watermark settings.
+
+Fast validation is available without starting the web server:
+
+```bash
+make check       # PHP syntax and committed JSON data
+make lint        # PHP syntax only
+make data-check  # committed JSON data only
+```
+
+The development server enables full PHP error reporting. It is for local use
+only and must not be exposed as a production server.
+
+## Updating the production server
+
+Code changes for this personal site are normally validated and pushed directly
+to `main`. On the production server, replace `/var/www/images` below if the
+checkout lives elsewhere, then run:
+
+```bash
+cd /var/www/images
+git status --short
+git pull --ff-only origin main
+make check
+sudo systemctl reload apache2
+```
+
+The status check is intentional: `storage/data/*.json` contains live mutable
+application data. If it reports changes, keep them and resolve any pull conflict
+instead of resetting or overwriting the production copy. A PHP-only code update
+usually does not require an Apache reload, but the reload safely refreshes
+server configuration and opcode caches where enabled.
 
 ## Apache configuration (recommended)
 
@@ -153,6 +193,12 @@ You can override route and limits via env vars:
 - `storage/uploads/tmp/` — preserved raw originals before publish watermarking.
 - `storage/logs/app.log` — background/lazy refresh failure logs for non-fatal runtime issues.
 - `scripts/regenerate_thumbnails.php` — maintenance script for rebuilding 800w + 400w JPEG thumbs and syncing metadata fields.
+- `scripts/setup.sh` — validates the local PHP toolchain and prepares gitignored writable runtime directories.
+- `scripts/dev.sh` — loads local `.env` settings and starts the PHP development server.
+- `scripts/check.sh` — runs fast PHP syntax and JSON integrity checks.
+- `Makefile` — short commands for setup, development, and validation.
+- `.env.example` — documented, non-secret local environment defaults; copy to gitignored `.env`.
+- `.editorconfig` — shared whitespace and encoding defaults for compatible editors.
 - `storage/data/users.json` — admin credential hashes.
 - `storage/data/setup_presets.json` — reusable setup preset pills (scope type, object type, telescope, mount, camera, filter wheel, filters, filter set, processing software, tags) for admin upload/edit workflows.
 - `storage/data/scope_types.json` — legacy scope-type preset store still read for backward compatibility.
@@ -240,6 +286,9 @@ graph LR
   PHP_Front_Controller --> storage_logs_app_log
   PHP_Front_Controller --> Originals_Responsive_Thumbs_and_Raw_Backups_in_storage
   PHP_Front_Controller --> Wikipedia_REST_summary_fetch
+  Local_Developer --> Makefile_Setup_Dev_and_Check_commands
+  Makefile_Setup_Dev_and_Check_commands --> PHP_Built_in_Development_Server
+  PHP_Built_in_Development_Server --> PHP_Front_Controller
 ```
 
 ## Wikipedia cache behavior
@@ -259,3 +308,7 @@ For every behavior change in this repository:
 4. Document new env vars, operational assumptions, and security behavior.
 
 A behavior-changing code diff without matching docs updates is incomplete.
+
+Owner workflow: after validation, requested site updates may be committed and
+pushed directly to `main`; include the production `git pull --ff-only` handoff
+command with each update unless the owner requests a PR-based workflow.
