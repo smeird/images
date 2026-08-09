@@ -164,6 +164,7 @@ This task plan is designed for a Linux + Apache + PHP environment and optimized 
   - [x] Edit metadata after upload on a dedicated page (including SEO meta tag fields and preset pills)
   - [x] Delete/unpublish image
   - [x] Mark featured images (homepage spotlight selector)
+- [x] Add an interactive CLI password-recovery utility that hides input, updates the admin hash atomically, and revokes sessions, remember tokens, and failed-login attempts.
 - [x] Add logging and error monitoring.
 - [ ] Create deployment checklist for Apache/PHP config updates.
 - [ ] Document recovery steps (restore from backup).

@@ -20,6 +20,7 @@ Implemented now:
 - filters now default to a low-prominence chip summary under the hero, while full controls live behind a Refine toggle (object type/tag/date-range/text search + sort) and still sync via shareable query-parameter state.
 - public navigation no longer exposes the hidden admin route; studio navigation appears only inside authenticated/admin pages
 - secure admin route with session auth, CSRF protection, basic login rate limiting, task-based admin portal pages (upload/setup presets/media/security), in-session password change controls, and authenticated image deletion
+- interactive CLI password recovery that hides terminal input, updates the admin hash atomically, revokes remember-me tokens and sessions, and clears failed-login throttling without placing a password in shell history
 - redesigned admin control center UX with a dedicated side navigation rail, top-of-workspace guided help cards, and wider content panels so uploads/presets/library/security actions are easier to discover and use on desktop screens.
 - admin media library now supports spotlight selection plus navigation into a dedicated edit page for full metadata + SEO updates (with preset pills available while editing).
 - image upload pipeline with MIME/size validation, thumbnail generation, and admin-side storage-capacity visibility
@@ -76,6 +77,19 @@ make check       # PHP syntax and committed JSON data
 make lint        # PHP syntax only
 make data-check  # committed JSON data only
 ```
+
+If the production admin password is lost, recover it from an interactive server
+terminal. The utility requires a unique password of at least 12 characters,
+hides both prompts, and never accepts the password as a command-line argument:
+
+```bash
+cd /var/www/images
+sudo php scripts/reset_admin_password.php
+```
+
+The recovery command updates the `admin` account, revokes remembered devices and
+active sessions, and clears the failed-login throttle. Reload the login route in
+a fresh tab after it completes.
 
 The development server enables full PHP error reporting and lets PHP serve
 existing static assets directly before routing application URLs through the
@@ -167,6 +181,7 @@ You can override route and limits via env vars:
 
 - Admin route is hidden but also protected with real authentication.
 - Passwords are stored as `password_hash` values (bcrypt) and can be rotated from the authenticated admin area.
+- A lost password can be replaced with `sudo php scripts/reset_admin_password.php`; the CLI-only recovery path hides input, preserves credential-file permissions, revokes sessions/tokens, and clears failed attempts.
 - Admin login supports an optional 30-day remember-me device cookie; tokens are stored server-side as SHA-256 hashes, rotated after auto-login, and revoked on logout/password change.
 - Visiting the admin login URL while already authenticated now redirects directly to the admin upload page, avoiding accidental “logged out” confusion when opening `/hidden-admin/login` in an existing session.
 - CSRF token required on login, upload, delete, and password-change forms, backed by file-based PHP sessions in `storage/sessions` to avoid token mismatches when default system session paths are unavailable.
@@ -197,6 +212,7 @@ You can override route and limits via env vars:
 - `storage/uploads/tmp/` — preserved raw originals before publish watermarking.
 - `storage/logs/app.log` — background/lazy refresh failure logs for non-fatal runtime issues.
 - `scripts/regenerate_thumbnails.php` — maintenance script for rebuilding 800w + 400w JPEG thumbs and syncing metadata fields.
+- `scripts/reset_admin_password.php` — interactive, history-safe production admin password recovery and session revocation.
 - `scripts/setup.sh` — validates the local PHP toolchain and prepares gitignored writable runtime directories.
 - `scripts/dev.sh` — loads local `.env` settings and starts the PHP development server.
 - `scripts/check.sh` — runs fast PHP syntax and JSON integrity checks.
@@ -271,6 +287,9 @@ flowchart TD
   Delete_image_with_CSRF_confirm --> Remove_JSON_record_and_media_files
   Security_page --> Verify_current_password_and_enforce_12_plus_chars
   Verify_current_password_and_enforce_12_plus_chars --> Write_updated_password_hash_to_users_JSON
+  Operator_loses_admin_password --> Run_interactive_CLI_password_recovery
+  Run_interactive_CLI_password_recovery --> Write_updated_password_hash_to_users_JSON
+  Run_interactive_CLI_password_recovery --> Revoke_remember_tokens_sessions_and_failed_attempts
 ```
 
 ## High-level architecture
@@ -291,6 +310,9 @@ graph LR
   PHP_Front_Controller --> Originals_Responsive_Thumbs_and_Raw_Backups_in_storage
   PHP_Front_Controller --> Wikipedia_REST_summary_fetch
   Local_Developer --> Makefile_Setup_Dev_and_Check_commands
+  Production_Operator --> Interactive_CLI_password_recovery
+  Interactive_CLI_password_recovery --> JSON_metadata_users_wiki_cache_spotlight_and_SEO_fields
+  Interactive_CLI_password_recovery --> Auth_CSRF_and_Rate_Limit
   Makefile_Setup_Dev_and_Check_commands --> PHP_Built_in_Development_Server
   PHP_Built_in_Development_Server --> Existing_static_assets_directly
   PHP_Built_in_Development_Server --> PHP_Front_Controller
