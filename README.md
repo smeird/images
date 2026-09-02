@@ -1,6 +1,6 @@
 # images
 
-Astronomy image showcase website with a public gallery and a secure admin upload backdoor, implemented with PHP + JSON storage for quick deployment on Apache.
+Astronomy image showcase website with a public gallery and a secure admin upload backdoor, implemented with PHP + JSON storage for deployment on Nginx and PHP-FPM.
 
 ## Project status
 
@@ -47,8 +47,8 @@ Planned next:
 ## Runtime/build assumptions
 
 - Linux environment
-- PHP 7.4+ with GD enabled
-- Apache (`mod_rewrite`) or PHP built-in dev server
+- PHP 8.5 with GD enabled in production (PHP 7.4+ remains supported for local development)
+- Nginx with PHP-FPM in production, or PHP built-in dev server locally
 - Writable `storage/` directory (the app now persists PHP sessions in `storage/sessions` to keep CSRF/session state stable across environments)
 - Writable `storage/uploads/tmp` directory (stores preserved pre-watermark originals for admin/operator recovery)
 
@@ -107,14 +107,23 @@ cd /var/www/images
 git status --short
 git pull --ff-only origin main
 make check
-sudo systemctl reload apache2
+sudo systemctl reload php8.5-fpm nginx
 ```
 
 The status check is intentional: `storage/data/*.json` contains live mutable
 application data. If it reports changes, keep them and resolve any pull conflict
 instead of resetting or overwriting the production copy. A PHP-only code update
-usually does not require an Apache reload, but the reload safely refreshes
-server configuration and opcode caches where enabled.
+usually does not require a reload, but the reload safely refreshes PHP-FPM
+workers and Nginx configuration where enabled.
+
+## Nginx/PHP 8.5 production configuration
+
+The supported production configuration is versioned in `deploy/images.nginx.conf`
+and `deploy/images-fpm.conf`. It uses `public/` as the Nginx document root,
+keeps `storage/` outside the public path, limits request bodies to 160 MB, and
+aligns PHP upload/session paths with the writable storage tree. Install these
+files as the Nginx site and PHP 8.5-FPM pool respectively, then reload both
+services after validating the configuration.
 
 ## Apache configuration (recommended)
 
@@ -296,8 +305,10 @@ flowchart TD
 
 ```mermaid
 graph LR
-  Public_Browser --> PHP_Front_Controller
-  Admin_Browser --> PHP_Front_Controller
+  Public_Browser --> Nginx
+  Admin_Browser --> Nginx
+  Nginx --> PHP85_FPM
+  PHP85_FPM --> PHP_Front_Controller
   PHP_Front_Controller --> Template_Views
   Template_Views --> Editorial_CSS_Layer_full_bleed_cover_source_order_mosaic_responsive_detail_stage_and_admin_workspace
   Template_Views --> Canonical_and_Open_Graph_meta_tags
