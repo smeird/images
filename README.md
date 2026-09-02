@@ -123,7 +123,9 @@ and `deploy/images-fpm.conf`. It uses `public/` as the Nginx document root,
 keeps `storage/` outside the public path, limits request bodies to 160 MB, and
 aligns PHP upload/session paths with the writable storage tree. Install these
 files as the Nginx site and PHP 8.5-FPM pool respectively, then reload both
-services after validating the configuration.
+services after validating the configuration. The site’s established
+`image.php` and `media.php` public URLs are routed safely to the front
+controller; arbitrary nonexistent PHP paths remain blocked.
 
 ## Apache configuration (recommended)
 
